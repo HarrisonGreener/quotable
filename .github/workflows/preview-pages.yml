@@ -1,0 +1,54 @@
+# Builds the app and publishes a preview to GitHub Pages on every push to
+# leave-lovable. One-time setup: Settings → Pages → Source: "GitHub Actions".
+name: Preview on GitHub Pages
+
+on:
+  push:
+    branches: [leave-lovable, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # Public browser keys for the existing back end (safe to expose; data is protected by row-level security)
+          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID || 'fatjgaqtnxehcjnvbldf' }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://fatjgaqtnxehcjnvbldf.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdGpnYXF0bnhlaGNqbnZibGRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxODQyMzksImV4cCI6MjA3Nzc2MDIzOX0.ayFuQCulLXN-fqIOBDKESGLFzJST98slZ-K86hJlmfo' }}
+          VITE_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      - name: Deep links work on Pages
+        run: cp dist/index.html dist/404.html
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

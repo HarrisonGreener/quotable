@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Brand Colors - Quotable */
+    --background: 0 0% 97.3%; /* Off-white */
+    --foreground: 0 0% 10%; /* Charcoal */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Deep Blue Primary */
+    --primary: 210 78% 16%;
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 210 60% 25%;
+    
+    /* Burnt Orange Accent */
+    --accent: 24 80% 42%;
+    --accent-foreground: 0 0% 98%;
+    --accent-light: 24 75% 50%;
+    
+    /* Neutral Tones */
+    --secondary: 210 20% 92%;
+    --secondary-foreground: 210 78% 16%;
+
+    --muted: 210 15% 90%;
+    --muted-foreground: 0 0% 40%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 210 78% 16%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar */
+    --sidebar-background: 210 78% 16%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 24 80% 42%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 210 60% 25%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 210 60% 20%;
+    --sidebar-ring: 24 80% 42%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(210 15% 10% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(210 15% 10% / 0.1), 0 2px 4px -2px hsl(210 15% 10% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(210 15% 10% / 0.1), 0 4px 6px -4px hsl(210 15% 10% / 0.1);
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 78% 16%), hsl(210 60% 25%));
+    --gradient-accent: linear-gradient(135deg, hsl(24 80% 42%), hsl(24 75% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(210 78% 16%) 0%, hsl(210 60% 25%) 50%, hsl(24 80% 42%) 100%);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    --background: 210 78% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 210 70% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 210 70% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 210 60% 25%;
+    --primary-foreground: 0 0% 98%;
+    
+    --accent: 24 80% 42%;
+    --accent-foreground: 0 0% 98%;
+
+    --secondary: 210 50% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 210 40% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 40% 20%;
+    --input: 210 40% 20%;
+    --ring: 24 80% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .shadow-smooth {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+
+  /* Mobile-specific utilities */
+  @media (max-width: 768px) {
+    .mobile-card {
+      @apply rounded-lg border border-border bg-card p-4 shadow-sm;
+    }
+    
+    .mobile-section {
+      @apply space-y-4 px-3 py-4;
+    }
+    
+    .mobile-header {
+      @apply sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border;
+    }
+    
+    .mobile-button {
+      @apply w-full h-12 text-base font-medium;
+    }
+    
+    .mobile-input {
+      @apply h-12 text-base;
+    }
+    
+    .mobile-tap-target {
+      @apply min-h-[44px] min-w-[44px];
+    }
+
+    /* One-handed use: sticky bottom action bar */
+    .mobile-sticky-actions {
+      @apply fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))];
+    }
+
+    /* Improved form spacing */
+    .mobile-form-group {
+      @apply space-y-3;
+    }
+
+    /* Larger touch targets for checkboxes/switches */
+    .mobile-checkbox-label {
+      @apply flex items-center gap-3 min-h-[44px] py-2 cursor-pointer;
+    }
+  }
+}
+
+/* Global mobile optimisations */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  h1 {
+    @apply text-xl;
+  }
+  
+  h2 {
+    @apply text-lg;
+  }
+  
+  h3 {
+    @apply text-base;
+  }
+  
+  /* Prevent horizontal scroll */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Better spacing for mobile */
+  .container {
+    @apply px-3;
+  }
+  
+  /* Make cards stack nicely */
+  .grid {
+    @apply gap-3;
+  }
+  
+  /* Larger inputs for easier touch */
+  input, textarea, select, button {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+
+  /* Card padding optimization */
+  .card-content, [class*="CardContent"] {
+    @apply px-3 py-4;
+  }
+
+  /* Dialog content mobile optimization */
+  [role="dialog"] {
+    max-height: 90vh;
+    max-height: 90dvh;
+  }
+
+  /* Better scroll behavior */
+  .overflow-auto, .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure bottom padding for sticky actions */
+  main {
+    padding-bottom: 80px;
+  }
+}
+
+/* ── Quotable mark ─────────────────────────────────────────── */
+.q-logo-inverted .q-ring { stroke: #fff; }
+.q-logo-inverted .q-gap { stroke: hsl(var(--sidebar-background)); }
+
+@keyframes q-ring-draw { 0% { stroke-dashoffset: 190; } 22%, 100% { stroke-dashoffset: 0; } }
+@keyframes q-tape-pull {
+  0%, 22% { stroke-dashoffset: 38; }
+  48% { stroke-dashoffset: -6; }
+  56% { stroke-dashoffset: 3; }
+  62%, 88% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 38; }
+}
+.q-mark-animated .q-ring { stroke-dasharray: 190; animation: q-ring-draw 2.4s ease-out infinite; }
+.q-mark-animated .q-tail,
+.q-mark-animated .q-gap { stroke-dasharray: 38; animation: q-tape-pull 2.4s cubic-bezier(.2,.9,.3,1.2) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .q-mark-animated .q-ring, .q-mark-animated .q-tail, .q-mark-animated .q-gap { animation: none; stroke-dashoffset: 0; }
+}

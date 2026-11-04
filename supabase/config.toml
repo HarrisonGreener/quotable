@@ -1,0 +1,49 @@
+project_id = "YOUR-PROJECT-REF"
+
+[functions.send-welcome-email]
+verify_jwt = true
+
+[functions.generate-quote]
+verify_jwt = true
+
+[functions.send-auth-email]
+verify_jwt = false
+
+[functions.generate-summary]
+verify_jwt = true
+
+[functions.get-latest-price]
+verify_jwt = true
+
+[functions.update-price-index]
+verify_jwt = true
+
+[functions.fetch-market-prices]
+verify_jwt = true
+
+[functions.scrape-merchant-prices]
+verify_jwt = true
+
+[functions.refresh-prices-cron]
+verify_jwt = true
+
+[functions.crawl-supplier-catalogue]
+verify_jwt = true
+
+[functions.discover-product-urls]
+verify_jwt = true
+
+[functions.process-crawl-queue]
+verify_jwt = true
+
+[functions.get-realtime-price]
+verify_jwt = true
+
+[functions.bulk-category-crawl]
+verify_jwt = true
+
+[functions.seed-product-database]
+verify_jwt = true
+
+[functions.import-data]
+verify_jwt = false
