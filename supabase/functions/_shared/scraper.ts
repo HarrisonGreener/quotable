@@ -274,7 +274,8 @@ export async function readSitemap(url: string, pattern: RegExp, limit = 5000, de
 
 const STOP = new Set(["the", "and", "for", "with", "per", "each", "pack", "x"]);
 export const tokens = (s: string) =>
-  s.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9.\s]/g, " ").split(/\s+/).filter((w) => w.length > 1 && !STOP.has(w));
+  s.toLowerCase().replace(/&/g, " and ").replace(/(\d)\s*mm(?:2|²)/g, "$1mm").replace(/(\d)\s+(mm|kg|ml|m)\b/g, "$1$2")
+    .replace(/[^a-z0-9.\s]/g, " ").split(/\s+/).map((w) => w.replace(/\.$/, "")).filter((w) => w.length > 1 && !STOP.has(w));
 
 /**
  * 0–1 similarity between what the quote asked for and a product name.

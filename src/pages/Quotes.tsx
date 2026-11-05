@@ -60,6 +60,7 @@ import { QuoteListSkeleton } from "@/components/skeletons/QuoteCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { PriceSourceLegend } from "@/components/PriceSourceLegend";
 import { QuoteConfidenceBadge } from "@/components/QuoteConfidenceBadge";
+import { QuoteAssumptions, type QuoteAssumption } from "@/components/QuoteAssumptions";
 import { VoiceInputButton, appendDictation } from "@/components/VoiceInputButton";
 import { QuotePhotos, type QuotePhoto } from "@/components/QuotePhotos";
 import { SendLinkButton } from "@/components/SendLinkButton";
@@ -126,6 +127,8 @@ const Quotes = () => {
   const [isAdjusting, setIsAdjusting] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
   const [quoteBreakdown, setQuoteBreakdown] = useState<QuoteBreakdown | null>(null);
+  const [quoteAssumptions, setQuoteAssumptions] = useState<QuoteAssumption[]>([]);
+  const [quoteQuestions, setQuoteQuestions] = useState<string[]>([]);
   const [jobDescription, setJobDescription] = useState("");
   const [photos, setPhotos] = useState<QuotePhoto[]>([]);
   const [client, setClient] = useState("");
@@ -321,6 +324,8 @@ const Quotes = () => {
     setHourlyRate(45);
     setDayRate(250);
     setQuoteBreakdown(null);
+    setQuoteAssumptions([]);
+    setQuoteQuestions([]);
     setShowQuote(false);
     setEditedQuote(null);
     setOriginalQuote(null);
@@ -468,6 +473,8 @@ const Quotes = () => {
     setNumWorkers(quote.num_workers);
     setPaymentType(quote.payment_type);
     setHourlyRate(quote.hourly_rate || 25);
+    setQuoteAssumptions([]);
+    setQuoteQuestions([]);
     setQuoteBreakdown({
       projectTitle: quote.title,
       materials: quote.materials,
@@ -590,6 +597,8 @@ const Quotes = () => {
     setHourlyRate(25);
     setShowQuote(false);
     setQuoteBreakdown(null);
+    setQuoteAssumptions([]);
+    setQuoteQuestions([]);
   };
 
   // Add a single material to inventory
@@ -713,7 +722,8 @@ const Quotes = () => {
 
   const displayQuotes = savedQuotes;
 
-  const handleGenerateQuote = async () => {
+  const handleGenerateQuote = async (descriptionOverride?: unknown) => {
+    const desc = typeof descriptionOverride === "string" ? descriptionOverride : jobDescription;
     if (isDemo) {
       toast.error("Please sign up or log in to generate quotes", {
         description: "Demo mode is view-only",
@@ -736,7 +746,7 @@ const Quotes = () => {
       return;
     }
 
-    if (!jobDescription || !address || !category || !client) {
+    if (!desc || !address || !category || !client) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -747,7 +757,7 @@ const Quotes = () => {
 
       const { data, error } = await supabase.functions.invoke('generate-quote', {
         body: { 
-          jobDescription, 
+          jobDescription: desc, 
           location: address, 
           category: finalCategory,
           paymentType,
@@ -818,6 +828,8 @@ const Quotes = () => {
 
       setQuoteBreakdown(data);
       setEditedQuote(data);
+      setQuoteAssumptions(Array.isArray(data.assumptions) ? data.assumptions : []);
+      setQuoteQuestions(Array.isArray(data.questions) ? data.questions : []);
       
       // Store suggested overheads if present
       if (data.suggested_overheads && Array.isArray(data.suggested_overheads)) {
@@ -2162,6 +2174,16 @@ const Quotes = () => {
                       </CardHeader>
                       <CardContent className="space-y-6">
                         <QuoteConfidenceBadge materials={quoteBreakdown.materials} />
+                        <QuoteAssumptions
+                          assumptions={quoteAssumptions}
+                          questions={quoteQuestions}
+                          busy={isGenerating}
+                          onApply={(details) => {
+                            const updated = `${jobDescription.trim()}\n${details}`;
+                            setJobDescription(updated);
+                            handleGenerateQuote(updated);
+                          }}
+                        />
                         {/* Materials */}
                         <div>
                           <div className="flex items-center justify-between mb-3">

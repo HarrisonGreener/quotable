@@ -55,26 +55,22 @@ Deno.serve(async (req) => {
     if (dayOfWeek === 0) { // Sunday = discovery day
       try {
         console.log('TIER 2: Discovering product URLs from sitemaps...');
-        const discoverResponse = await fetch(`${supabaseUrl}/functions/v1/discover-product-urls`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${supabaseServiceKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ limit: 500 }),
-        });
-
-        if (discoverResponse.ok) {
-          const data = await discoverResponse.json();
-          results.push({ 
-            step: 'tier2-sitemap-discovery', 
-            status: 'success',
-            details: JSON.stringify(data.results)
+        // One supplier per call keeps each call well inside the function time limit
+        for (const supplier of ['Toolstation', 'Wickes', 'Travis Perkins']) {
+          const discoverResponse = await fetch(`${supabaseUrl}/functions/v1/discover-product-urls`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ supplier }),
           });
-          console.log('Tier 2 complete: URL discovery done');
-        } else {
-          const errorText = await discoverResponse.text();
-          results.push({ step: 'tier2-sitemap-discovery', status: 'error', error: errorText });
+          const text = await discoverResponse.text();
+          results.push({
+            step: `tier2-sitemap-discovery-${supplier}`,
+            status: discoverResponse.ok ? 'success' : 'error',
+            ...(discoverResponse.ok ? { details: text.slice(0, 300) } : { error: text.slice(0, 300) }),
+          });
         }
       } catch (error) {
         results.push({ 

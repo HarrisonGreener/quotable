@@ -1,0 +1,48 @@
+# Live checks against real supplier sites (run from GitHub's servers).
+#  - check: which sites can be read at all
+#  - live-quote: AI-style material lists priced live, end to end
+name: Scrape check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [leave-lovable]
+    paths: ["supabase/functions/_shared/scraper.ts", "supabase/functions/_shared/live-price.ts", "supabase/tests/scrape-check/**"]
+
+env:
+  SCRAPER_USER_AGENT: "QuotableBot/1.0 (+https://harrisongreener.github.io/quotable/; price checks for UK tradespeople)"
+
+jobs:
+  live-quote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Live pricing for AI-style material lists
+        run: deno run -A supabase/tests/scrape-check/live-quote.ts | tee live-quote.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-quote
+          path: live-quote.txt
+
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Which supplier sites can be read
+        run: deno run -A supabase/tests/scrape-check/run.ts scrape-report.json | tee scrape-report.txt
+      - name: Recipe items with real prices
+        run: deno run -A supabase/tests/scrape-check/targeted.ts targeted-report.json | tee targeted-report.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scrape-report
+          path: |
+            scrape-report.*
+            targeted-report.*

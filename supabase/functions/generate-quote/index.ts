@@ -10,8 +10,12 @@ import {
   validateAndEnhanceQuote,
   LIVE_LOOKUP_LIMIT,
   applyPricingToQuote,
+  setPriceClient,
+  setReferencePrices,
+  resetLiveLookups,
   type PricingOptions,
 } from "../_shared/quote-engine.ts";
+import { readerPrompt, normaliseReading, guessReading, buildFromReading, type Reading, type RecipeQuote } from "../_shared/recipes/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -125,46 +129,22 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const fetchAllMarketPricesForMatching = async () => {
-      const pageSize = 1000;
-      const all: any[] = [];
-      let from = 0;
-
-      while (true) {
-        const { data, error } = await supabaseService
-          .from('market_prices')
-          .select('product_name, unit, unit_price, confidence_score, source_id, product_url, price_sources(name, source_type)')
-          .eq('is_active', true)
-          .not('source_id', 'is', null) // CRITICAL: Only fetch verified supplier data
-          .order('confidence_score', { ascending: false })
-          .range(from, from + pageSize - 1);
-
-        if (error) throw error;
-        if (!data || data.length === 0) break;
-
-        all.push(...data);
-        if (data.length < pageSize) break;
-
-        from += pageSize;
-        if (from >= 20000) break; // safety cap
-      }
-
-      return all;
-    };
-
-    const allPricesForMatching = await fetchAllMarketPricesForMatching();
+    // Real prices are searched per item (database, then live product pages),
+    // so we no longer load the whole price table into memory.
+    setPriceClient(supabaseService);
     resetLiveLookups();
 
-    const { data: unsourcedRows } = await supabaseService
+    // Estimates with no supplier (our reference list) — used only as a last resort
+    const { data: referenceSources } = await supabaseService
+      .from('price_sources').select('id').eq('source_type', 'reference');
+    const refIds = (referenceSources || []).map((r: any) => r.id);
+    const { data: referenceRows } = await supabaseService
       .from('market_prices')
-      .select('product_name, unit, unit_price, confidence_score')
+      .select('product_name, unit, unit_price')
       .eq('is_active', true)
-      .is('source_id', null)
+      .or(refIds.length ? `source_id.is.null,source_id.in.(${refIds.join(',')})` : 'source_id.is.null')
       .limit(5000);
-    // Rows from our own reference list are estimates, not supplier prices.
-    const isReference = (p: any) => p.price_sources?.source_type === 'reference';
-    const referenceRows = [...(unsourcedRows || []), ...(allPricesForMatching || []).filter(isReference)];
-    setReferencePrices(referenceRows.map((p: any) => ({
+    setReferencePrices((referenceRows || []).map((p: any) => ({
       product_name: p.product_name,
       unit: p.unit,
       unit_price: Number(p.unit_price),
@@ -172,16 +152,7 @@ serve(async (req) => {
       source_name: 'Estimated',
       product_url: null,
     })));
-
-    const allPricesFlat = (allPricesForMatching || []).filter((p: any) => !isReference(p)).map((p: any) => ({
-      product_name: p.product_name,
-      unit: p.unit,
-      unit_price: p.unit_price,
-      confidence_score: p.confidence_score,
-      source_name: p.price_sources?.name || 'Market',
-      product_url: p.product_url || null // Include direct product URL
-    }));
-    console.log(`Loaded ${allPricesFlat.length} market prices for backend pricing`);
+    const allPricesFlat: any[] = [];
 
     // Build system prompt and user content
     let systemPrompt: string;
@@ -214,6 +185,48 @@ ${equipmentRental ? 'Equipment rental is required.' : ''}
 Return ONLY the JSON structure with materials, optional_materials, labour, overheads, and suggested_overheads. NO PRICES.`;
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    // PHASE 1a: READ THE JOB → RECIPES
+    // The AI only identifies the job and its measurements; recipes produce
+    // the materials and hours. Anything no recipe covers goes to the
+    // free-form AI below.
+    // ═══════════════════════════════════════════════════════════════════
+    let reading: Reading | null = null;
+    let recipeQuote: RecipeQuote | null = null;
+    // Job recipes are off by default: the AI lists materials for any job and each
+    // item is priced live. Set USE_RECIPES=on to use recipes for jobs they cover.
+    const useRecipes = Deno.env.get('USE_RECIPES') === 'on';
+    if (useRecipes && !(adjustmentMode && currentQuote && adjustmentPrompt)) {
+      try {
+        const res = await chat({
+          json: true,
+          temperature: 0,
+          messages: [
+            { role: "system", content: readerPrompt() },
+            { role: "user", content: `Trade: ${tradeProfile?.primaryTrade || category}\nJob: ${jobDescription}` },
+          ],
+        });
+        reading = normaliseReading(parseJsonReply(res.content));
+      } catch (err) {
+        console.log("Job reader failed, using keyword reader:", err instanceof Error ? err.message : err);
+        reading = guessReading(jobDescription, tradeProfile?.primaryTrade || category);
+      }
+      if (reading.jobs.length > 0) {
+        recipeQuote = buildFromReading(reading, numWorkers);
+        console.log(`Recipes: ${recipeQuote.recipes.join(", ")} | other work: ${reading.otherWork ?? "none"}`);
+        if (reading.otherWork) {
+          userContent = `Generate the structured quote ONLY for this extra work (the rest is already quoted):
+Extra work: ${reading.otherWork}
+Full job for context: ${jobDescription}
+Location: ${location}
+Category: ${category}
+
+Return ONLY the JSON structure with materials, optional_materials, labour, overheads, and suggested_overheads. NO PRICES.`;
+        }
+      }
+    }
+    const needFreeform = !recipeQuote || !!reading?.otherWork;
+
     const parseAIResponse = (content: string, attemptNumber: number): any => {
       console.log(`Attempt ${attemptNumber} - Raw AI response:`, content.substring(0, 300) + "...");
       const aiResponse = parseJsonReply(content);
@@ -236,8 +249,8 @@ Return ONLY the JSON structure with materials, optional_materials, labour, overh
       ],
     });
 
-    let aiResponse;
-    try {
+    let aiResponse: any = { materials: [], optional_materials: [], labour: [], overheads: [], suggested_overheads: [] };
+    if (needFreeform) try {
       try {
         aiResponse = parseAIResponse((await askAI(0)).content, 1);
       } catch (firstError) {
@@ -260,6 +273,7 @@ Return ONLY the JSON structure with materials, optional_materials, labour, overh
     // PHASE 2: VALIDATION & SAFETY INJECTION
     // ═══════════════════════════════════════════════════════════════════
     
+    if (needFreeform) {
     // Get compliance rules for this trade/job
     const complianceRules = await getComplianceRules(
       supabaseService, 
@@ -286,7 +300,7 @@ Return ONLY the JSON structure with materials, optional_materials, labour, overh
     // ═══════════════════════════════════════════════════════════════════
     // EMPTY MATERIALS GUARD - Ensure quotes always have materials
     // ═══════════════════════════════════════════════════════════════════
-    if (!aiResponse.materials || aiResponse.materials.length === 0) {
+    if (!recipeQuote && (!aiResponse.materials || aiResponse.materials.length === 0)) {
       console.log(`⚠ Empty materials array detected - applying fallback`);
       
       // First, try to move items from optional_materials
@@ -332,6 +346,21 @@ Return ONLY the JSON structure with materials, optional_materials, labour, overh
     // Log validation issues (non-blocking, just informational)
     if (validationResult.issues.length > 0) {
       console.log(`⚠ Validation issues: ${validationResult.issues.join(', ')}`);
+    }
+    }
+
+    // Merge recipe-built work in front of any free-form extras
+    if (recipeQuote) {
+      const extras = needFreeform ? aiResponse : null;
+      const seen = new Set(recipeQuote.overheads.map((o) => o.name.toLowerCase()));
+      aiResponse = {
+        projectTitle: recipeQuote.projectTitle,
+        materials: [...recipeQuote.materials, ...(extras?.materials || [])],
+        optional_materials: [...recipeQuote.optional_materials, ...(extras?.optional_materials || [])],
+        labour: [...recipeQuote.labour, ...(extras?.labour || [])],
+        overheads: [...recipeQuote.overheads, ...(extras?.overheads || []).filter((o: any) => !seen.has(String(o?.name).toLowerCase()))],
+        suggested_overheads: extras?.suggested_overheads || [],
+      };
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -442,6 +471,31 @@ Return ONLY the JSON structure with materials, optional_materials, labour, overh
         tradeProfile?.preferredSuppliers || [], // Pass preferred suppliers for priority matching
         await loadPricingOptions(supabaseService, user.id),
       );
+    }
+
+    if (recipeQuote) {
+      pricedQuote = {
+        ...pricedQuote,
+        engine: needFreeform ? "recipes+ai" : "recipes",
+        recipes: recipeQuote.recipes,
+        assumptions: recipeQuote.assumptions,
+        questions: reading?.questions ?? [],
+      };
+    } else {
+      // The measurements the AI worked from; assumed ones first so the user can correct them
+      const measurements = Array.isArray(aiResponse?.measurements) ? aiResponse.measurements : [];
+      const assumptions = measurements
+        .filter((m: any) => m && m.label && m.value != null)
+        .slice(0, 12)
+        .map((m: any) => ({
+          job: '',
+          label: String(m.label).slice(0, 60),
+          value: `${m.value}${m.unit && m.unit !== 'each' ? ` ${m.unit}` : ''}`,
+          question: String(m.question || `What is the ${String(m.label).toLowerCase()}?`).slice(0, 120),
+          important: m.assumed !== false,
+        }))
+        .sort((a: any, b: any) => Number(b.important) - Number(a.important));
+      pricedQuote = { ...pricedQuote, engine: "ai", assumptions, questions: [] };
     }
 
     return new Response(JSON.stringify(pricedQuote), {

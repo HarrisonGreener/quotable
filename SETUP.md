@@ -168,32 +168,72 @@ Once the new site works:
 
 ```sh
 bun test supabase/tests/quote-accuracy          # pass/fail
-bun supabase/tests/quote-accuracy/run.ts --lines  # full report, every priced line
+bun supabase/tests/quote-accuracy/run.ts --lines  # older free-form bench, every priced line
 ```
 
-Eight benchmark jobs (tap swap, sockets, consumer unit, tiling, decorating, boiler,
-doors, fencing) run through the real pricing engine with a fixed AI output. Swap the
-`truth` figures in `jobs.ts` for real invoices as you collect them.
+- `recipes.test.ts` prices 9 real job descriptions through the recipe engine and checks each
+  lands inside the range published UK cost guides give for that job (sources in
+  `recipe-bench.ts`). The recipes were tuned against these guides, so treat this as a
+  calibration check; real invoices from real jobs are the proper test — add them as you get them.
+- The **Scrape check** GitHub workflow (Actions tab → Scrape check → Run workflow) tests,
+  live, which supplier sites can be read and finds real prices for recipe items.
 
 ## How pricing works now
 
-1. The AI (Gemini, falling back to Groq) lists the materials, labour and overheads
-   for a job. It never sets prices.
-2. Set your **markup, trade discount, hours per day, whole-pack charging and overhead
-   costs** in Account → Quote Generation Settings. VAT-registered users (Include VAT
-   on) get materials costed ex VAT with VAT added once on the total.
-3. Each material is priced in this order:
-   **your inventory → real supplier products in the database → a live lookup at
-   supplier sites → a reference estimate → a keyword guess**.
-   The last two are marked **Verify ↗** in the quote so they're never passed off as real.
-3. Live lookups read the supplier's search page, score every product on it against
-   what the quote asked for (sizes like 15 mm or 32 A must agree), and cache the real
-   product with its link so the next quote gets it instantly.
-4. Every night the refresh job re-crawls product pages from supplier sitemaps and
-   checks a batch of old estimates against real suppliers.
+1. **The AI lists the materials for any job** — with quantities worked out from the
+   measurements, in the units merchants sell them (m, m², bags, tubs…), plus the labour
+   hours. It never sets prices. The measurements it used are shown on the quote; anything
+   it had to assume can be corrected and re-quoted.
+2. **Every item is priced from a real supplier product**, in this order:
+   - your inventory
+   - a recent price we've already read (searched by name, under 14 days old)
+   - **live**: search our index of ~67,000 product pages (Toolstation, Wickes, Travis
+     Perkins), open the best matches right now and read the current price
+   - an older cached price
+   - only then an estimate, always marked **Verify ↗**
+3. **Matching is strict**: the product must be the same type (a cable stripper is not cable),
+   the same size (600 × 600 is not 600 × 1400) and not a different variant (an AFDD is not an
+   RCBO). Among good matches the cheapest per unit wins, with your preferred suppliers first.
+4. **Packs are converted**: a 50 m drum becomes a price per metre, a pack of 5 sockets a
+   price each, a 2.2 m² pack of flooring a price per m².
+5. Your **markup, trade discount, hours per day, whole-pack charging and overhead costs**
+   (Account → Quote Generation Settings) are applied on top. VAT-registered users get
+   materials costed ex VAT with VAT added once on the total.
 
-Scraping uses plain requests (free), obeys each site's robots.txt and crawl delay,
-waits at least 2 seconds between requests to the same site, and identifies itself
-with `SCRAPER_USER_AGENT`. Some merchants' terms of use prohibit automated
-collection even where robots.txt allows it — check before charging customers, and
-prefer official trade or affiliate feeds where a merchant offers one.
+Up to `LIVE_LOOKUPS_PER_QUOTE` (default 8) items per quote are looked up live; each takes
+about 2 seconds. Job recipes (`supabase/functions/_shared/recipes/`) are switched off; set
+`USE_RECIPES=on` to have them work out quantities for the jobs they cover.
+
+### Building the product index (once, after deploying)
+
+```sh
+for s in Toolstation Wickes "Travis Perkins"; do
+  curl -s -X POST "https://YOUR-PROJECT-REF.supabase.co/functions/v1/discover-product-urls" \
+    -H "Authorization: Bearer YOUR-SERVICE-ROLE-KEY" -H "Content-Type: application/json" \
+    -d "{\"supplier\": \"$s\"}"
+done
+```
+
+After that the nightly job refreshes the index every Sunday, and the hourly crawl (in
+`supabase/setup/schedule-price-refresh.sql`) reads about 1,400 product pages a day,
+common trade items first, so most quotes find a recent price without waiting.
+
+### Where real prices come from
+
+Live check from GitHub's servers (Nov 2026, Actions → Scrape check):
+
+- **Readable product pages:** Toolstation (8k products), Wickes (37k), Travis Perkins (23k),
+  TLC Direct. AI-style material lists for six common jobs got real prices for 26 of 30 items.
+- **Search pages forbidden by robots.txt:** Toolstation, Wickes, Screwfix, Jewson — so we
+  never scrape searches; we use their sitemaps instead.
+- **Block automated requests:** B&Q, CEF, Plumbnation, Electrical Direct, Dulux Decorator
+  Centre, Brewers.
+
+For more suppliers, and prices you're allowed to use commercially without doubt, join the
+merchants' affiliate programmes (Screwfix, Wickes and others are on Awin) and load their
+product feeds.
+
+Scraping obeys robots.txt and crawl delays, waits at least 2 seconds between requests
+to a site, and identifies itself with `SCRAPER_USER_AGENT`. Some merchants' terms of
+use prohibit automated collection even where robots.txt allows it — check before
+charging customers.

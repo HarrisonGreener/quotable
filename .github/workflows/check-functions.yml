@@ -1,0 +1,32 @@
+# Type-checks every Supabase server function so mistakes (like a missing
+# import) are caught here rather than when a customer asks for a quote.
+name: Check server functions
+
+on:
+  push:
+    branches: [leave-lovable, main]
+    paths: ["supabase/**", ".github/workflows/check-functions.yml"]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check functions
+        run: |
+          status=0
+          for f in supabase/functions/*/index.ts; do
+            if deno check --config supabase/functions/deno.check.json --no-lock "$f" > /tmp/out.txt 2>&1; then
+              echo "ok   $f"
+            else
+              echo "FAIL $f"; grep -E "error|ERROR|at file" /tmp/out.txt | head -20; status=1
+            fi
+          done
+          exit $status
+      - uses: oven-sh/setup-bun@v2
+      - name: Quote accuracy tests
+        run: bun test supabase/tests/quote-accuracy

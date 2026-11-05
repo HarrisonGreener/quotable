@@ -1,3 +1,4 @@
+import { dbOffers, liveOffers, chooseOffer, isFresh, type Priced } from "./live-price.ts";
 // ═══════════════════════════════════════════════════════════════════
 // QUOTE PRICING ENGINE
 // Everything that turns the AI's job structure into a priced quote.
@@ -505,7 +506,7 @@ const DESCRIPTORS = new Set(['white', 'black', 'grey', 'gray', 'chrome', 'brass'
   'softwood', 'hardwood', 'oak', 'pine', 'copper', 'zinc', 'galvanised', 'lap', 'closeboard', 'new', 'standard',
   'universal', 'heavy', 'duty', 'pro', 'premium', 'basic', 'double', 'single', 'twin', 'flexible', 'rapid', 'set',
   'ready', 'mixed', 'grey', 'magnolia', 'coloured', 'type', 'b', 'a', '30ma', 'grade', 'budget', 'mid', 'range',
-  'brilliant', 'mono', 'compliant', 'amendment', 'decorators', 'decorator']);
+  'brilliant', 'mono', 'compliant', 'amendment', 'decorators', 'decorator', 'curve', 'pole', 'trade']);
 // Heads that are often left off product names ("2.5mm twin and earth")
 const OPTIONAL_HEADS = new Set(['cable', 'wire', 'paint', 'compound']);
 const OPPOSITES: [string, string][] = [['wall', 'floor'], ['internal', 'external'], ['indoor', 'outdoor'],
@@ -524,10 +525,18 @@ const sizesOf = (name: string): Record<string, Set<string>> => {
   return out;
 };
 
+// Compound nouns merchants write as one word
+const COMPOUNDS: [RegExp, string][] = [[/\bangle\s+bead/g, 'anglebead'], [/\bback\s+box/g, 'backbox'], [/\bplaster\s*board/g, 'plasterboard']];
+// Words that make a product a different thing from what was asked (unless asked for)
+const EXCLUSIVE = new Set(['afdd', 'smart', 'wifi', 'wireless', 'bluetooth', 'dummy', 'spare', 'replacement', 'blanking',
+  'adaptor', 'adapter', 'extension', 'stripper', 'tester', 'tool', 'cutter', 'remover', 'gun', 'refill', 'sample']);
+// Generic last words: "skirting board", "bonding agent" — the word before carries the meaning
+const GENERIC_HEADS = new Set(['board', 'agent', 'fitting', 'unit', 'solution', 'product']);
+
 const contentWords = (name: string): string[] =>
-  name.toLowerCase().replace(/&/g, ' and ').replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9.\s/]/g, ' ')
+  COMPOUNDS.reduce((t, [re, w]) => t.replace(re, w), name.toLowerCase()).replace(/&/g, ' and ').replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9.\s/]/g, ' ')
     .split(/\s+/).filter(Boolean)
-    .filter((w) => !/\d/.test(w) && w.length > 1 && w !== 'and' && w !== 'with' && w !== 'for')
+    .filter((w) => !/\d/.test(w) && w.length > 1 && w !== 'and' && w !== 'with' && w !== 'for' && !/^(mm|cm|kg|ml|kw|mtr|ltr)$/.test(w))
     .map(singular);
 
 const headNoun = (name: string): string | null => {
@@ -543,10 +552,15 @@ export const isCompatibleProduct = (wanted: string, candidate: string): boolean 
 
   // the thing asked for must be what the product is
   const wantHead = headNoun(wanted);
-  if (wantHead && !has(have, wantHead) && !OPTIONAL_HEADS.has(wantHead)) return false;
+  const wantWords = contentWords(wanted).filter((w) => !PACK_WORDS.has(w) && !DESCRIPTORS.has(w));
+  const beforeHead = wantWords.length > 1 ? wantWords[wantWords.length - 2] : null;
+  const headOk = !wantHead || has(have, wantHead) || OPTIONAL_HEADS.has(wantHead)
+    || (GENERIC_HEADS.has(wantHead) && !!beforeHead && has(have, beforeHead));
+  if (!headOk) return false;
+  for (const w of have) if (EXCLUSIVE.has(w) && !want.has(w)) return false;
   // and the product must not be a different thing that merely shares words
   const haveHead = headNoun(candidate);
-  if (haveHead && !has(want, haveHead) && !OPTIONAL_HEADS.has(haveHead)) return false;
+  if (haveHead && !has(want, haveHead) && !OPTIONAL_HEADS.has(haveHead) && !GENERIC_HEADS.has(haveHead)) return false;
 
   for (const [a, b] of OPPOSITES) {
     if ((want.has(a) && have.has(b)) || (want.has(b) && have.has(a))) return false;
@@ -1520,127 +1534,73 @@ ${tradeProfile.tradeNotes ? `- Notes: ${tradeProfile.tradeNotes}` : ''}
 `;
   }
 
-  return `You are Quotable's structured quote generator. 
-Your ONLY job is to determine WHAT materials, labour tasks, and overheads are required for a job. 
-You DO NOT calculate ANY prices. Quotable's backend handles all pricing and supplier matching.
+  return `You are Quotable's quantity surveyor for UK trades. For ANY job you list exactly what
+must be bought and how long the work takes. You NEVER give prices — Quotable looks up live
+supplier prices for every item you list, so item names and units must be precise.
 
 ═════════════════════════════════════════════════════════════════════
-CRITICAL RULES (DO NOT BREAK THESE)
+OUTPUT (valid JSON only, no commentary)
 ═════════════════════════════════════════════════════════════════════
-1. NEVER output any prices, cost fields, totals, rates, currency symbols, or monetary values.
-2. NEVER estimate a number involving money.
-3. ONLY output quantities, units, hours, names, and descriptions.
-4. ALWAYS return ALL required arrays:
-   - "materials": []           (essential items required to complete the job)
-   - "optional_materials": []  (upgrade/add-on items the client may choose)
-   - "labour": []
-   - "overheads": []
-   - "suggested_overheads": []
-5. STRUCTURE ONLY — Quotable computes all prices using its own database.
-
-═════════════════════════════════════════════════════════════════════
-OUTPUT FORMAT (MUST FOLLOW EXACTLY)
-═════════════════════════════════════════════════════════════════════
-
 {
-  "projectTitle": "Short descriptive title of the job",
+  "projectTitle": "Short title",
+  "measurements": [
+    { "label": "Wall area", "value": 12, "unit": "m²", "assumed": true, "question": "What's the tiled area?" }
+  ],
   "materials": [
-    { "name": "string", "quantity": number, "unit": "string" }
+    { "name": "Ready mixed wall tile adhesive 15kg", "quantity": 3, "unit": "tub", "basis": "12 m² at ~5 m² per tub" }
   ],
-  "optional_materials": [
-    { "name": "string", "quantity": number, "unit": "string" }
-  ],
-  "labour": [
-    { "name": "string", "hours": number }
-  ],
-  "overheads": [
-    { "name": "string" }
-  ],
-  "suggested_overheads": [
-    { "name": "string" }
-  ]
+  "optional_materials": [ { "name": "...", "quantity": 1, "unit": "each" } ],
+  "labour": [ { "name": "Tile walls", "hours": 7 } ],
+  "overheads": [ { "name": "Transport" } ],
+  "suggested_overheads": [ { "name": "Post-job cleaning service" } ]
 }
 
 ═════════════════════════════════════════════════════════════════════
-MATERIALS VS OPTIONAL_MATERIALS
+1. MEASUREMENTS FIRST
 ═════════════════════════════════════════════════════════════════════
-
-MATERIALS (essential - ONLY job-critical items):
-- Core components WITHOUT which the job CANNOT be completed
-- Main products being installed/replaced
-- Job-critical consumables ONLY (e.g., PTFE for gas work, flux for soldering)
-- Installation-essential fixings (direct mounting screws, specific brackets)
-
-OPTIONAL_MATERIALS (extras, consumables, cleaning):
-- ALL general consumables and fixings:
-  * General screws, bolts, wall plugs, anchors
-  * Silicone, sealants, mastics (unless job-critical)
-  * Adhesives (PVA, wood glue, construction adhesive)
-  * Tape (electrical, duct, masking, insulation)
-  * Cable ties, wire connectors, crimp ends
-  * Finishing items (filler, sandpaper, primer, paint)
-- ALL cleaning supplies:
-  * Cleaning wipes, degreaser, detergent
-  * Dust sheets, protective coverings
-  * Waste bags, disposal items
-- Premium alternatives to basic materials
-- Decorative upgrades (chrome vs plastic, premium finishes)
-- Extended durability products
-- Higher-grade components (e.g., brass fittings vs plastic)
-- Optional insulation, membranes, cable management, trims
-
-IMPORTANT: Consumables and cleaning supplies are ALWAYS optional_materials, not materials.
+- List every measurement or count the quantities depend on (areas, lengths, room sizes,
+  number of items, heights, existing condition).
+- Use the user's figures exactly. Convert feet to metres (× 0.305), sq ft to m² (× 0.093).
+- If a figure isn't given, assume a typical UK value, set "assumed": true and give a short
+  "question" to ask the user. Never leave a quantity unexplained.
+- Lines starting "Details:" are corrections from the tradesperson: they override everything.
 
 ═════════════════════════════════════════════════════════════════════
-STRUCTURE GENERATION RULES
+2. MATERIALS — everything that must be bought to do the job
 ═════════════════════════════════════════════════════════════════════
+- Work quantities out from the measurements, with normal waste: tiles/flooring +10%,
+  timber/skirting +10%, plasterboard +5%. Put the short sum in "basis".
+- Include the consumables the job actually uses (adhesive, grout, filler, sealant, fixings,
+  PTFE, solder, cable clips) — they are real costs. Leave out tools and PPE.
+- NAME = what you'd type into a merchant's website: product type + key size/spec/pack.
+  Good: "15mm copper pipe", "2.5mm twin and earth cable", "Multi-finish plaster 25kg",
+  "Trade vinyl matt emulsion 10L", "Double switched socket white", "Plasterboard 12.5mm 2400 x 1200mm",
+  "Concrete fence post 2.4m", "Wood screws 4 x 40mm box of 200".
+  Bad: "pipe", "cable", "paint", "screws", "materials", "sundries". No brands unless the user names one.
+- UNIT = how it's bought or measured. Use only: m, m², L, kg, each, pair, pack, box, bag, tub,
+  tin, roll, sheet, length, tube.
+  Cable, pipe, trunking, timber by the metre → "m". Flooring, tiles, insulation → "m²".
+  Paint → the tin/tub size in the name and unit "tin"/"tub". Plaster/adhesive/postcrete → "bag"/"tub".
+- One line per distinct product. Don't split the same product across lines.
 
-MATERIALS RULES (CRITICAL - READ CAREFULLY):
-- Include ONLY ESSENTIAL materials needed to complete the job.
-- Essential = job cannot be done without it.
-- Use SPECIFIC product names with sizes/specs:
-  * Good: "15mm copper pipe", "2.5mm² T&E cable", "M8 x 50mm coach bolt"
-  * Bad: "pipe", "cable", "screws"
-- If replacing an appliance, include: isolation valves, flexible connectors, mounting hardware.
-- For electrical work: include back boxes, junction boxes (if required).
-- For plumbing: include compression fittings, olives.
-- DO NOT include general consumables in materials - put them in optional_materials.
-- Quantities must include the normal trade waste allowance: tiles and flooring +10%,
-  timber and skirting +10%, plasterboard +5%, paint rounded up to whole tins.
+optional_materials: at most 3 genuine upgrades the client might choose (e.g. chrome instead of
+white accessories, a better grade of tap). Never put required items here.
 
-OPTIONAL_MATERIALS RULES (UPGRADE OPTIONS ONLY):
-- Include ONLY genuine upgrade options and premium alternatives:
-  * Premium versions of materials already in the quote (e.g., brass vs plastic fittings)
-  * Extended warranty products
-  * Higher-quality finishes or coatings
-  * Energy-efficient alternatives
-- Include MAXIMUM 2-3 relevant upgrade items, not consumables.
-- DO NOT include generic fixings, tape, cleaning supplies, or basic consumables here.
-- Each optional material must be a genuine improvement the client might want to pay extra for.
+═════════════════════════════════════════════════════════════════════
+3. LABOUR
+═════════════════════════════════════════════════════════════════════
+- One line per distinct task, in hours ON SITE for the crew size given (Quotable multiplies by
+  the number of workers). Use realistic UK rates for a competent tradesperson, e.g.
+  skim walls ~3 m²/h, paint walls ~10 m²/h per coat, wall tiling ~1.5 m²/h, hang an internal
+  door ~2 h, fit a double socket on an existing circuit ~1.5 h, swap a radiator ~1.25 h.
+- Include preparation, setting out, making good, testing/commissioning and clearing up.
 
-LABOUR RULES:
-- Include each distinct task.
-- Provide only HOURS (not cost or rate).
-- "hours" is the ELAPSED time on site for that task with the number of workers given.
-  Do not multiply by workers yourself; Quotable does that.
-- Hours must reflect realistic UK trade timing:
-  - Simple tasks: 0.5–2 hours
-  - Medium tasks: 2–6 hours
-  - Large tasks: 1–3 days (convert to hours, e.g., 16 hours)
-
-OVERHEAD RULES:
-- Include required overheads ONLY:
-  - Transport
-  - Waste disposal
-  - Parking
-  - Equipment hire (if applicable)
-  - Access equipment (if needed)
-
-SUGGESTED_OVERHEADS RULES:
-- Optional extras the user may select.
-- Examples: "Post-job cleaning service", "Extended warranty visit"
-- NEVER duplicate items listed in "overheads".
-
+═════════════════════════════════════════════════════════════════════
+4. OVERHEADS
+═════════════════════════════════════════════════════════════════════
+Only what applies: Transport, Waste disposal, Skip hire, Parking, Equipment hire,
+Access equipment, Scaffolding, Building control notification.
+suggested_overheads: optional extras only, never duplicating overheads.
 ${quoteGenerationMode === 'minimal' ? `
 ═════════════════════════════════════════════════════════════════════
 MINIMAL MODE INSTRUCTIONS
@@ -1944,6 +1904,8 @@ export interface PricedMaterial {
   packPrice?: number;
   costPrice?: number;     // what it costs the tradesperson, per unit
   markupPercent?: number;
+  livePrice?: boolean;    // read from the supplier's page during this quote
+  priceCheckedAt?: string; // when the supplier price was last read
 }
 
 export interface PricedLabour {
@@ -2028,6 +1990,7 @@ export interface CondensedVersion {
 }
 
 export const OVERHEAD_PRICING: Record<string, number> = {
+  'building control notification': 25,
   'transport': 25,
   'waste disposal': 35,
   'parking': 15,
@@ -2063,7 +2026,7 @@ export const getOverheadPrice = (overheadName: string, ownRates: Record<string, 
 export let REFERENCE_PRICES: any[] = [];
 
 // Live supplier lookups per quote. Each one can take a few seconds, so cap it.
-export const LIVE_LOOKUP_LIMIT = Number(Deno.env.get('LIVE_LOOKUPS_PER_QUOTE') || 4);
+export const LIVE_LOOKUP_LIMIT = Number(Deno.env.get('LIVE_LOOKUPS_PER_QUOTE') || 8);
 export let liveLookupsLeft = LIVE_LOOKUP_LIMIT;
 
 export const fetchRealtimePrice = async (
@@ -2119,7 +2082,7 @@ export const priceMaterials = async (
   console.log(`  Pricing ${materials.length} materials | Context: ${jobContext || 'unknown'} | Preferred: ${preferredSuppliers?.join(', ') || 'none'}`);
   
   
-  const pricedMaterials = await Promise.all(materials.map(async (mat: any) => {
+  const pricedMaterials = await Promise.all(materials.map(async (mat: any): Promise<PricedMaterial> => {
     const materialName = mat.name;
     const quantity = mat.quantity || 1;
     const unit = mat.unit || 'each';
@@ -2179,6 +2142,47 @@ export const priceMaterials = async (
       };
     }
     
+    // Real products: what we already know, then live product pages
+    if (PRICE_CLIENT) {
+      const toLine = (hit: Priced, fetchedAt?: string | null) => ({
+        name: materialName,
+        quantity,
+        unit,
+        unitPrice: hit.unitPrice,
+        cost: Math.round(hit.unitPrice * quantity * 100) / 100,
+        priceSource: hit.supplier,
+        priceConfidence: Math.min(0.95, 0.6 + hit.score * 0.35),
+        supplierUrl: hit.url || generateSupplierUrl(hit.matchedProduct, hit.supplier, primaryTrade).url,
+        matchedProduct: hit.note ? `${hit.matchedProduct} (${hit.note})` : hit.matchedProduct,
+        priceBasis: 'retail' as const,
+        ...(hit.live ? { livePrice: true } : {}),
+        ...(fetchedAt ? { priceCheckedAt: fetchedAt } : {}),
+      });
+      try {
+        const known = await dbOffers(PRICE_CLIENT, materialName);
+        const fresh = chooseOffer({ name: materialName, unit }, known.filter(isFresh), isCompatibleProduct, { preferred: preferredSuppliers });
+        if (fresh) {
+          console.log(`✓ Known price: "${materialName}" → "${fresh.matchedProduct}" £${fresh.unitPrice} [${fresh.supplier}]`);
+          return toLine(fresh, known.find((o) => o.name === fresh.matchedProduct)?.fetchedAt);
+        }
+        if (enableRealtimeLookup && liveLookupsLeft > 0) {
+          liveLookupsLeft--;
+          const live = chooseOffer({ name: materialName, unit }, await liveOffers(PRICE_CLIENT, { name: materialName, unit }, { category }), isCompatibleProduct, { preferred: preferredSuppliers, live: true });
+          if (live) {
+            console.log(`✓ Live price: "${materialName}" → "${live.matchedProduct}" £${live.unitPrice} [${live.supplier}]`);
+            return toLine(live, new Date().toISOString());
+          }
+        }
+        const stale = chooseOffer({ name: materialName, unit }, known, isCompatibleProduct, { preferred: preferredSuppliers });
+        if (stale) {
+          console.log(`✓ Older price: "${materialName}" → "${stale.matchedProduct}" £${stale.unitPrice}`);
+          return { ...toLine(stale, known.find((o) => o.name === stale.matchedProduct)?.fetchedAt), priceConfidence: 0.6 };
+        }
+      } catch (err) {
+        console.log(`Price lookup failed for "${materialName}":`, err instanceof Error ? err.message : err);
+      }
+    }
+
     // Try multi-supplier fuzzy matching WITH preferred supplier priority AND job context
     const bestMatch = findBestPriceAcrossSuppliers(
       materialName, 
@@ -2232,27 +2236,22 @@ export const priceMaterials = async (
       };
     }
     
-    // Try real-time price lookup (if enabled and no DB match)
-    if (enableRealtimeLookup && liveLookupsLeft > 0) {
-      liveLookupsLeft--;
-      console.log(`🔄 Real-time lookup: "${materialName}" (${liveLookupsLeft} left)`);
-      const realtimePrice = await fetchRealtimePrice(materialName, primaryTrade, preferredSuppliers);
-      
-      if (realtimePrice) {
-        console.log(`✓ Real-time: "${materialName}" @ £${realtimePrice.price} [${realtimePrice.source}]`);
-        return {
-          name: materialName,
-          quantity,
-          unit,
-          unitPrice: realtimePrice.price,
-          cost: Math.round(realtimePrice.price * quantity * 100) / 100,
-          priceSource: realtimePrice.source,
-          priceConfidence: realtimePrice.confidence,
-          supplierUrl: realtimePrice.url,
-          matchedProduct: realtimePrice.matchedProduct,
-          priceBasis: 'retail',
-        };
-      }
+    // Typical price from the job recipe — a known UK retail figure for exactly this item
+    if (Number(mat.typicalPrice) > 0) {
+      const unitPrice = Number(mat.typicalPrice);
+      console.log(`≈ Typical price: "${materialName}" £${unitPrice}/${unit}`);
+      return {
+        name: materialName,
+        quantity,
+        unit,
+        unitPrice,
+        cost: Math.round(unitPrice * quantity * 100) / 100,
+        priceSource: 'Typical price',
+        priceConfidence: 0.6,
+        supplierUrl: generateSupplierUrl(materialName, undefined, primaryTrade).url,
+        needsVerification: true,
+        priceBasis: 'retail',
+      };
     }
 
     // Reference price (seeded estimate, no supplier) — better than a keyword guess
@@ -2444,5 +2443,8 @@ export const applyPricingToQuote = async (
 
 // ── state setters used by the request handler ─────────────────────
 export const setReferencePrices = (rows: any[]) => { REFERENCE_PRICES = rows; };
+export let PRICE_CLIENT: any = null;
+/** Supabase client used for price search and live lookups (null = offline, e.g. tests). */
+export const setPriceClient = (client: any) => { PRICE_CLIENT = client; };
 export const resetLiveLookups = (n: number = LIVE_LOOKUP_LIMIT) => { liveLookupsLeft = n; };
 
