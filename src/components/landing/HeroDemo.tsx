@@ -6,8 +6,7 @@
 //   labour:    1.5 days at £220, inside the £170–£300 North West plasterer day rate (Trade2Base 2026)
 //   total:     £471.48 inc. VAT; Checkatrade puts a 3 m × 3 m re-skim at £430–£550, typically £480 (June 2026)
 //
-// The server render and reduced-motion users get the finished quote, so the content is
-// readable without JavaScript and nothing moves for people who've asked it not to.
+// The server render is the finished quote, so the content is readable without JavaScript.
 
 import { useEffect, useState } from "react";
 import { Mic, Check, Pause, Play, MessageCircle } from "lucide-react";
@@ -54,9 +53,8 @@ const FINISHED = 1e9;
 
 export const HeroDemo = () => {
   // Server render shows the finished quote; the browser plays it from the start
-  const [t, setT] = useState(() =>
-    typeof window === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? FINISHED : 0,
-  );
+  // (With reduce-motion on, it still plays, but lines appear without sliding; there's a pause button.)
+  const [t, setT] = useState(() => (typeof window === "undefined" ? FINISHED : 0));
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
