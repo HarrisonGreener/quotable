@@ -10,6 +10,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchPage, extractProducts } from "../_shared/scraper.ts";
 import { storeProduct, retailPrice } from "../_shared/live-price.ts";
+import { requireAdminOrService } from "../_shared/guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,6 +21,8 @@ const RECRAWL_DAYS = Number(Deno.env.get("RECRAWL_DAYS") || 14);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const denied = await requireAdminOrService(req, corsHeaders);
+  if (denied) return denied;
 
   try {
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

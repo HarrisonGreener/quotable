@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { CookieConsent } from "@/components/CookieConsent";
 import { ThemeManager } from "@/components/ThemeManager";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { QuotableLoader } from "@/components/Logo";
@@ -88,7 +87,6 @@ const App = () => (
           <Sonner />
           <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "") || undefined}>
             <AuthProvider>
-              <CookieConsent />
               <ThemeManager>
                 <Suspense fallback={<PageLoader />}>
                   <Routes>

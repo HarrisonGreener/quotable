@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { TERMS_VERSION, PRIVACY_VERSION } from "@/config/legal";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -89,8 +90,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Check if user needs to accept updated terms/privacy
       const needsAcceptance = !acceptance || 
                               !acceptance.privacy_accepted || 
-                              acceptance.terms_version !== '1.0' || 
-                              acceptance.privacy_version !== '1.0';
+                              acceptance.terms_version !== TERMS_VERSION || 
+                              acceptance.privacy_version !== PRIVACY_VERSION;
 
       setNeedsCompliance(needsAcceptance);
     } catch (error) {
@@ -119,9 +120,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Use upsert for terms acceptance to prevent duplicates
       await supabase.from('user_terms_acceptance').upsert({
         user_id: user.id,
-        terms_version: '1.0',
+        terms_version: TERMS_VERSION,
         privacy_accepted: true,
-        privacy_version: '1.0',
+        privacy_version: PRIVACY_VERSION,
         privacy_accepted_at: new Date().toISOString(),
         user_agent: navigator.userAgent,
       }, {

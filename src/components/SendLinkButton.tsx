@@ -68,7 +68,18 @@ export const SendLinkButton = ({ type, record, businessName, disabled, onUpdated
     }
     setToken(t);
     onUpdated?.();
-    return `${window.location.origin}/${type === "quote" ? "q" : "i"}/${t}`;
+    return `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, "")}/${type === "quote" ? "q" : "i"}/${t}`;
+  };
+
+  // Turns the link off: anyone who has it sees "not found" from now on
+  const stopSharing = async () => {
+    setSaving(true);
+    const { error } = await supabase.from(table).update({ share_token: null } as any).eq("id", record.id);
+    setSaving(false);
+    if (error) { toast.error("Couldn't turn the link off"); return; }
+    setToken("");
+    onUpdated?.();
+    toast.success("Link turned off. Sending again makes a new link.");
   };
 
   const messageFor = (link: string) =>
@@ -150,6 +161,11 @@ export const SendLinkButton = ({ type, record, businessName, disabled, onUpdated
           <p className="text-xs text-muted-foreground">
             Add a card payment link and bank details in Account → Brand Details so customers can pay from the page.
           </p>
+          {token && (
+            <Button variant="ghost" size="sm" onClick={stopSharing} disabled={saving} className="justify-self-start px-0 h-auto text-muted-foreground hover:text-destructive hover:bg-transparent underline underline-offset-2">
+              Stop sharing this link
+            </Button>
+          )}
         </DialogContent>
       </Dialog>
     </>

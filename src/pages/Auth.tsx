@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TERMS_VERSION, PRIVACY_VERSION } from "@/config/legal";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,9 +94,9 @@ const Auth = () => {
     try {
       await supabase.from('user_terms_acceptance').insert({
         user_id: userId,
-        terms_version: '1.0',
+        terms_version: TERMS_VERSION,
         privacy_accepted: true,
-        privacy_version: '1.0',
+        privacy_version: PRIVACY_VERSION,
         privacy_accepted_at: new Date().toISOString(),
         user_agent: navigator.userAgent,
       });

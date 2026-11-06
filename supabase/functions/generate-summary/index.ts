@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { chat, AIError } from "../_shared/ai.ts";
+import { checkAiAccess } from "../_shared/access.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.47.10";
 
@@ -36,6 +37,9 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    const blocked = await checkAiAccess(user, 'summary', corsHeaders);
+    if (blocked) return blocked;
 
     const { jobDescription, total } = await req.json();
 

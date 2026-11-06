@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { readFunctionError } from "@/utils/functionError";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
@@ -800,7 +801,14 @@ const Quotes = () => {
             }
           });
         } else {
-          toast.error("Failed to generate quote. Please try again.");
+          const { status, message } = await readFunctionError(error);
+          if (status === 402) {
+            toast.error(message || "Your subscription isn't active.", { action: { label: "Subscribe", onClick: () => navigate("/subscribe") } });
+          } else if (status === 429 && message) {
+            toast.error(message);
+          } else {
+            toast.error("Failed to generate quote. Please try again.");
+          }
         }
         return;
       }
@@ -1154,7 +1162,14 @@ const Quotes = () => {
             }
           });
         } else {
-          toast.error("Failed to adjust quote. Please try again.");
+          const { status, message } = await readFunctionError(error);
+          if (status === 402) {
+            toast.error(message || "Your subscription isn't active.", { action: { label: "Subscribe", onClick: () => navigate("/subscribe") } });
+          } else if (status === 429 && message) {
+            toast.error(message);
+          } else {
+            toast.error("Failed to adjust quote. Please try again.");
+          }
         }
         return;
       }

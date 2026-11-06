@@ -13,7 +13,8 @@
 //   CEREBRAS_API_KEY  – https://cloud.cerebras.ai           (~1M tokens/day free)
 //   GEMINI_API_KEY    – https://aistudio.google.com/apikey  (Flash-Lite has the most free requests)
 // Optional:
-//   AI_ORDER          – default "gemini-lite,groq,cerebras,gemini"
+//   AI_ORDER          – default "groq,gemini-lite,gemini"
+//   GEMINI_BILLING    – "on" once the Gemini key's project has billing enabled (required for UK users)
 //   GROQ_MODEL        – default "openai/gpt-oss-120b"
 //   CEREBRAS_MODEL    – default "gpt-oss-120b"
 //   GEMINI_MODEL      – default "gemini-3.5-flash-lite"
@@ -74,7 +75,10 @@ const providers = (): Provider[] => {
       model: Deno.env.get("CEREBRAS_MODEL") || "gpt-oss-120b",
     });
   }
-  if (gemini) {
+  // Google's terms only allow the *paid* Gemini API for apps used by people in the UK
+  // (and on the free tier Google may use and human-review what's sent). So Gemini is
+  // only used once billing is on for its Google Cloud project: set GEMINI_BILLING=on.
+  if (gemini && Deno.env.get("GEMINI_BILLING") === "on") {
     // Flash-Lite first: far more free requests a day, and it quoted accurately in testing.
     // Each model has its own capacity, so a busy one doesn't take the others down.
     const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
@@ -85,7 +89,7 @@ const providers = (): Provider[] => {
     for (const model of fallbacks.filter((m) => m !== main)) byName.gemini.push({ name: "gemini", url, key: gemini, model });
   }
 
-  const order = (Deno.env.get("AI_ORDER") || "gemini-lite,groq,cerebras,gemini").split(",").map((s) => s.trim().toLowerCase())
+  const order = (Deno.env.get("AI_ORDER") || "groq,gemini-lite,gemini").split(",").map((s) => s.trim().toLowerCase())
     .flatMap((n) => (n === "gemini" && !(Deno.env.get("AI_ORDER") || "").includes("gemini-lite") && Deno.env.get("AI_ORDER") ? ["gemini-lite", "gemini"] : [n]));
   const list = order.flatMap((n) => byName[n] ?? []);
   // anything with a key but left out of AI_ORDER still goes last

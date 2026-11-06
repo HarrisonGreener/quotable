@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TERMS_VERSION, PRIVACY_VERSION } from "@/config/legal";
 import {
   Dialog,
   DialogContent,
@@ -41,9 +42,9 @@ export const ComplianceDialog = ({ open, onCompliance }: ComplianceDialogProps) 
       // Use upsert to handle both insert and update in one operation
       await supabase.from('user_terms_acceptance').upsert({
         user_id: user.id,
-        terms_version: '1.0',
+        terms_version: TERMS_VERSION,
         privacy_accepted: true,
-        privacy_version: '1.0',
+        privacy_version: PRIVACY_VERSION,
         privacy_accepted_at: new Date().toISOString(),
         accepted_at: new Date().toISOString(),
         user_agent: navigator.userAgent,

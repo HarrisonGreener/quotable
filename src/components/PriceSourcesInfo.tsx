@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { SUPPLIER_DETAILS } from "@/data/supplierMappings";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface PriceSource {
   id: string;
@@ -27,6 +28,7 @@ interface PriceSourcesInfoProps {
 }
 
 export const PriceSourcesInfo = ({ open, onOpenChange }: PriceSourcesInfoProps) => {
+  const { isAdmin } = useIsAdmin();
   const [sources, setSources] = useState<PriceSource[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -123,15 +125,18 @@ export const PriceSourcesInfo = ({ open, onOpenChange }: PriceSourcesInfoProps) 
             <p className="text-sm text-muted-foreground">
               Prices are updated regularly from approved sources
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefreshPrices}
-              disabled={refreshing}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh Prices
-            </Button>
+            {/* Re-crawling the merchants is an admin job; prices refresh on a schedule */}
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefreshPrices}
+                disabled={refreshing}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh Prices
+              </Button>
+            )}
           </div>
 
           {loading ? (

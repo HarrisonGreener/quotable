@@ -8,6 +8,8 @@ import { GuidePage, GuidesIndex, TemplatePage, TemplatesIndex } from "./SeoPages
 import { TradePage, TradesIndex, tradeMeta, tradesIndexMeta, TRADE_SLUGS } from "@/pages/Trades";
 import { landingMeta, guideMeta, guidesIndexMeta, templateMeta, templatesIndexMeta, type PageMeta } from "./meta";
 import { GUIDES, TEMPLATES, SITE_URL } from "./content";
+import Terms, { termsMeta } from "@/pages/Terms";
+import Privacy, { privacyMeta } from "@/pages/Privacy";
 
 export { SITE_URL };
 
@@ -19,6 +21,8 @@ export const pages = (): PageMeta[] => [
   ...TEMPLATES.map((t) => templateMeta(t.slug)!),
   tradesIndexMeta(),
   ...TRADE_SLUGS().map((s) => tradeMeta(s)!).filter(Boolean),
+  termsMeta,
+  privacyMeta,
 ];
 
 export const render = (path: string, basename = "") =>
@@ -32,6 +36,8 @@ export const render = (path: string, basename = "") =>
         <Route path="/quote-templates/:slug" element={<TemplatePage />} />
         <Route path="/trades" element={<TradesIndex />} />
         <Route path="/trades/:slug" element={<TradePage />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
       </Routes>
     </StaticRouter>,
   );

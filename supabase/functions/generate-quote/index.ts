@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { chat, parseJsonReply, AIError } from "../_shared/ai.ts";
+import { checkAiAccess } from "../_shared/access.ts";
 import {
   detectTradeCategory,
   getDefaultLabourRate,
@@ -16,6 +17,19 @@ import {
   type PricingOptions,
 } from "../_shared/quote-engine.ts";
 import { readerPrompt, normaliseReading, guessReading, buildFromReading, type Reading, type RecipeQuote } from "../_shared/recipes/index.ts";
+
+// Only the area is needed to price a job, so the AI never sees the customer's full
+// address: "14 Elm Road, Heaton Moor, Stockport SK4 4AB" becomes "Heaton Moor, Stockport SK4".
+const areaOnly = (loc: unknown): string => {
+  let s = String(loc ?? "").trim();
+  if (!s) return "UK";
+  s = s.replace(/\b([A-Z]{1,2}\d[A-Z\d]?)\s*\d[A-Z]{2}\b/gi, "$1");
+  const parts = s.split(",").map((p) => p.trim()).filter(Boolean);
+  const kept = parts.filter((p) => !/^\d/.test(p) && !/^(flat|apartment|unit)\b/i.test(p));
+  return (kept.slice(-2).join(", ") || "UK").slice(0, 80);
+};
+const PRIVATE_KEYS = new Set(["client", "client_name", "client_email", "client_phone", "client_address", "location", "address", "customer", "customer_name", "email", "phone"]);
+const withoutPersonal = (q: unknown) => JSON.stringify(q, (k, v) => (PRIVATE_KEYS.has(k) ? undefined : v), 2);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -112,6 +126,9 @@ serve(async (req) => {
 
     console.log('Authenticated user:', user.id);
 
+    const blocked = await checkAiAccess(user, 'quote', corsHeaders);
+    if (blocked) return blocked;
+
     const rawBody = await req.json();
     const validated = quoteRequestSchema.parse(rawBody);
     const { 
@@ -166,7 +183,7 @@ ADJUSTMENT MODE
 ═════════════════════════════════════════════════════════════════════
 You are adjusting an existing quote. Apply the user's requested changes.
 Current quote structure:
-${JSON.stringify(currentQuote, null, 2)}
+${withoutPersonal(currentQuote)}
 
 Apply the adjustment: "${adjustmentPrompt}"
 Return the updated structure with the same format (no prices).`;
@@ -177,7 +194,7 @@ Return the updated structure with the same format (no prices).`;
       
       userContent = `Generate the structured quote for:
 Job: ${jobDescription}
-Location: ${location}
+Location: ${areaOnly(location)}
 Category: ${category}
 Workers: ${numWorkers}
 ${equipmentRental ? 'Equipment rental is required.' : ''}
@@ -218,7 +235,7 @@ Return ONLY the JSON structure with materials, optional_materials, labour, overh
           userContent = `Generate the structured quote ONLY for this extra work (the rest is already quoted):
 Extra work: ${reading.otherWork}
 Full job for context: ${jobDescription}
-Location: ${location}
+Location: ${areaOnly(location)}
 Category: ${category}
 
 Return ONLY the JSON structure with materials, optional_materials, labour, overheads, and suggested_overheads. NO PRICES.`;

@@ -1,219 +1,266 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Footer } from "@/components/Footer";
+import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { LegalPage, Mail } from "@/components/LegalPage";
+import { COMPANY } from "@/config/company";
+import { PRIVACY_VERSION, LEGAL_UPDATED } from "@/config/legal";
+import { usePageMeta, type PageMeta } from "@/seo/meta";
+
+// Written for UK GDPR and the Data Protection Act 2018. If you add a new service that
+// receives personal data (analytics, a CRM, a new AI provider), add it to "Who we share
+// it with", bump PRIVACY_VERSION and update LEGAL_UPDATED.
+
+const PROCESSORS: [string, string, string][] = [
+  ["Supabase", "Database, sign-in, file storage and server functions", "UK (London); support staff may access from the US"],
+  ["Vercel", "Hosting the website", "UK/EU edge servers, with the company in the US"],
+  ["Stripe", "Subscription payments and invoices for your Quotable plan", "UK/EU and US"],
+  ["Resend", "Sending account emails (sign-up, password reset)", "US"],
+  ["Groq", "AI that turns a job description into materials and labour", "US"],
+  ["Google (Gemini API, paid tier)", "AI, as a backup to Groq", "US and other Google locations"],
+  ["IONOS", "Our email inbox", "UK/EU"],
+];
+
+export const privacyIntro = (<p>
+      This policy explains what personal data {COMPANY.legalName} collects when you use Quotable, why, who it's shared
+      with and the rights you have. We've tried to keep it plain. If anything's unclear, email <Mail />.
+    </p>);
+
+export const privacySections: { id: string; title: string; body: ReactNode }[] = [
+    {
+      id: "who",
+      title: "Who we are",
+      body: (
+        <>
+          <p>
+            Quotable is run by {COMPANY.legalName}, a company registered in England and Wales (number {COMPANY.companyNumber}),
+            registered office {COMPANY.registeredOffice}. You can contact us about anything in this policy at <Mail />.
+          </p>
+          <p>We have two roles, depending on whose data it is:</p>
+          <ul>
+            <li>
+              <strong>Your account details</strong> (you, your business, your subscription): we decide how these are used, so
+              we are the <em>controller</em>.
+            </li>
+            <li>
+              <strong>Your customers' details</strong> (the names, addresses, phone numbers and job details you put on quotes,
+              invoices and jobs): you decide what to collect and why, so you are the controller and we are your
+              <em> processor</em>. We only use that data to run Quotable for you, as set out in section 6 of our{" "}
+              <Link to="/terms#your-data">terms</Link>.
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      id: "collect",
+      title: "What we collect",
+      body: (
+        <ul>
+          <li><strong>Account details:</strong> your name, email address, password (stored scrambled, never readable), trade, and your business name, address, phone number, website, logo and VAT number.</li>
+          <li><strong>Payment details for your invoices:</strong> bank details and a payment link, if you add them, so they appear on documents you send.</li>
+          <li><strong>Your subscription:</strong> plan, status and billing history. Card details are taken by Stripe; we never see or store your card number.</li>
+          <li><strong>What you create:</strong> job descriptions (typed or spoken), quotes, invoices, clients, jobs and schedules, stock and prices, photos you attach and your settings.</li>
+          <li><strong>When your customers use a quote or invoice link:</strong> when it was opened, and the name they type if they accept.</li>
+          <li><strong>Technical data:</strong> IP address, browser and device type, and logs of requests, kept by our hosting and database providers to keep the service secure and working.</li>
+          <li><strong>Messages:</strong> anything you send us by email or through the app.</li>
+        </ul>
+      ),
+    },
+    {
+      id: "use",
+      title: "How we use it, and our legal basis",
+      body: (
+        <>
+          <p>Data protection law requires a legal basis for each use. Ours are:</p>
+          <div className="legal-table">
+            <table>
+              <thead><tr><th>What we do</th><th>Legal basis</th></tr></thead>
+              <tbody>
+                <tr><td>Create and run your account, generate quotes, store your documents, send customer links</td><td>Contract: we need it to provide the service you signed up for</td></tr>
+                <tr><td>Take subscription payments and keep billing and tax records</td><td>Contract, and legal obligation (we must keep accounting records for six years)</td></tr>
+                <tr><td>Send emails about your account, such as sign-up, password resets and changes to these terms</td><td>Contract</td></tr>
+                <tr><td>Keep Quotable secure: prevent fraud and abuse, enforce fair-use limits, fix faults</td><td>Legitimate interests in running a safe, reliable service</td></tr>
+                <tr><td>Improve Quotable using usage figures (for example how many quotes are made, or which prices weren't found)</td><td>Legitimate interests in improving the product</td></tr>
+                <tr><td>Tell you about new features or offers</td><td>Your consent, or as an existing customer for similar services; you can opt out at any time</td></tr>
+                <tr><td>Deal with legal claims or requests from authorities</td><td>Legal obligation, or legitimate interests in protecting our rights</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>We don't sell personal data, and we don't use it for advertising.</p>
+        </>
+      ),
+    },
+    {
+      id: "ai",
+      title: "AI and live prices",
+      body: (
+        <>
+          <p>
+            When you create a quote, the job description and your relevant settings (such as your trade and rates) are sent to
+            an AI provider, which suggests the materials, quantities and labour. Groq, our main provider, has zero data
+            retention switched on for our account, so it doesn't store requests. Google's paid Gemini API, our backup, doesn't
+            use what we send to improve its products. We don't use the free tier of any AI service that would.
+          </p>
+          <p>
+            Only include what the AI needs to price the job. You don't need to put your customer's name or address in the job
+            description; those go in the quote's customer fields, which aren't sent to the AI.
+          </p>
+          <p>
+            To price materials, Quotable reads public product pages on UK merchants' websites. No personal data is sent to
+            the merchants. The AI's suggestions are a starting point: no decision with legal or similar effects is made
+            about anyone automatically.
+          </p>
+          <p>
+            Spoken job descriptions are turned into text by your own browser's speech service (for example, Chrome uses
+            Google's), under that browser's privacy terms. Quotable receives only the text.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: "share",
+      title: "Who we share it with",
+      body: (
+        <>
+          <p>
+            We use the following service providers to run Quotable. They act on our instructions, under contracts that
+            protect your data, and only see what they need:
+          </p>
+          <div className="legal-table">
+            <table>
+              <thead><tr><th>Provider</th><th>What for</th><th>Where</th></tr></thead>
+              <tbody>
+                {PROCESSORS.map(([n, w, l]) => <tr key={n}><td>{n}</td><td>{w}</td><td>{l}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            We'll update this list before adding a new provider that handles personal data. We may also share data if the law
+            requires it, to protect our rights or someone's safety, or with a buyer if Quotable is ever sold (they'd be bound
+            by this policy).
+          </p>
+          <p>
+            Quotes and invoices you send are shared with whoever you send the link to: anyone with the link can open it, so
+            only send it to your customer. If your customer pays through a payment link you've added (such as your own
+            Stripe, SumUp or PayPal link), that payment is between you, them and that provider.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: "transfers",
+      title: "Data sent outside the UK",
+      body: (
+        <p>
+          Some of the providers above are based in, or can be accessed from, the United States. Where personal data leaves
+          the UK, it's protected by the UK's adequacy regulations (including the UK–US Data Bridge, for certified companies)
+          or by the UK International Data Transfer Agreement or Addendum, which are contract terms approved for UK transfers.
+          You can ask us for details.
+        </p>
+      ),
+    },
+    {
+      id: "retention",
+      title: "How long we keep it",
+      body: (
+        <ul>
+          <li><strong>Your account and everything in it:</strong> for as long as you have an account. If you close it, we delete it within 90 days, apart from the records below.</li>
+          <li><strong>Billing and tax records:</strong> six years after the end of the financial year they relate to, as the law requires.</li>
+          <li><strong>Things you delete</strong> (a quote, a client): removed straight away, and gone from backups within 30 days.</li>
+          <li><strong>Security logs:</strong> usually up to 30 days, kept by our hosting and database providers.</li>
+          <li><strong>Daily usage counts</strong> used for fair-use limits: 90 days.</li>
+        </ul>
+      ),
+    },
+    {
+      id: "security",
+      title: "Keeping it safe",
+      body: (
+        <p>
+          Data is encrypted in transit and at rest. Each account can only reach its own records, enforced by the database
+          itself rather than just the app. Passwords are stored scrambled. Our own access is limited and protected with
+          two-factor sign-in. Quote and invoice links use long random codes that can't be guessed. If a breach puts your
+          data at risk, we'll tell you without delay and report it to the ICO within 72 hours where the law requires.
+        </p>
+      ),
+    },
+    {
+      id: "rights",
+      title: "Your rights",
+      body: (
+        <>
+          <p>You have the right to:</p>
+          <ul>
+            <li>get a copy of your personal data;</li>
+            <li>have it corrected if it's wrong;</li>
+            <li>have it deleted;</li>
+            <li>restrict or object to how we use it, including at any time to marketing;</li>
+            <li>get it in a portable format (you can also export your data yourself from Settings);</li>
+            <li>withdraw consent, where we rely on it.</li>
+          </ul>
+          <p>
+            Email <Mail /> to use any of these. It's free, and we'll reply within one month. If your request is about a
+            customer's data held in your account, we'll help you deal with it, since you're the controller for that data.
+          </p>
+          <p>
+            If you're unhappy with how we've handled your data, please tell us first. You can also complain to the
+            Information Commissioner's Office: <a href="https://ico.org.uk/make-a-complaint/" rel="noopener noreferrer" target="_blank">ico.org.uk/make-a-complaint</a>,
+            0303 123 1113.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: "cookies",
+      title: "Cookies and similar storage",
+      body: (
+        <>
+          <p>Quotable only stores what it needs to work in your browser:</p>
+          <ul>
+            <li><strong>Sign-in:</strong> keeps you logged in between visits.</li>
+            <li><strong>Preferences:</strong> things like your theme and the sample account's example data.</li>
+          </ul>
+          <p>
+            These are strictly necessary, so the law doesn't require us to ask first. We don't use analytics, advertising or
+            tracking cookies. If we ever add analytics, we'll ask for your permission before setting them. Stripe's
+            checkout and billing pages set their own cookies to prevent fraud; see Stripe's privacy policy.
+          </p>
+        </>
+      ),
+    },
+    {
+      id: "children",
+      title: "Children",
+      body: <p>Quotable is a business service for people aged 18 and over. We don't knowingly collect data about children.</p>,
+    },
+    {
+      id: "changes",
+      title: "Changes to this policy",
+      body: (
+        <p>
+          If we change this policy in a way that matters, we'll tell you by email or in the app before the change takes
+          effect. The version and date at the top show when it last changed.
+        </p>
+      ),
+    },
+];
+
+export const privacyMeta: PageMeta = {
+  path: "/privacy",
+  title: "Privacy policy | Quotable",
+  description: "How Quotable Ltd collects, uses and protects personal data, including the details your customers' quotes and invoices contain.",
+};
 
 const Privacy = () => {
+  usePageMeta(privacyMeta);
+
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl">Privacy Policy</CardTitle>
-            <p className="text-sm text-muted-foreground">Last Updated: {new Date().toLocaleDateString()}</p>
-            <p className="text-sm text-muted-foreground">Version 1.0</p>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[600px] pr-4">
-              <div className="space-y-6 text-foreground">
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">1. Introduction</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Welcome to Quotable. We respect your privacy and are committed to protecting your personal data. 
-                    This privacy policy will inform you about how we look after your personal data when you visit our 
-                    website and use our services, and tell you about your privacy rights and how the law protects you.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">2. Data Controller</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Quotable is the controller and responsible for your personal data (collectively referred to as 
-                    "Quotable", "we", "us" or "our" in this privacy policy).
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">3. Data We Collect</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-2">
-                    We may collect, use, store and transfer different kinds of personal data about you:
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Identity Data:</strong> First name, last name, username or similar identifier, business name</li>
-                    <li><strong>Contact Data:</strong> Email address, telephone numbers, business address</li>
-                    <li><strong>Technical Data:</strong> IP address, browser type and version, time zone setting, browser plug-in types and versions, operating system and platform</li>
-                    <li><strong>Usage Data:</strong> Information about how you use our website and services</li>
-                    <li><strong>Business Data:</strong> Client information, quotes, invoices, financial records, schedules that you create and store in the Service</li>
-                    <li><strong>Marketing and Communications Data:</strong> Your preferences in receiving marketing from us and your communication preferences</li>
-                  </ul>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">4. How We Collect Your Data</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-2">We use different methods to collect data from and about you including:</p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Direct interactions:</strong> You provide data by filling in forms or corresponding with us by email or otherwise</li>
-                    <li><strong>Automated technologies:</strong> As you interact with our website, we may automatically collect Technical Data about your equipment, browsing actions and patterns</li>
-                    <li><strong>Third parties:</strong> We may receive personal data about you from analytics providers such as Google</li>
-                  </ul>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">5. How We Use Your Data</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-2">
-                    We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li>To register you as a new customer and create your account</li>
-                    <li>To provide and manage the Service, including quote generation, invoice management, and scheduling</li>
-                    <li>To process and deliver your service orders</li>
-                    <li>To manage our relationship with you, including notifying you about changes to our terms or privacy policy</li>
-                    <li>To enable you to complete surveys or provide feedback</li>
-                    <li>To administer and protect our business and the Service (including troubleshooting, data analysis, testing, system maintenance)</li>
-                    <li>To deliver relevant website content and advertisements to you and measure their effectiveness</li>
-                    <li>To use data analytics to improve our website, services, marketing, customer relationships and experiences</li>
-                  </ul>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">6. Data Security</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    We have put in place appropriate security measures to prevent your personal data from being accidentally 
-                    lost, used or accessed in an unauthorized way, altered or disclosed. All data is encrypted in transit using 
-                    SSL/TLS and at rest using industry-standard encryption. We limit access to your personal data to those 
-                    employees, agents, contractors and other third parties who have a business need to know. Access is granted 
-                    only on a need-to-know basis and subject to strict confidentiality obligations.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">7. Data Retention</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    We will only retain your personal data for as long as necessary to fulfil the purposes we collected it for, 
-                    including satisfying any legal, accounting, or reporting requirements. To determine the appropriate retention 
-                    period for personal data, we consider the amount, nature, and sensitivity of the personal data, the potential 
-                    risk of harm from unauthorized use or disclosure of your personal data, the purposes for which we process 
-                    your personal data and whether we can achieve those purposes through other means, and the applicable legal 
-                    requirements.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">8. Your Legal Rights (GDPR)</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-2">
-                    Under certain circumstances, you have rights under data protection laws in relation to your personal data:
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Right to access:</strong> Request access to your personal data</li>
-                    <li><strong>Right to correction:</strong> Request correction of your personal data</li>
-                    <li><strong>Right to erasure:</strong> Request erasure of your personal data</li>
-                    <li><strong>Right to object:</strong> Object to processing of your personal data</li>
-                    <li><strong>Right to restriction:</strong> Request restriction of processing your personal data</li>
-                    <li><strong>Right to data portability:</strong> Request transfer of your personal data</li>
-                    <li><strong>Right to withdraw consent:</strong> Withdraw consent at any time where we are relying on consent to process your personal data</li>
-                  </ul>
-                  <p className="text-muted-foreground leading-relaxed mt-3">
-                    You can exercise any of these rights at any time by contacting us. You will not have to pay a fee to 
-                    access your personal data (or to exercise any of the other rights). However, we may charge a reasonable 
-                    fee if your request is clearly unfounded, repetitive or excessive.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">9. Cookies</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Our website uses cookies to distinguish you from other users and provide you with a good experience when 
-                    you browse our website. A cookie is a small file of letters and numbers that we store on your browser or 
-                    the hard drive of your computer. We use the following types of cookies:
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4 mt-2">
-                    <li><strong>Strictly necessary cookies:</strong> Required for the operation of our website (e.g., authentication, session management)</li>
-                    <li><strong>Analytical/performance cookies:</strong> Allow us to recognize and count visitors and see how visitors move around our website</li>
-                    <li><strong>Functionality cookies:</strong> Used to recognize you when you return to our website and remember your preferences</li>
-                  </ul>
-                  <p className="text-muted-foreground leading-relaxed mt-3">
-                    You can set your browser to refuse all or some cookies, or to alert you when websites set or access cookies. 
-                    If you disable or refuse cookies, please note that some parts of this website may become inaccessible or not 
-                    function properly.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">10. Third-Party Services</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    We may share your personal data with third-party service providers who perform services on our behalf, such 
-                    as hosting, data analysis, payment processing, and customer service. These third parties have access to your 
-                    personal data only to perform these tasks on our behalf and are obligated not to disclose or use it for any 
-                    other purpose. We require all third parties to respect the security of your personal data and to treat it in 
-                    accordance with the law.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">11. International Transfers</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    We may transfer your personal data outside the United Kingdom and the European Economic Area (EEA). Whenever 
-                    we transfer your personal data out of the UK/EEA, we ensure a similar degree of protection is afforded to it 
-                    by implementing appropriate safeguards, such as standard contractual clauses approved by the European Commission.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">12. Data Breach Notification</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    In the event of a data breach that is likely to result in a risk to your rights and freedoms, we will notify 
-                    you and any applicable regulator within 72 hours of becoming aware of the breach, in accordance with GDPR 
-                    requirements.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">13. Children's Privacy</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Our Service is not intended for children under 16 years of age. We do not knowingly collect personal data 
-                    from children under 16. If you are a parent or guardian and believe your child has provided us with personal 
-                    data, please contact us so we can delete it.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">14. Changes to This Privacy Policy</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new 
-                    Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy 
-                    Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on 
-                    this page.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-xl font-semibold mb-3">15. Contact Us</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    If you have any questions about this Privacy Policy, your data protection rights, or wish to exercise any of 
-                    your rights, please contact us at:
-                  </p>
-                  <ul className="list-none space-y-1 text-muted-foreground ml-4 mt-2">
-                    <li>Email: support@quotable-it.co.uk</li>
-                    <li>Data Protection Officer: support@quotable-it.co.uk</li>
-                  </ul>
-                  <p className="text-muted-foreground leading-relaxed mt-3">
-                    You also have the right to make a complaint at any time to the Information Commissioner's Office (ICO), 
-                    the UK supervisory authority for data protection issues (www.ico.org.uk).
-                  </p>
-                </section>
-
-                <div className="mt-8 p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground italic">
-                    By using Quotable, you acknowledge that you have read and understood this Privacy Policy and consent to 
-                    the collection, use, and disclosure of your personal data as described herein.
-                  </p>
-                </div>
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-      <Footer />
-    </div>
+    <LegalPage
+      title="Privacy policy"
+      version={PRIVACY_VERSION}
+      updated={LEGAL_UPDATED}
+      intro={privacyIntro}
+      sections={privacySections}
+    />
   );
 };
 

@@ -69,7 +69,10 @@ automatically — don't set them.
 
 | Secret | Default | What it does |
 |---|---|---|
-| `AI_ORDER` | `gemini-lite,groq,cerebras,gemini` | Which AI is tried first; the next takes over when one is busy or out of free quota. Gemini Flash-Lite scored 9/9 in testing |
+| `AI_ORDER` | `groq,gemini-lite,gemini` | Which AI is tried first; the next takes over when one is busy or out of free quota |
+| `GEMINI_BILLING` | off | Set to `on` once billing is enabled on the Gemini key's Google Cloud project. Google's terms only allow the paid Gemini API for apps used by people in the UK, so Gemini is skipped until then |
+| `QUOTES_PER_DAY` | `60` | AI quotes one account can make per day (stops one account using up the shared AI allowance) |
+| `SUMMARIES_PER_DAY` | `120` | AI summaries one account can make per day |
 | `GROQ_MODEL` | `openai/gpt-oss-120b` | Model on Groq |
 | `CEREBRAS_MODEL` | `gpt-oss-120b` | Model on Cerebras |
 | `GEMINI_MODEL` | `gemini-3.5-flash-lite` | First Gemini model (most free requests) |

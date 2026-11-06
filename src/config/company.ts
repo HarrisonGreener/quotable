@@ -5,9 +5,9 @@
 // name and contact address.)
 export const COMPANY = {
   tradingName: "Quotable",
-  legalName: "",          // e.g. "Quotable Ltd"
-  companyNumber: "",      // e.g. "12345678" (Companies House)
-  registeredOffice: "",   // e.g. "1 Example Street, Manchester, M1 1AA"
+  legalName: "Quotable Ltd",
+  companyNumber: "16881346",                                 // Companies House
+  registeredOffice: "85 Bevendean Crescent, Brighton, BN2 4RE", // must match Companies House
   vatNumber: "",          // e.g. "GB123456789"
-  supportEmail: "",       // e.g. "hello@quotable-it.co.uk"
+  supportEmail: "support@quotable-it.co.uk",                 // make sure this mailbox exists
 };
