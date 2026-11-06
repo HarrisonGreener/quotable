@@ -82,7 +82,7 @@ export const HeroDemo = () => {
 
       {/* the phone */}
       <div aria-hidden className="relative rounded-[2.4rem] bg-primary p-[0.55rem] shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.45)]">
-        <div className="relative overflow-hidden rounded-[1.9rem] bg-card h-[35rem] flex flex-col">
+        <div className="relative overflow-hidden rounded-[1.9rem] bg-card h-[38.5rem] flex flex-col">
           <div className="mx-auto mt-2 h-[1.15rem] w-24 rounded-full bg-primary/95" />
 
           {/* header */}
@@ -102,7 +102,7 @@ export const HeroDemo = () => {
           </div>
 
           {/* status / lines */}
-          <div className="flex-1 px-4 pt-3 overflow-hidden">
+          <div className="flex-1 min-h-0 px-4 pt-2 overflow-hidden">
             {status && (
               <p className="flex items-center gap-2 text-[0.75rem] text-muted-foreground px-1 py-2">
                 <span className="hero-dots"><i /><i /><i /></span>
@@ -147,7 +147,7 @@ export const HeroDemo = () => {
           </div>
 
           {/* send / tracking */}
-          <div className="px-4 pb-5 pt-2 min-h-[4.5rem]">
+          <div className="px-4 pb-5 pt-1 h-[5.25rem] shrink-0">
             {stage === "send" && (
               <div className="hero-line hero-press flex h-11 items-center justify-center gap-2 rounded-md bg-accent text-accent-foreground text-sm font-semibold">
                 <MessageCircle className="h-4 w-4" /> Send by WhatsApp
