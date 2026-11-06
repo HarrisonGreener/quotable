@@ -25,6 +25,7 @@ export const QuotableMark = ({ size = 32, className = "", animated = false, ring
       width={size}
       height={size}
       viewBox="0 0 100 100"
+      overflow="visible"
       className={`${animated ? "q-mark-animated" : ""} ${className}`}
       role={title ? "img" : undefined}
       aria-label={title}
@@ -36,17 +37,20 @@ export const QuotableMark = ({ size = 32, className = "", animated = false, ring
           <line {...TAIL} stroke="#000" strokeWidth={RING.w + 8} strokeLinecap="round" />
         </mask>
       </defs>
-      <circle
-        className="q-ring"
-        cx={RING.cx}
-        cy={RING.cy}
-        r={RING.r}
-        fill="none"
-        stroke={ringColor ?? "currentColor"}
-        strokeWidth={RING.w}
-        transform={`rotate(-45 ${RING.cx} ${RING.cy})`}
-        mask={`url(#q-cut-${id})`}
-      />
+      {/* The cut sits on an unrotated group; only the ring inside is turned (so its
+          draw-on animation starts at the tail), keeping the gap exactly around the tail. */}
+      <g mask={`url(#q-cut-${id})`}>
+        <circle
+          className="q-ring"
+          cx={RING.cx}
+          cy={RING.cy}
+          r={RING.r}
+          fill="none"
+          stroke={ringColor ?? "currentColor"}
+          strokeWidth={RING.w}
+          transform={`rotate(45 ${RING.cx} ${RING.cy})`}
+        />
+      </g>
       <line className="q-tail" {...TAIL} stroke="hsl(var(--accent))" strokeWidth={RING.w} strokeLinecap="round" />
     </svg>
   );
