@@ -58,7 +58,7 @@ export const UK_LOCATIONS = [
 export const demoQuotes: Quote[] = [
   {
     id: "Q-001",
-    title: "Kitchen Renovation - Oak Cabinets",
+    title: "Kitchen Refit - Oak Units",
     date: "2025-01-15",
     created_at: "2025-01-15T09:30:00Z",
     client: "Ashworth Construction Ltd",
@@ -73,7 +73,7 @@ export const demoQuotes: Quote[] = [
   },
   {
     id: "Q-002",
-    title: "Bathroom Remodel - Modern Suite",
+    title: "Bathroom Refit - Modern Suite",
     date: "2025-01-12",
     created_at: "2025-01-12T14:20:00Z",
     client: "Hollins & Webb Builders",
@@ -198,7 +198,7 @@ export const demoInvoices: Invoice[] = [
     id: "INV-001",
     quoteId: "Q-001",
     client: "Ashworth Construction Ltd",
-    title: "Kitchen Renovation - Oak Cabinets",
+    title: "Kitchen Refit - Oak Units",
     summary: "Payment for completed kitchen renovation including oak cabinets, countertops, and modern fixtures as per agreed quote.",
     date: "2025-01-18",
     dueDate: "2025-02-17",
@@ -211,7 +211,7 @@ export const demoInvoices: Invoice[] = [
     id: "INV-002",
     quoteId: "Q-002",
     client: "Hollins & Webb Builders",
-    title: "Bathroom Remodel - Modern Suite",
+    title: "Bathroom Refit - Modern Suite",
     summary: "Invoice for bathroom refit with contemporary suite, walk-in shower, and designer tiles installation.",
     date: "2025-01-15",
     dueDate: "2025-02-14",

@@ -18,7 +18,7 @@ const LINES = [
   { item: "Thistle Multi-Finish 25 kg", qty: "3 bags", supplier: "Wickes", price: 33.75 },
   { item: "PVA bonding agent 5 L", qty: "1", supplier: "Wickes", price: 14.25 },
   { item: "Scrim tape 48 mm × 90 m", qty: "1 roll", supplier: "Travis Perkins", price: 4.9 },
-  { item: "Sundries", qty: "dust sheets, tape, cleaning", supplier: "van stock", price: 10.0 },
+  { item: "Sundries", qty: "dust sheets, tape", supplier: "van stock", price: 10.0 },
 ];
 const LABOUR = { days: 1.5, rate: 220 };
 
@@ -169,7 +169,7 @@ export const HeroDemo = () => {
               </ol>
             )}
             {stage === "accepted" && (
-              <p className="hero-line mt-2.5 text-[0.72rem] text-muted-foreground">Accepted by Mrs K. Whitworth · deposit link sent</p>
+              <p className="hero-line mt-2.5 text-[0.72rem] text-muted-foreground">Accepted by Mrs K. Whitworth</p>
             )}
           </div>
         </div>

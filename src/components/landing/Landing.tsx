@@ -74,7 +74,7 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
   return (
       <main>
         {/* ── Hero: the job typed in, the quote that comes out ───────────── */}
-        <section className="px-4 pt-28 sm:pt-36 pb-20 sm:pb-28">
+        <section className="px-4 pt-24 sm:pt-36 pb-16 sm:pb-28">
           <div className="container mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 lg:gap-16 items-center">
             <div className="max-w-xl">
               <h1 className="text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.02] text-primary">

@@ -10,7 +10,7 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
     COMPANY.vatNumber && `VAT ${COMPANY.vatNumber}`,
   ].filter(Boolean).join(". ");
 
-  const linkClass = "text-muted-foreground hover:text-primary transition-colors";
+  const linkClass = "inline-flex items-center min-h-[2.75rem] sm:min-h-0 text-muted-foreground hover:text-primary transition-colors";
 
   // Inside the app: one quiet line, no marketing
   if (compact) {
@@ -32,7 +32,7 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
           <p className="mt-3 text-sm text-muted-foreground max-w-xs">Quotes, jobs and invoices for UK tradespeople.</p>
         </div>
 
-        <nav aria-label="Footer" className="grid grid-cols-2 sm:flex sm:gap-8 gap-3 text-sm">
+        <nav aria-label="Footer" className="grid grid-cols-2 sm:flex sm:gap-8 gap-x-6 gap-y-0 text-sm">
           <Link to="/trades" className={linkClass}>Trades</Link>
           <Link to="/guides" className={linkClass}>Pricing guides</Link>
           <Link to="/quote-templates" className={linkClass}>Quote templates</Link>
