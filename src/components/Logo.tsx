@@ -15,7 +15,7 @@ interface MarkProps {
   title?: string;
 }
 
-const RING = { cx: 47, cy: 47, r: 34, w: 13 };
+const RING = { cx: 47, cy: 47, r: 33, w: 15 };
 const TAIL = { x1: 66, y1: 66, x2: 94, y2: 94 };
 
 export const QuotableMark = ({ size = 32, className = "", animated = false, ringColor, title }: MarkProps) => {
@@ -33,7 +33,7 @@ export const QuotableMark = ({ size = 32, className = "", animated = false, ring
       <defs>
         <mask id={`q-cut-${id}`} maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
           <rect width="100" height="100" fill="#fff" />
-          <line {...TAIL} stroke="#000" strokeWidth={RING.w + 9} strokeLinecap="round" />
+          <line {...TAIL} stroke="#000" strokeWidth={RING.w + 8} strokeLinecap="round" />
         </mask>
       </defs>
       <circle

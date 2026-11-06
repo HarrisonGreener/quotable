@@ -655,7 +655,7 @@ const Invoices = () => {
             />
           )}
 
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>;

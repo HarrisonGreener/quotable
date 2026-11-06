@@ -1228,7 +1228,7 @@ const Account = () => {
               </CardContent>
             </Card>
           </div>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
       <BrandPreviewDialog

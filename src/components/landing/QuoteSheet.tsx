@@ -23,7 +23,8 @@ export const QuoteSheet = () => {
   const total = materials + labour + OVERHEADS;
 
   return (
-    <figure className="quote-sheet relative mx-auto w-full max-w-[34rem]" aria-label="Example quote produced by Quotable">
+    <figure className="mx-auto w-full max-w-[34rem]" aria-label="Example quote produced by Quotable">
+      <div className="relative">
       {/* the sheet underneath — a pad of quotes */}
       <div aria-hidden className="absolute inset-x-3 -bottom-2 top-3 rounded-md bg-card/70 border border-border" />
       <div className="relative rounded-md border border-border bg-card shadow-lg">
@@ -69,6 +70,7 @@ export const QuoteSheet = () => {
           <span className="font-heading text-primary">Total</span>
           <span className="font-heading text-2xl sm:text-3xl text-accent tabular">{gbp(total)}</span>
         </div>
+      </div>
       </div>
       <figcaption className="mt-5 text-xs text-muted-foreground">
         Every price above was read from the merchant's website. Each line on a real quote links to the product.

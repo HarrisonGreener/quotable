@@ -192,7 +192,7 @@ const AppSettings = () => {
               Save Settings
             </Button>
           </div>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>

@@ -428,7 +428,7 @@ const Settings = () => {
             </Button>
             <p className="text-sm text-muted-foreground">Brand settings auto-save as you type</p>
           </div>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>

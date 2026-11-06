@@ -462,7 +462,7 @@ const Reports = () => {
               </CardContent>
             </Card>
           </div>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>

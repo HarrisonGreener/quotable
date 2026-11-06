@@ -225,7 +225,7 @@ const Analytics = () => {
               </Card>
             </div>
           </div>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>

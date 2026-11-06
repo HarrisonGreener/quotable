@@ -525,7 +525,7 @@ const Dashboard = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>

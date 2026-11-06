@@ -46,7 +46,7 @@ const TemplateDesignerPage = () => {
             <TemplateDesigner />
           </div>
 
-          <Footer />
+          <Footer compact />
         </main>
       </div>
     </SidebarProvider>

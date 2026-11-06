@@ -2662,7 +2662,7 @@ const Quotes = () => {
             
             <div className={`${isMobile ? 'h-6' : 'h-4'}`} aria-hidden />
           </div>
-          <Footer />
+          <Footer compact />
         </main>
       </div>
 

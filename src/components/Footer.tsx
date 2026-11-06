@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { COMPANY } from "@/config/company";
 import { Wordmark } from "./Logo";
 
-export const Footer = () => {
+export const Footer = ({ compact = false }: { compact?: boolean }) => {
   const legalLine = [
     COMPANY.legalName,
     COMPANY.companyNumber && `Registered in England & Wales no. ${COMPANY.companyNumber}`,
@@ -11,6 +11,18 @@ export const Footer = () => {
   ].filter(Boolean).join(". ");
 
   const linkClass = "text-muted-foreground hover:text-primary transition-colors";
+
+  // Inside the app: one quiet line, no marketing
+  if (compact) {
+    return (
+      <footer className="px-4 md:px-6 py-6 text-xs text-muted-foreground flex flex-wrap gap-x-5 gap-y-2">
+        <span>© {new Date().getFullYear()} {COMPANY.legalName || COMPANY.tradingName}</span>
+        <Link to="/help" className={linkClass}>Help</Link>
+        <Link to="/terms" className={linkClass}>Terms</Link>
+        <Link to="/privacy" className={linkClass}>Privacy</Link>
+      </footer>
+    );
+  }
 
   return (
     <footer className="border-t border-border bg-background">

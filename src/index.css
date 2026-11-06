@@ -272,7 +272,7 @@ All colors MUST be HSL.
 }
 .q-wordmark-q { align-self: baseline; transform: translateY(0.115em); margin-right: -0.01em; flex: none; }
 
-@keyframes q-ring-draw { 0% { stroke-dashoffset: 214; } 22%, 100% { stroke-dashoffset: 0; } }
+@keyframes q-ring-draw { 0% { stroke-dashoffset: 208; } 22%, 100% { stroke-dashoffset: 0; } }
 @keyframes q-tape-pull {
   0%, 22% { stroke-dashoffset: 40; }
   48% { stroke-dashoffset: -6; }
@@ -280,7 +280,7 @@ All colors MUST be HSL.
   62%, 88% { stroke-dashoffset: 0; }
   100% { stroke-dashoffset: 40; }
 }
-.q-mark-animated .q-ring { stroke-dasharray: 214; animation: q-ring-draw 2.4s ease-out infinite; }
+.q-mark-animated .q-ring { stroke-dasharray: 208; animation: q-ring-draw 2.4s ease-out infinite; }
 .q-mark-animated .q-tail { stroke-dasharray: 40; animation: q-tape-pull 2.4s cubic-bezier(.2,.9,.3,1.2) infinite; }
 @media (prefers-reduced-motion: reduce) {
   .q-mark-animated .q-ring, .q-mark-animated .q-tail { animation: none; stroke-dashoffset: 0; }

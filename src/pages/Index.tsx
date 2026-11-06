@@ -94,7 +94,7 @@ const Index = () => {
         <section className="px-4 pt-28 sm:pt-36 pb-20 sm:pb-28">
           <div className="container mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 lg:gap-16 items-center">
             <div className="max-w-xl">
-              <h1 className="text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[4.5rem] text-primary">
+              <h1 className="text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.02] text-primary">
                 Type the job.
                 <br />
                 Get a priced quote.
@@ -160,11 +160,11 @@ const Index = () => {
                 <p className="mt-4 text-lg text-white/70 max-w-sm">
                   Any job, any trade. If you price materials and time, Quotable will quote it.
                 </p>
-                <div className="mt-8 max-w-sm [&_input]:bg-white [&_input]:text-foreground">
+                <div className="mt-8 max-w-sm [&_input]:bg-white [&_input]:text-foreground [&_p]:text-white/60">
                   <TradeSearchHero />
                 </div>
               </div>
-              <p className="font-heading text-[1.6rem] sm:text-[2.1rem] leading-[1.25] text-white/90" style={{ fontWeight: 500 }}>
+              <p className="font-heading text-[1.45rem] sm:text-[1.9rem] leading-[1.3] text-white/85" style={{ fontWeight: 420 }}>
                 {TRADES.map((t, i) => (
                   <span key={t}>
                     {t}

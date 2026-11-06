@@ -387,7 +387,7 @@ export default function Clients() {
           )}
         </div>
 
-        <Footer />
+        <Footer compact />
       </main>
 
       <AddEditClientDialog
