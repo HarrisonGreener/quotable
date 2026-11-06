@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { TradeSearchHero } from "@/components/TradeSearchHero";
-import { QuoteSheet } from "@/components/landing/QuoteSheet";
+import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LANDING_FAQ } from "@/seo/meta";
 
 const STAGES = [
@@ -96,7 +96,7 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
               </div>
               <p className="mt-4 text-sm text-muted-foreground">The sample account needs no sign-up.</p>
             </div>
-            <QuoteSheet />
+            <HeroDemo />
           </div>
         </section>
 

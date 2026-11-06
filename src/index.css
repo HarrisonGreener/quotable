@@ -310,3 +310,17 @@ All colors MUST be HSL.
   main { padding: 0 !important; }
   .print-sheet { box-shadow: none !important; border: 0 !important; margin: 0 !important; padding: 0 !important; }
 }
+
+/* ── Landing hero: a quote being made on a phone ─────────────── */
+.hero-caret { display: inline-block; width: 1.5px; height: 1em; margin-left: 1px; vertical-align: -0.15em; background: hsl(var(--accent)); animation: hero-blink 0.9s steps(1) infinite; }
+@keyframes hero-blink { 50% { opacity: 0; } }
+.hero-dots { display: inline-flex; gap: 3px; }
+.hero-dots i { width: 4px; height: 4px; border-radius: 9999px; background: hsl(var(--accent)); animation: hero-dot 0.9s ease-in-out infinite; }
+.hero-dots i:nth-child(2) { animation-delay: 0.15s; }
+.hero-dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes hero-dot { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-2px); } }
+.hero-line { animation: hero-in 320ms cubic-bezier(.2,.7,.2,1) both; }
+@keyframes hero-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.hero-press { animation: hero-in 320ms cubic-bezier(.2,.7,.2,1) both, hero-tap 900ms ease-in-out both; }
+@keyframes hero-tap { 0%, 60% { transform: scale(1); } 75% { transform: scale(0.96); filter: brightness(0.92); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .hero-line, .hero-press, .hero-caret, .hero-dots i { animation: none; } }
