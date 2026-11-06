@@ -28,7 +28,47 @@ jobs:
           name: live-quote
           path: live-quote.txt
 
+  live-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: VAT probe
+        run: deno run -A supabase/tests/scrape-check/vat-probe.ts
+      - name: Live accuracy evaluation (messy AI-style lists)
+        run: deno run -A supabase/tests/scrape-check/live-eval.ts live-eval.json | tee live-eval.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-eval
+          path: live-eval.*
+
+  ai-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        ai: [groq, cerebras, gemini]
+    name: ai-eval (${{ matrix.ai }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Full pipeline with the real AI (skips if no key secret)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+          AI_ONLY: ${{ matrix.ai }}
+        run: deno run -A supabase/tests/scrape-check/ai-eval.ts | tee ai-eval.txt
+
   check:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

@@ -500,78 +500,167 @@ export const isValidProductName = (name: string): boolean => {
 // ═══════════════════════════════════════════════════════════════════
 
 const PACK_WORDS = new Set(['pair', 'pack', 'set', 'each', 'roll', 'tin', 'tub', 'bag', 'box', 'tube', 'sheet', 'length',
-  'metre', 'meter', 'per', 'of', 'x', 'kit', 'drum', 'coil', 'bottle', 'container', 'litre', 'liter', 'sqm', 'm2']);
+  'metre', 'meter', 'per', 'of', 'x', 'kit', 'drum', 'coil', 'bottle', 'container', 'litre', 'liter', 'sqm', 'm2', 'approx',
+  'cartridge', 'single', 'multipack', 'value']);
 const DESCRIPTORS = new Set(['white', 'black', 'grey', 'gray', 'chrome', 'brass', 'silver', 'gold', 'satin', 'matt', 'gloss',
   'silk', 'brushed', 'steel', 'stainless', 'metal', 'plastic', 'pvc', 'upvc', 'timber', 'wood', 'wooden', 'treated',
   'softwood', 'hardwood', 'oak', 'pine', 'copper', 'zinc', 'galvanised', 'lap', 'closeboard', 'new', 'standard',
   'universal', 'heavy', 'duty', 'pro', 'premium', 'basic', 'double', 'single', 'twin', 'flexible', 'rapid', 'set',
   'ready', 'mixed', 'grey', 'magnolia', 'coloured', 'type', 'b', 'a', '30ma', 'grade', 'budget', 'mid', 'range',
-  'brilliant', 'mono', 'compliant', 'amendment', 'decorators', 'decorator', 'curve', 'pole', 'trade']);
-// Heads that are often left off product names ("2.5mm twin and earth")
-const OPTIONAL_HEADS = new Set(['cable', 'wire', 'paint', 'compound']);
-const OPPOSITES: [string, string][] = [['wall', 'floor'], ['internal', 'external'], ['indoor', 'outdoor'],
-  ['interior', 'exterior'], ['single', 'double'], ['hot', 'cold'], ['male', 'female'], ['domestic', 'commercial']];
-
-const singular = (w: string) =>
-  w.length <= 3 ? w : w.replace(/ies$/, 'y').replace(/(ch|sh|x|ss)es$/, '$1').replace(/([^s])s$/, '$1');
-
-/** Size-like values by kind: { mm: ['15'], a: ['32'], way: ['10'], kw: ['28'] } */
-const sizesOf = (name: string): Record<string, Set<string>> => {
-  const out: Record<string, Set<string>> = {};
-  const text = name.toLowerCase().replace(/²/g, '').replace(/(\d)\s+(way|gang)\b/g, '$1$2');
-  const re = /(\d+(?:\.\d+)?(?:x\d+(?:\.\d+)?)*)\s?(mm|cm|kw|w|v|a|l|ml|kg|way|gang|ft|m)\b/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text))) (out[m[2]] ??= new Set()).add(m[1]);
-  return out;
+  'brilliant', 'mono', 'compliant', 'amendment', 'decorators', 'decorator', 'curve', 'pole', 'trade', 'pure',
+  'green', 'yellow', 'brown', 'cream', 'blue', 'red', 'anthracite', 'clear', 'light', 'dark', 'natural', 'smooth',
+  'easy', 'quick', 'fast', 'large', 'small', 'medium', 'mini', 'compact', 'slim', 'deep', 'wide', 'long', 'short',
+  'molded', 'moulded', 'ce', 'marked', 'ukca', 'bs', 'en', 'kitemarked', 'inch']);
+// Words that don't say what the product is: "socket outlet", "surge protection device"
+const GENERIC = new Set(['outlet', 'device', 'unit', 'system', 'agent', 'product', 'solution', 'fitting', 'fitt', 'item', 'board',
+  'piece', 'component', 'accessory', 'material', 'supply']);
+// Where or how it's used — useful context, not a different product
+const SOFT = new Set(['floor', 'wall', 'internal', 'interior', 'indoor', 'kitchen', 'bathroom', 'garden', 'general',
+  'purpose', 'all', 'domestic', 'home', 'house', 'profile', 'regularised', 'sawn', 'kiln', 'dried', 'finished', 'size',
+  'quality', 'top', 'value', 'everyday', 'essential', 'essentials', 'classic', 'modern', 'contemporary', 'style',
+  'edge', 'square', 'tapered', 'flush', 'dual', 'rated', 'reversible', 'adjustable', 'certified', 'approved', 'self']);
+const OPTIONAL_HEADS = new Set(['cable', 'wire', 'paint']);
+// Words saying where/what an item is used for, often left off product titles
+const CONTEXT = new Set(['radiator', 'heating', 'central', 'system', 'plumb', 'plumbing', 'electrical', 'building',
+  'plasterer', 'plaster', 'pipework', 'wiring', 'joinery', 'decorating', 'bathroom', 'kitchen', 'main', 'mains',
+  'lighting', 'circuit', 'domestic']);
+const COLOURS = new Set(['white', 'black', 'grey', 'gray', 'green', 'yellow', 'brown', 'cream', 'blue', 'red', 'anthracite', 'magnolia']);
+// Same thing, different word (stems)
+const SYNONYMS: Record<string, string[]> = {
+  joist: ['timber', 'c24', 'c16'], membrane: ['fabric', 'sheet'], fabric: ['membrane'], tail: ['cable'],
+  plasterboard: ['wallboard', 'gyproc', 'board'], wallboard: ['plasterboard'], emulsion: ['paint'],
+  beading: ['bead', 'moulding'], bead: ['beading'], lever: ['handle'], handle: ['lever'],
+  connector: ['connector'], sealant: ['silicone'], silicone: ['sealant'], filler: ['polyfilla'], polyfilla: ['filler'],
+  downlight: ['downlighter', 'spotlight'], spotlight: ['downlight'], valve: ['tap'],
 };
-
-// Compound nouns merchants write as one word
-const COMPOUNDS: [RegExp, string][] = [[/\bangle\s+bead/g, 'anglebead'], [/\bback\s+box/g, 'backbox'], [/\bplaster\s*board/g, 'plasterboard']];
 // Words that make a product a different thing from what was asked (unless asked for)
 const EXCLUSIVE = new Set(['afdd', 'smart', 'wifi', 'wireless', 'bluetooth', 'dummy', 'spare', 'replacement', 'blanking',
-  'adaptor', 'adapter', 'extension', 'stripper', 'tester', 'tool', 'cutter', 'remover', 'gun', 'refill', 'sample']);
-// Generic last words: "skirting board", "bonding agent" — the word before carries the meaning
-const GENERIC_HEADS = new Set(['board', 'agent', 'fitting', 'unit', 'solution', 'product']);
+  'adaptor', 'adapter', 'extension', 'stripper', 'tester', 'tool', 'cutter', 'remover', 'gun', 'refill', 'sample',
+  'usb', 'weatherproof', 'bitumen', 'shower', 'cover', 'bracket', 'clip', 'spacer', 'toy', 'repair', 'cleaner',
+  'primer', 'undercoat', 'varnish', 'stain', 'masonry', 'radiator', 'appliance', 'washing', 'dishwasher', 'cooker',
+  'laser', 'roller', 'brush', 'scraper', 'trowel', 'saw', 'drill', 'hose', 'tray', 'holder', 'hanger', 'cap',
+  'washer', 'gasket', 'insert', 'template', 'guide', 'jig', 'pump', 'scissors', 'knife', 'blade', 'spatula',
+  'sponge', 'bucket', 'hawk', 'float', 'smoother', 'stripper', 'steamer', 'measure', 'gauge', 'sander', 'towel',
+  'fuel', 'towelrad', 'rail']);
+// Pricier variants of the same product — only when asked for, and only when they're in the
+// product's name itself (not "underlay WITH moisture protection")
+const VARIANTS = new Set(['moisture', 'thermal', 'fire', 'foil', 'soundbloc', 'impact', 'vapour', 'twin', 'exterior', 'outdoor', 'external']);
+const OPPOSITES: [string, string][] = [['wall', 'floor'], ['internal', 'external'], ['indoor', 'outdoor'],
+  ['interior', 'exterior'], ['single', 'double'], ['hot', 'cold'], ['male', 'female'], ['domestic', 'commercial'],
+  ['bath', 'basin'], ['bath', 'kitchen'], ['basin', 'kitchen'], ['intermediate', 'corner'], ['matt', 'gloss'], ['matt', 'silk']];
 
-const contentWords = (name: string): string[] =>
-  COMPOUNDS.reduce((t, [re, w]) => t.replace(re, w), name.toLowerCase()).replace(/&/g, ' and ').replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9.\s/]/g, ' ')
-    .split(/\s+/).filter(Boolean)
-    .filter((w) => !/\d/.test(w) && w.length > 1 && w !== 'and' && w !== 'with' && w !== 'for' && !/^(mm|cm|kg|ml|kw|mtr|ltr)$/.test(w))
-    .map(singular);
+// Compound nouns merchants write as one word
+const COMPOUNDS: [RegExp, string][] = [[/\bangle\s+bead/g, 'anglebead'], [/\bback\s+box/g, 'backbox'],
+  [/\b(?:flush\s+)?mounting\s+box/g, 'backbox'], [/\bpattress(?:\s+box)?/g, 'backbox'],
+  [/\bplaster\s*board/g, 'plasterboard'], [/\bdown\s*light/g, 'downlight'], [/\bt\s*&\s*e\b/g, 'twin earth cable']];
 
-const headNoun = (name: string): string | null => {
-  const words = contentWords(name).filter((w) => !PACK_WORDS.has(w) && !DESCRIPTORS.has(w));
-  return words.length ? words[words.length - 1] : null;
+const singular = (w: string, stem = true) => {
+  if (w.length <= 3) return w;
+  const one = w.replace(/ies$/, 'y').replace(/(ch|sh|x|ss)es$/, '$1').replace(/([^s])s$/, '$1');
+  // light stemming so "isolating" = "isolation", "decking" = "deck"
+  return stem && one.length > 5 ? one.replace(/(ing|ion|ed)$/, '') : one;
+};
+
+const EXCLUSIVE_SINGULAR = new Set([...EXCLUSIVE].map((w) => singular(w, false)));
+
+/** Sizes normalised for comparison: { mm: [15, 2400], a: [32], kw: [9.5] } — metres and feet become mm. */
+const sizesOf = (name: string): Record<string, number[]> => {
+  const out: Record<string, number[]> = {};
+  const add = (k: string, v: number) => { if (isFinite(v) && v > 0) (out[k] ??= []).push(Math.round(v * 100) / 100); };
+  const text = name.toLowerCase().replace(/²/g, '2').replace(/(\d)\s*-?\s*(way|gang)\b/g, '$1$2');
+  for (const m of text.matchAll(/(\d+(?:\.\d+)?)\s?(mm2|mm|cm|m|ft|kw|w|v|a|way|gang)\b(?![²2])/g)) {
+    const v = parseFloat(m[1]);
+    switch (m[2]) {
+      case 'mm': add('mm', v); break;
+      case 'mm2': add('mm', v); break; // cable csa: "2.5mm²" and "2.5mm" mean the same cable
+      case 'cm': add('mm', v * 10); break;
+      case 'm': add('mm', v * 1000); break;
+      case 'ft': add('mm', v * 304.8); break;
+      default: add(m[2], v);
+    }
+  }
+  return out;
+};
+const sameSize = (a: number, b: number) => Math.abs(a - b) <= Math.max(0.5, 0.025 * Math.max(a, b));
+
+const words = (name: string, stem = true): string[] =>
+  COMPOUNDS.reduce((t, [re, w]) => t.replace(re, w), name.toLowerCase()).replace(/&/g, ' and ')
+    .replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9.\s/]/g, ' ').split(/\s+/).filter(Boolean)
+    .filter((w) => !/\d/.test(w) && w.length > 1 && !['and', 'with', 'for', 'the', 'to', 'in', 'on', 'or'].includes(w)
+      && !/^(mm|cm|kg|ml|kw|mtr|ltr|ft|in)$/.test(w))
+    .map((w) => singular(w, stem));
+
+/** The words that say what the product is. */
+const significant = (name: string) =>
+  // filter on the plain word ("molded", "marked"), then stem what's left
+  words(name, false).filter((w) => !PACK_WORDS.has(w) && !DESCRIPTORS.has(w) && !GENERIC.has(w) && !SOFT.has(w)
+    && !['way', 'gang', 'pole'].includes(w)) // sizes, checked separately
+    .map((w) => singular(w))
+    .filter((w) => !PACK_WORDS.has(w) && !DESCRIPTORS.has(w) && !GENERIC.has(w) && !SOFT.has(w));
+
+/** The word that says what an item is ("hinge" in "Internal door hinge 3 inch pair"). */
+export const headWord = (name: string): string | undefined => {
+  const sig = significant(name).filter((w) => w.length >= 3);
+  return sig[sig.length - 1];
+};
+
+const hasWord = (set: string[], w: string) => {
+  const forms = [w, ...(SYNONYMS[w] ?? [])];
+  return set.some((x) => forms.some((f) => x === f || (x.length > 3 && f.length > 3 && (x.startsWith(f) || f.startsWith(x)))));
+};
+
+/** Why `candidate` can't be the `wanted` product, or null when it can. */
+export const incompatibility = (wanted: string, candidate: string): string | null => {
+  const want = words(wanted);
+  const have = words(candidate);
+
+  // 1. a different kind of thing (an AFDD isn't an RCBO, a stripper isn't cable)
+  // (unstemmed, so "brushed chrome" isn't a brush and "moulded door" isn't a mould)
+  const wantRaw = words(wanted, false);
+  for (const w of words(candidate, false)) if (EXCLUSIVE_SINGULAR.has(w) && !hasWord(wantRaw, w) && !hasWord(want, w)) return `different product (${w})`;
+  const mainName = candidate.split(/\b(?:with|incl|including|inc\.?)\b|\+/i)[0] || candidate;
+  for (const w of words(mainName, false)) if (VARIANTS.has(w) && !hasWord(wantRaw, w)) return `pricier variant (${w})`;
+  // wood filler isn't for walls
+  if (want.includes('filler') && have.includes('wood') && !want.includes('wood')) return 'wood filler';
+  // "cable stripper FOR twin & earth": what the wanted thing is only appears after "for"
+  const forAt = candidate.toLowerCase().search(/\b(for|to suit|suitable for)\b/);
+  // What it's FOR isn't what it IS: "earth clamp for pipework" is an earth clamp
+  const wantedCore = wanted.split(/\b(?:for|to suit|suitable for|with)\b/i)[0] || wanted;
+  const sig = significant(wantedCore);
+  const head = sig[sig.length - 1];
+  if (forAt > 0 && head && !hasWord(words(candidate.slice(0, forAt)), head) && hasWord(words(candidate.slice(forAt)), head)) return `accessory for ${head}`;
+
+  // 2. opposites (wall vs floor) unless the product says both ("wall and floor tile")
+  for (const [a, b] of OPPOSITES) {
+    if ((want.includes(a) && have.includes(b) && !have.includes(a)) || (want.includes(b) && have.includes(a) && !have.includes(b))) return `${a} vs ${b}`;
+  }
+  // 3. a colour was asked for and the product is a different colour
+  const wc = want.filter((w) => COLOURS.has(w)), hc = have.filter((w) => COLOURS.has(w));
+  if (wc.length && hc.length && !wc.some((c) => hc.includes(c))) return `colour ${hc.join('/')}`;
+
+  // 4. (An accessory of the wanted thing — "wallpaper seam roller", "pipe end cap" — is caught by
+  //    the EXCLUSIVE list above rather than by guessing the title's main noun, which merchants
+  //    put in any order: "Fence Post Slotted Intermediate", "Thistle Multi Finish Plaster".)
+
+  // 5. every word that says what it is must be there (one may be missing from a long description)
+  // (heads often left off titles — "2.5mm twin and earth" is cable — don't count against)
+  const missing = sig.filter((w) => !hasWord(have, w) && !OPTIONAL_HEADS.has(w));
+  if (head && missing.includes(head)) return `not a ${head}`;
+  // A context word ("RADIATOR inhibitor", "PLASTERERS scrim tape") may be missing from the title
+  const allowed = (sig.length >= 4 ? 1 : 0) + (missing.some((w) => CONTEXT.has(w)) ? 1 : 0);
+  if (missing.length > allowed) return `missing ${missing.join(', ')}`;
+
+  // 6. sizes of the same kind must agree when both state them (2.4 m = 2400 mm = 8 ft)
+  const ws = sizesOf(wanted), hs = sizesOf(candidate);
+  for (const kind of Object.keys(ws)) {
+    if (hs[kind] && !ws[kind].every((v) => hs[kind].some((h) => sameSize(v, h)))) return `size ${kind} ${ws[kind].join('/')} vs ${hs[kind].join('/')}`;
+  }
+  return null;
 };
 
 /** True when `candidate` could genuinely be the `wanted` product. */
-export const isCompatibleProduct = (wanted: string, candidate: string): boolean => {
-  const want = new Set(contentWords(wanted));
-  const have = new Set(contentWords(candidate));
-  const has = (set: Set<string>, w: string) => set.has(w) || [...set].some((x) => x.length > 3 && (x.startsWith(w) || w.startsWith(x)));
+export const isCompatibleProduct = (wanted: string, candidate: string): boolean => incompatibility(wanted, candidate) === null;
 
-  // the thing asked for must be what the product is
-  const wantHead = headNoun(wanted);
-  const wantWords = contentWords(wanted).filter((w) => !PACK_WORDS.has(w) && !DESCRIPTORS.has(w));
-  const beforeHead = wantWords.length > 1 ? wantWords[wantWords.length - 2] : null;
-  const headOk = !wantHead || has(have, wantHead) || OPTIONAL_HEADS.has(wantHead)
-    || (GENERIC_HEADS.has(wantHead) && !!beforeHead && has(have, beforeHead));
-  if (!headOk) return false;
-  for (const w of have) if (EXCLUSIVE.has(w) && !want.has(w)) return false;
-  // and the product must not be a different thing that merely shares words
-  const haveHead = headNoun(candidate);
-  if (haveHead && !has(want, haveHead) && !OPTIONAL_HEADS.has(haveHead) && !GENERIC_HEADS.has(haveHead)) return false;
-
-  for (const [a, b] of OPPOSITES) {
-    if ((want.has(a) && have.has(b)) || (want.has(b) && have.has(a))) return false;
-  }
-  // sizes of the same kind must agree when both names state them
-  const ws = sizesOf(wanted), hs = sizesOf(candidate);
-  for (const kind of Object.keys(ws)) {
-    if (hs[kind] && ![...ws[kind]].some((v) => hs[kind].has(v))) return false;
-  }
-  return true;
-};
 
 /** Pack size from the unit ("100m", "pack of 10") or the name ("… 10 Pack"). */
 export const packInfo = (name: string, unit: string): { size: number; unitLabel: string } | null => {
@@ -1535,8 +1624,10 @@ ${tradeProfile.tradeNotes ? `- Notes: ${tradeProfile.tradeNotes}` : ''}
   }
 
   return `You are Quotable's quantity surveyor for UK trades. For ANY job you list exactly what
-must be bought and how long the work takes. You NEVER give prices — Quotable looks up live
-supplier prices for every item you list, so item names and units must be precise.
+must be bought and how long the work takes. Quotable looks up live supplier prices for every
+item you list, so item names and units must be precise. For each material also give "estimate":
+your best guess of the typical UK retail price per unit inc VAT (£). It is only shown, marked as
+an estimate, if no live price can be found.
 
 ═════════════════════════════════════════════════════════════════════
 OUTPUT (valid JSON only, no commentary)
@@ -1547,7 +1638,7 @@ OUTPUT (valid JSON only, no commentary)
     { "label": "Wall area", "value": 12, "unit": "m²", "assumed": true, "question": "What's the tiled area?" }
   ],
   "materials": [
-    { "name": "Ready mixed wall tile adhesive 15kg", "quantity": 3, "unit": "tub", "basis": "12 m² at ~5 m² per tub" }
+    { "name": "Ready mixed wall tile adhesive 15kg", "quantity": 3, "unit": "tub", "basis": "12 m² at ~5 m² per tub", "estimate": 22 }
   ],
   "optional_materials": [ { "name": "...", "quantity": 1, "unit": "each" } ],
   "labour": [ { "name": "Tile walls", "hours": 7 } ],
@@ -1570,8 +1661,16 @@ OUTPUT (valid JSON only, no commentary)
 ═════════════════════════════════════════════════════════════════════
 - Work quantities out from the measurements, with normal waste: tiles/flooring +10%,
   timber/skirting +10%, plasterboard +5%. Put the short sum in "basis".
-- Include the consumables the job actually uses (adhesive, grout, filler, sealant, fixings,
-  PTFE, solder, cable clips) — they are real costs. Leave out tools and PPE.
+- Include the materials the job actually uses up in quantity (adhesive, grout, plaster, paint,
+  cable, pipe, timber, boards). Leave out tools and PPE.
+- VAN STOCK: don't itemise small consumables a tradesperson carries anyway (PTFE tape, wall
+  plugs, screws for a few fixings, earth sleeving, cable clips, solder, masking tape, a tube of
+  caulk or filler on a small job). Add ONE overhead "Sundries" instead. Only itemise them when the
+  job uses a lot (a box of 1000 drywall screws for boarding a room, 20 tubes of adhesive).
+- Buy the SMALLEST pack that covers the need — never a 100 m roll for 2 m of sleeving or a
+  1 kg tub when a 250 g tube does.
+- Pick the product made for the job: "Easy sand wall filler", not wood filler, for walls;
+  "6491X 10mm earth cable" (single core), not twin and earth, for bonding.
 - NAME = what you'd type into a merchant's website: product type + key size/spec/pack.
   Good: "15mm copper pipe", "2.5mm twin and earth cable", "Multi-finish plaster 25kg",
   "Trade vinyl matt emulsion 10L", "Double switched socket white", "Plasterboard 12.5mm 2400 x 1200mm",
@@ -1589,16 +1688,25 @@ white accessories, a better grade of tap). Never put required items here.
 ═════════════════════════════════════════════════════════════════════
 3. LABOUR
 ═════════════════════════════════════════════════════════════════════
-- One line per distinct task, in hours ON SITE for the crew size given (Quotable multiplies by
-  the number of workers). Use realistic UK rates for a competent tradesperson, e.g.
-  skim walls ~3 m²/h, paint walls ~10 m²/h per coat, wall tiling ~1.5 m²/h, hang an internal
-  door ~2 h, fit a double socket on an existing circuit ~1.5 h, swap a radiator ~1.25 h.
-- Include preparation, setting out, making good, testing/commissioning and clearing up.
+- Hours ON SITE for the crew size given (Quotable multiplies by the number of workers), for a
+  competent, efficient UK tradesperson. Use 1–4 lines; don't pad small jobs with many small steps.
+- Calibrate against these typical WHOLE-JOB times (including setup, testing, making good, clearing up):
+  · extra double socket off an existing circuit: 1.5–2 h  · each further socket same room: +1 h
+  · consumer unit change, 8–10 circuits, with testing & certificate: 6–8 h
+  · swap a radiator like-for-like: 1.5 h first, +1 h each after  · swap a tap: 1–1.5 h
+  · replace a close-coupled toilet: 2.5–3 h  · hang an internal door with ironmongery: 2–2.5 h
+  · skim walls ~2.5 m²/h plus ~1.5 h setup/protection (a 3×3 m room's walls ≈ 1.5 days)
+  · skim ceilings ~2.5 m²/h  · board a ceiling ~4 m²/h
+  · decorate a medium bedroom — walls + ceiling 2 coats, skirting and one door: ~12 h in total
+    (protect/fill/sand 1.5 h, walls ~10 m²/h per coat, ceiling ~8 m²/h per coat, skirting+door ~2 h)
+  · wall tiling ~1.5 m²/h, floor tiling ~1.2 m²/h (plus setting out and grouting)
+  · lay laminate ~2.5 m²/h  · fence panel with concrete post ~1.25 h each
+- If the job is small, the total should be small: a one-socket job is about 2 hours, not 4.
 
 ═════════════════════════════════════════════════════════════════════
 4. OVERHEADS
 ═════════════════════════════════════════════════════════════════════
-Only what applies: Transport, Waste disposal, Skip hire, Parking, Equipment hire,
+Only what applies: Transport, Sundries, Waste disposal, Skip hire, Parking, Equipment hire,
 Access equipment, Scaffolding, Building control notification.
 suggested_overheads: optional extras only, never duplicating overheads.
 ${quoteGenerationMode === 'minimal' ? `
@@ -1991,6 +2099,7 @@ export interface CondensedVersion {
 
 export const OVERHEAD_PRICING: Record<string, number> = {
   'building control notification': 25,
+  'sundries': 10,
   'transport': 25,
   'waste disposal': 35,
   'parking': 15,
@@ -2167,7 +2276,7 @@ export const priceMaterials = async (
         }
         if (enableRealtimeLookup && liveLookupsLeft > 0) {
           liveLookupsLeft--;
-          const live = chooseOffer({ name: materialName, unit }, await liveOffers(PRICE_CLIENT, { name: materialName, unit }, { category }), isCompatibleProduct, { preferred: preferredSuppliers, live: true });
+          const live = chooseOffer({ name: materialName, unit }, await liveOffers(PRICE_CLIENT, { name: materialName, unit }, { category, compatible: isCompatibleProduct, head: headWord }), isCompatibleProduct, { preferred: preferredSuppliers, live: true });
           if (live) {
             console.log(`✓ Live price: "${materialName}" → "${live.matchedProduct}" £${live.unitPrice} [${live.supplier}]`);
             return toLine(live, new Date().toISOString());
@@ -2236,9 +2345,12 @@ export const priceMaterials = async (
       };
     }
     
-    // Typical price from the job recipe — a known UK retail figure for exactly this item
-    if (Number(mat.typicalPrice) > 0) {
-      const unitPrice = Number(mat.typicalPrice);
+    // Typical price: from a job recipe, or the AI's own estimate for this exact item.
+    // Only used when no real product was found, and always marked Verify.
+    const typical = Number(mat.typicalPrice) > 0 ? Number(mat.typicalPrice)
+      : Number(mat.estimate) > 0 && Number(mat.estimate) < 5000 ? Number(mat.estimate) : 0;
+    if (typical > 0) {
+      const unitPrice = typical;
       console.log(`≈ Typical price: "${materialName}" £${unitPrice}/${unit}`);
       return {
         name: materialName,
@@ -2246,7 +2358,7 @@ export const priceMaterials = async (
         unit,
         unitPrice,
         cost: Math.round(unitPrice * quantity * 100) / 100,
-        priceSource: 'Typical price',
+        priceSource: Number(mat.typicalPrice) > 0 ? 'Typical price' : 'AI estimate',
         priceConfidence: 0.6,
         supplierUrl: generateSupplierUrl(materialName, undefined, primaryTrade).url,
         needsVerification: true,

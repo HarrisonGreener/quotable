@@ -75,10 +75,21 @@ export const convertPrice = (
   if (kind === "length") {
     // "4400mm x 119mm x 18mm" → the longest dimension of a metre or more is the length
     const mmLen = Math.max(0, ...[...product.name.matchAll(/(\d{4,5})\s*mm/gi)].map((m) => parseInt(m[1], 10))) / 1000;
-    const L = (pp.count ?? 1) * (pp.length ?? (mmLen >= 1 ? mmLen : 0));
+    let L = (pp.count ?? 1) * (pp.length ?? (mmLen >= 1 ? mmLen : 0));
+    // Beading and trims are sold in standard 2.4 m lengths and often don't say so
+    if (!L && /\b(scotia|quadrant|beading|bead|trim|cover strip|edging)\b/i.test(product.name)) {
+      const r = per(product.price, " m (standard length assumed)", 2.4);
+      return { ...r, note: `£${product.price.toFixed(2)} per 2.4 m length (assumed) → £${(product.price / 2.4).toFixed(2)}/${wanted.unit}` };
+    }
     return L > 0 ? per(product.price, " m", L) : null;
   }
-  if (kind === "area") return pp.area ? per(product.price, " m²", (pp.count ?? 1) * pp.area) : null;
+  if (kind === "area") {
+    if (pp.area) return per(product.price, " m²", (pp.count ?? 1) * pp.area);
+    // "Tile 300 x 600mm Pack of 6" → 6 × 0.18 m²; only for packs (a lone tile price may really be per m²)
+    const d = dimensionNumbers(product.name).filter((n) => n >= 50 && n <= 3000);
+    if (pp.count && pp.count > 1 && d.length >= 2) return per(product.price, " m²", (pp.count * d[0] * d[1]) / 1e6);
+    return null;
+  }
   if (kind === "volume") return pp.volume ? per(product.price, " L", (pp.count ?? 1) * pp.volume) : null;
   if (kind === "weight") return pp.weight ? per(product.price, " kg", (pp.count ?? 1) * pp.weight) : null;
 
@@ -90,19 +101,23 @@ export const convertPrice = (
   for (const k of ["volume", "weight", "area", "length"] as const) {
     if (wp[k] && pp[k] && Math.abs(wp[k]! - pp[k]!) / wp[k]! > 0.02) {
       const ratio = wp[k]! / pp[k]!;
-      if (ratio < 0.2 || ratio > 5) return null; // too different to be the same item
+      if (ratio < 0.34 || ratio > 3) return null; // too different to price one from the other
       price = price * ratio;
       note = `scaled from ${pp[k]} to ${wp[k]}`;
       break;
     }
   }
   if (u === "pair" || u === "pairs") {
-    const inName = /\bpair\b/i.test(product.name);
+    const inName = /\bpair\b|\btwin pack\b|\bset of 2\b|(?:&|\band\b)\s*(?:amp;\s*)?lockshield/i.test(product.name);
     const unitPrice = pp.count ? (price / pp.count) * 2 : inName ? price : price * 2;
     return { unitPrice: Math.round(unitPrice * 100) / 100, note: pp.count ? `pack of ${pp.count} → pair` : undefined };
   }
   if (pp.count && pp.count > 1) {
-    if (PACK_UNITS.test(u) && wp.count) { price = (price / pp.count) * wp.count; note = `pack of ${pp.count} → pack of ${wp.count}`; }
+    if (PACK_UNITS.test(u) && wp.count) {
+      const ratio = wp.count / pp.count;
+      if (ratio < 0.34 || ratio > 3) return null; // a pack of 12 says little about a pack of 100
+      price = (price / pp.count) * wp.count; note = `pack of ${pp.count} → pack of ${wp.count}`;
+    }
     else if (!PACK_UNITS.test(u) && !wp.count) { price = price / pp.count; note = `£${product.price.toFixed(2)} for ${pp.count} → each`; }
   } else if (wp.count && wp.count > 1 && PACK_UNITS.test(u)) {
     return null; // quote wants a pack of N, product is a single — can't tell the pack price
@@ -121,20 +136,33 @@ export interface Priced {
   score: number; note?: string; live: boolean;
 }
 
-/** Numbers in "600 x 1000mm" style dimensions. */
-const dimensionNumbers = (s: string): number[] => {
+/** Dimensions in "600 x 1000mm" / "2.4m x 1.2m" style, in mm. A number without a unit takes the next unit in the group. */
+export const dimensionNumbers = (s: string): number[] => {
   const out: number[] = [];
-  for (const m of s.toLowerCase().matchAll(/(\d+(?:\.\d+)?)\s*(?:mm|cm|m)?\s*x\s*(\d+(?:\.\d+)?)(?:\s*(?:mm|cm|m)?\s*x\s*(\d+(?:\.\d+)?))?/g)) {
-    for (const g of [m[1], m[2], m[3]]) if (g) out.push(parseFloat(g));
+  const toMm = (n: number, u?: string) => (u === "m" ? n * 1000 : u === "cm" ? n * 10 : u === "ft" ? n * 304.8 : n);
+  const re = /(\d+(?:\.\d+)?)\s*(mm|cm|m|ft)?\s*x\s*(\d+(?:\.\d+)?)\s*(mm|cm|m|ft)?(?:\s*x\s*(\d+(?:\.\d+)?)\s*(mm|cm|m|ft)?)?/g;
+  for (const m of s.toLowerCase().matchAll(re)) {
+    const units = [m[2], m[4], m[6]];
+    const nums = [m[1], m[3], m[5]];
+    nums.forEach((n, i) => {
+      if (!n) return;
+      const unit = units[i] ?? units.slice(i + 1).find(Boolean) ?? units.slice(0, i).reverse().find(Boolean) ?? "mm";
+      out.push(Math.round(toMm(parseFloat(n), unit) * 100) / 100);
+    });
   }
   return out;
 };
-/** When both name W x H dimensions, every wanted dimension must be on the product. */
+/** When both name W x H dimensions, every wanted dimension must be on the product (2.5% tolerance). */
 export const sameDimensions = (wanted: string, candidate: string) => {
   const a = dimensionNumbers(wanted), b = dimensionNumbers(candidate);
   if (!a.length || !b.length) return true;
   const pool = [...b];
-  return a.every((n) => { const i = pool.indexOf(n); if (i < 0) return false; pool.splice(i, 1); return true; });
+  return a.every((n) => {
+    const i = pool.findIndex((x) => Math.abs(x - n) <= Math.max(0.5, 0.025 * Math.max(x, n)));
+    if (i < 0) return false;
+    pool.splice(i, 1);
+    return true;
+  });
 };
 
 /** Best offer for an item: must be the same type and size; among close matches, the cheapest. */
@@ -144,7 +172,7 @@ export const chooseOffer = (
   compatible: (wanted: string, candidate: string) => boolean,
   opts: { minScore?: number; preferred?: string[]; live?: boolean } = {},
 ): Priced | null => {
-  const minScore = opts.minScore ?? 0.5;
+  const minScore = opts.minScore ?? 0.15; // the compatibility rule does the real filtering; this only drops noise
   const COLOURS = /\b(white|black|grey|gray|green|yellow|brown|cream|magnolia|chrome)\b/gi;
   const scoreOf = (o: Offer) => {
     // a colour the product doesn't mention shouldn't sink an otherwise exact match
@@ -171,13 +199,26 @@ export const chooseOffer = (
   };
 };
 
+// ── VAT basis ─────────────────────────────────────────────────────
+// Toolstation and Wickes publish prices including VAT. Travis Perkins (a trade
+// merchant) publishes them EXCLUDING VAT — its page shows "£29.55 ex. vat" with
+// £35.46 as the main price. Quotes work in retail prices inc VAT, so convert.
+export const PRICES_EX_VAT = new Set(["Travis Perkins"]);
+export const retailPrice = (supplier: string, price: number) =>
+  PRICES_EX_VAT.has(supplier) ? Math.round(price * 1.2 * 100) / 100 : price;
+
 // ── database + live lookups ───────────────────────────────────────
 
 /** Words worth searching on: drop sizes and filler, keep nouns. */
 export const searchTerms = (name: string) => {
-  const words = tokens(name).filter((t) => /^[a-z]{3,}$/.test(t) && !/^(new|and|with|for|white|each|set|pack|pair|box|tub|bag|type)$/.test(t));
-  // panel/door sizes like 1981 x 762 narrow the search a lot
-  const sizes = [...name.matchAll(/(?<![\d.])(\d{3,4})(?![\d.])/g)].map((m) => m[1]);
+  const words = tokens(name)
+    .filter((t) => /^[a-z]{3,}$/.test(t) && !/^(new|and|with|for|white|each|set|pack|pair|tub|bag|type|way|unit|kit|outlet|device|inch|marked)$/.test(t))
+    .map((t) => (t.length > 4 ? t.replace(/(ies)$/, "y").replace(/([^s])s$/, "$1") : t)); // "tails" also finds "tail"
+  // panel/door sizes like 1981 x 762 (or 2.4m x 1.2m → 2400, 1200) narrow the search a lot
+  const sizes = [
+    ...[...name.matchAll(/(?<![\d.])(\d{3,4})(?![\d.])/g)].map((m) => m[1]),
+    ...dimensionNumbers(name).filter((n) => n >= 100 && Number.isInteger(n)).map(String),
+  ];
   return [...new Set([...words.slice(0, 6), ...sizes.slice(0, 2)])];
 };
 
@@ -231,31 +272,46 @@ export const storeProduct = async (
 export const liveOffers = async (
   supabase: any,
   item: { name: string; unit: string },
-  opts: { pages?: number; category?: string | null } = {},
+  opts: {
+    pages?: number; category?: string | null; trace?: string[];
+    compatible?: (wanted: string, candidate: string) => boolean;
+    head?: (name: string) => string | undefined;
+  } = {},
 ): Promise<Offer[]> => {
   const terms = searchTerms(item.name);
   if (!terms.length) return [];
-  const { data } = await supabase.rpc("search_product_pages", { terms, lim: 100 });
+  // Pages must contain what the item IS ("hinge"), so "internal door hinge" doesn't return 100 doors
+  const head = opts.head ? opts.head(item.name) : undefined;
+  const must = head && /^[a-z]{3,}$/.test(head) ? (head.length > 4 ? head.replace(/(ing|ion|ed|s)$/, "") : head) : null;
+  let { data } = await supabase.rpc("search_product_pages", { terms, lim: 100, must });
+  if (must && (data?.length ?? 0) < 5) ({ data } = await supabase.rpc("search_product_pages", { terms, lim: 100 }));
+  const trace = (m: string) => opts.trace?.push(m);
+  trace(`index hits ${data?.length ?? 0}: ${(data ?? []).slice(0, 4).map((r: any) => `${r.slug} [sim ${similarity(item.name, r.slug || "").toFixed(2)}${opts.compatible && !opts.compatible(item.name, r.slug || "") ? " incompatible" : ""}]`).join(" | ")}`);
   const ranked = (data ?? [])
     .map((r: any) => ({ ...r, score: similarity(item.name, r.slug || "") }))
-    .filter((r: any) => r.score >= 0.45)
-    .sort((a: any, b: any) => b.score - a.score);
+    .filter((r: any) => r.score >= 0.25 && !/\bsample\b/.test(r.slug || ""))
+    // don't spend a page fetch on something the address already shows is the wrong thing
+    .filter((r: any) => !opts.compatible || opts.compatible(item.name, r.slug || ""))
+    .sort((a: any, b: any) => b.score - a.score || (a.slug?.length ?? 0) - (b.slug?.length ?? 0));
 
+  trace(`after similarity+compatibility ${ranked.length}: ${ranked.slice(0, 3).map((r: any) => r.slug).join(" | ")}`);
   // Best page per supplier, then the next best overall, up to `pages`
   const pick: any[] = [];
   const seenSupplier = new Set<string>();
   for (const r of ranked) if (!seenSupplier.has(r.supplier)) { pick.push(r); seenSupplier.add(r.supplier); }
-  for (const r of ranked) if (pick.length < (opts.pages ?? 3) && !pick.includes(r)) pick.push(r);
+  for (const r of ranked) if (pick.length < (opts.pages ?? 4) && !pick.includes(r)) pick.push(r);
 
-  const offers = await Promise.all(pick.slice(0, opts.pages ?? 3).map(async (r: any) => {
+  const offers = await Promise.all(pick.slice(0, opts.pages ?? 4).map(async (r: any) => {
     const page = await fetchPage(r.url, { allowFirecrawl: false });
     const p = page.ok ? extractProducts(page.html, r.url)[0] : undefined;
+    trace(`fetched ${r.supplier} ${page.status} ${p ? `${p.name} £${p.price}` : `no product (${page.error ?? "no JSON-LD"})`}`);
     if (!p) {
       await supabase.from("crawl_queue").update({ last_crawled: new Date().toISOString(), error_message: page.error ?? "no price on page" }).eq("url", r.url);
       return null;
     }
-    await storeProduct(supabase, { name: p.name, price: p.price, url: r.url, sku: p.sku, supplier: r.supplier, category: opts.category });
-    return { name: p.name, price: p.price, url: r.url, supplier: r.supplier, fetchedAt: new Date().toISOString(), confidence: 0.9 } as Offer;
+    const price = retailPrice(r.supplier, p.price);
+    await storeProduct(supabase, { name: p.name, price, url: r.url, sku: p.sku, supplier: r.supplier, category: opts.category });
+    return { name: p.name, price, url: r.url, supplier: r.supplier, fetchedAt: new Date().toISOString(), confidence: 0.9 } as Offer;
   }));
   return offers.filter((o): o is Offer => !!o);
 };

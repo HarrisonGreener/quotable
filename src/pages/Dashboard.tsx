@@ -248,7 +248,6 @@ const Dashboard = () => {
 
           <div className={`space-y-6 max-w-full ${isMobile ? 'p-4' : 'p-6'}`}>
             {isDemo && <DemoModeBanner />}
-            {isDemo && <DemoModeNotice />}
             
             {/* Setup Checklist */}
             {!isDemo && showChecklist && !isLoading && (

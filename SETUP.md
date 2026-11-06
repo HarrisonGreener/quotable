@@ -4,8 +4,8 @@ Quotable is a React + Vite front end with a Supabase back end (Postgres, Auth,
 Edge Functions). None of it depends on Lovable any more. You need:
 
 - A free **Supabase** account → database, logins and server functions
-- A free **Google AI Studio** key → AI quoting (Gemini)
-- A free **Groq** key (optional) → backup AI if Gemini is busy
+- Free AI keys — any one works, all three gives the most free quotes a day:
+  **Groq** (console.groq.com), **Cerebras** (cloud.cerebras.ai), **Google AI Studio** (Gemini)
 - A host for the front end → **Vercel** or **Netlify** (both free)
 - Your existing **Stripe** and **Resend** keys, if you use payments and emails
 
@@ -53,8 +53,9 @@ Then set them on the server. Run these in your own terminal — don't paste keys
 chats or commit them:
 
 ```sh
+supabase secrets set GROQ_API_KEY=...
+supabase secrets set CEREBRAS_API_KEY=...
 supabase secrets set GEMINI_API_KEY=...
-supabase secrets set GROQ_API_KEY=...                # optional backup
 supabase secrets set STRIPE_SECRET_KEY=sk_live_...   # if you take payments
 supabase secrets set RESEND_API_KEY=re_...           # for welcome/auth emails
 supabase secrets set SEND_EMAIL_HOOK_SECRET=...      # from step 7
@@ -68,9 +69,11 @@ automatically — don't set them.
 
 | Secret | Default | What it does |
 |---|---|---|
-| `GEMINI_MODEL` | `gemini-3.5-flash` | Main AI model |
-| `GEMINI_FALLBACK_MODEL` | `gemini-2.5-flash` | Tried if the main model fails. Set to empty to skip |
-| `GROQ_MODEL` | `openai/gpt-oss-120b` | Backup model on Groq |
+| `AI_ORDER` | `gemini-lite,groq,cerebras,gemini` | Which AI is tried first; the next takes over when one is busy or out of free quota. Gemini Flash-Lite scored 9/9 in testing |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Model on Groq |
+| `CEREBRAS_MODEL` | `gpt-oss-120b` | Model on Cerebras |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | First Gemini model (most free requests) |
+| `GEMINI_FALLBACK_MODELS` | `gemini-3.8-flash,gemini-3.6-flash` | Bigger Gemini models, tried last |
 | `LIVE_PRICE_LOOKUPS` | on | Set to `off` to stop live supplier lookups during quoting |
 | `LIVE_LOOKUPS_PER_QUOTE` | `4` | Max live supplier lookups per quote (each takes a few seconds) |
 | `FIRECRAWL_API_KEY` | not set | Paid fallback for sites that block plain requests. Leave unset to stay free |

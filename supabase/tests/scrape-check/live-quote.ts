@@ -8,7 +8,7 @@
 import { readSitemap } from "../../functions/_shared/scraper.ts";
 import { slugText } from "../../functions/_shared/recipes/index.ts";
 import { liveOffers, chooseOffer } from "../../functions/_shared/live-price.ts";
-import { isCompatibleProduct } from "../../functions/_shared/quote-engine.ts";
+import { isCompatibleProduct, headWord } from "../../functions/_shared/quote-engine.ts";
 
 const SUPPLIERS: Record<string, { sitemap: string; pattern: RegExp }> = {
   Toolstation: { sitemap: "https://www.toolstation.com/sitemap.xml", pattern: /\/p\d{3,}/ },
@@ -30,7 +30,9 @@ const db: any = {
   rpc: async (fn: string, args: any) => {
     if (fn !== "search_product_pages") return { data: [] };
     const terms: string[] = args.terms;
+    const must: string | null = args.must ?? null;
     const rows = index
+      .filter((r: any) => !must || [...r.words].some((w: string) => w.startsWith(must)))
       .map((r) => ({ ...r, rank: terms.filter((t) => [...r.words].some((w) => w.startsWith(t))).length }))
       .filter((r) => r.rank > 0)
       .sort((a, b) => b.rank - a.rank)
@@ -96,7 +98,7 @@ for (const [job, items] of Object.entries(JOBS)) {
   for (const item of items) {
     total++;
     const t = Date.now();
-    const offers = await liveOffers(db, item, { pages: 3 });
+    const offers = await liveOffers(db, item, { pages: 4, compatible: isCompatibleProduct, head: headWord });
     const hit = chooseOffer(item, offers, isCompatibleProduct, { live: true });
     const ms = Date.now() - t;
     if (hit) {

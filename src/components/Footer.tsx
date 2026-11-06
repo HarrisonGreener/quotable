@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Separator } from "@/components/ui/separator";
 import { COMPANY } from "@/config/company";
+import { Wordmark } from "./Logo";
 
 export const Footer = () => {
   const legalLine = [
@@ -8,44 +8,35 @@ export const Footer = () => {
     COMPANY.companyNumber && `Registered in England & Wales no. ${COMPANY.companyNumber}`,
     COMPANY.registeredOffice && `Registered office: ${COMPANY.registeredOffice}`,
     COMPANY.vatNumber && `VAT ${COMPANY.vatNumber}`,
-  ].filter(Boolean).join(" · ");
+  ].filter(Boolean).join(". ");
+
+  const linkClass = "text-muted-foreground hover:text-primary transition-colors";
 
   return (
-    <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 py-6 space-y-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {COMPANY.legalName || COMPANY.tradingName}. All rights reserved.
-          </div>
-
-          <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-4 text-sm">
-            <Link to="/trades" className="text-muted-foreground hover:text-primary transition-colors">
-              Trades
-            </Link>
-            <Separator orientation="vertical" className="h-4" />
-            {COMPANY.supportEmail ? (
-              <a href={`mailto:${COMPANY.supportEmail}`} className="text-muted-foreground hover:text-primary transition-colors">Contact</a>
-            ) : (
-              <Link to="/help/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
-            )}
-            <Separator orientation="vertical" className="h-4" />
-            <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">
-              Terms & Conditions
-            </Link>
-            <Separator orientation="vertical" className="h-4" />
-            <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-              Privacy Policy
-            </Link>
-          </nav>
+    <footer className="border-t border-border bg-background">
+      <div className="container mx-auto px-4 py-10 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+        <div>
+          <Wordmark size="md" />
+          <p className="mt-3 text-sm text-muted-foreground max-w-xs">Quotes, jobs and invoices for UK tradespeople.</p>
         </div>
-        {(legalLine || COMPANY.supportEmail) && (
-          <p className="text-xs text-muted-foreground text-center sm:text-left">
-            {legalLine}
-            {legalLine && COMPANY.supportEmail && " · "}
-            {COMPANY.supportEmail && (
-              <a href={`mailto:${COMPANY.supportEmail}`} className="hover:text-primary">{COMPANY.supportEmail}</a>
-            )}
-          </p>
+
+        <nav aria-label="Footer" className="grid grid-cols-2 sm:flex sm:gap-8 gap-3 text-sm">
+          <Link to="/trades" className={linkClass}>Trades</Link>
+          <Link to="/help" className={linkClass}>Help</Link>
+          {COMPANY.supportEmail ? (
+            <a href={`mailto:${COMPANY.supportEmail}`} className={linkClass}>Contact</a>
+          ) : (
+            <Link to="/help/contact" className={linkClass}>Contact</Link>
+          )}
+          <Link to="/terms" className={linkClass}>Terms</Link>
+          <Link to="/privacy" className={linkClass}>Privacy</Link>
+        </nav>
+      </div>
+      <div className="container mx-auto px-4 pb-8 text-xs text-muted-foreground">
+        © {new Date().getFullYear()} {COMPANY.legalName || COMPANY.tradingName}.
+        {legalLine && ` ${legalLine}.`}
+        {COMPANY.supportEmail && (
+          <> <a href={`mailto:${COMPANY.supportEmail}`} className="hover:text-primary">{COMPANY.supportEmail}</a></>
         )}
       </div>
     </footer>

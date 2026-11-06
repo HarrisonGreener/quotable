@@ -230,24 +230,38 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Logo className="justify-center mb-4" size="lg" />
-          <p className="text-muted-foreground">
-            AI-powered quotes, invoices & insights
+    <div className="min-h-screen grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] bg-background">
+      {/* Brand panel */}
+      <aside className="hidden lg:flex flex-col justify-between bg-primary text-white p-12 xl:p-16">
+        <Logo inverted size="lg" />
+        <div>
+          <p className="font-heading text-4xl xl:text-5xl leading-[1.05] max-w-md">
+            Type the job.
+            <br />
+            Get a priced quote.
+          </p>
+          <p className="mt-5 text-white/70 max-w-sm leading-relaxed">
+            Materials priced live at UK merchants, your labour worked out, ready to send from the van.
           </p>
         </div>
+        <p className="text-sm text-white/50">Quotes, jobs and invoices for UK tradespeople.</p>
+      </aside>
 
-        <Card className="shadow-lg">
+      <div className="flex items-center justify-center p-4 sm:p-8">
+      <div className="w-full max-w-md">
+        <div className="lg:hidden mb-8">
+          <Logo size="lg" />
+        </div>
+
+        <Card className="shadow-md">
           <CardHeader>
             <CardTitle className="font-heading text-2xl">
-              {isDemoMode ? "Try Demo Mode" : "Welcome"}
+              {isDemoMode ? "Look around with sample data" : "Log in or sign up"}
             </CardTitle>
             <CardDescription>
-              {isDemoMode 
-                ? "Explore Quotable with pre-filled example data" 
-                : "Sign in to your account or create a new one"
+              {isDemoMode
+                ? "A sample account with example quotes, jobs and invoices."
+                : "Your first month is free."
               }
             </CardDescription>
           </CardHeader>
@@ -264,14 +278,14 @@ const Auth = () => {
                   className="w-full"
                   size="lg"
                 >
-                  Enter Demo Mode
+                  Open the sample account
                 </Button>
                 <Button 
                   onClick={() => navigate("/auth")}
                   variant="outline"
                   className="w-full"
                 >
-                  Back to Login
+                  Back to log in
                 </Button>
               </div>
             ) : (
@@ -319,7 +333,7 @@ const Auth = () => {
                               onClick={() => setShowForgotPassword(false)}
                               className="text-sm text-primary hover:underline w-full text-center"
                             >
-                              Back to Login
+                              Back to log in
                             </button>
                           </>
                         ) : (
@@ -342,7 +356,7 @@ const Auth = () => {
                               variant="outline"
                               className="w-full"
                             >
-                              Back to Login
+                              Back to log in
                             </Button>
                           </div>
                         )}
@@ -585,7 +599,7 @@ const Auth = () => {
                     variant="ghost"
                     className="w-full"
                   >
-                    Try Demo Mode Instead
+                    Look around with sample data
                   </Button>
                 </div>
               </>
@@ -593,7 +607,8 @@ const Auth = () => {
           </CardContent>
         </Card>
       </div>
-      
+      </div>
+
       <TermsDialog
         open={showTermsDialog}
         onOpenChange={setShowTermsDialog}

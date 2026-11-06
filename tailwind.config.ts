@@ -61,8 +61,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Source Sans Pro', 'system-ui', 'sans-serif'],
-        heading: ['Montserrat', 'system-ui', 'sans-serif'],
+        sans: ['Archivo', 'system-ui', 'sans-serif'],
+        heading: ['Archivo', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

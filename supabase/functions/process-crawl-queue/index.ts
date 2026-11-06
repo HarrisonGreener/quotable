@@ -9,7 +9,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchPage, extractProducts } from "../_shared/scraper.ts";
-import { storeProduct } from "../_shared/live-price.ts";
+import { storeProduct, retailPrice } from "../_shared/live-price.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
         const product = page.ok ? extractProducts(page.html, item.url)[0] : undefined;
         if (product) {
           await storeProduct(supabase, {
-            name: product.name, price: product.price, url: item.url, sku: product.sku,
+            name: product.name, price: retailPrice(item.supplier, product.price), url: item.url, sku: product.sku,
             supplier: item.supplier, category: item.category,
           });
           results.success++;

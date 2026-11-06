@@ -8,56 +8,56 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Brand Colors - Quotable */
-    --background: 0 0% 97.3%; /* Off-white */
-    --foreground: 0 0% 10%; /* Charcoal */
+    /* Quotable brand
+       Ink navy #0B2742 · Docket orange #C4561B · Plasterboard paper #F2F3EF
+       Sheet white #FFFFFF · Rule #D5D8D1 · Graphite #5B6470 */
+    --background: 75 10% 94.5%;      /* plasterboard paper */
+    --foreground: 210 50% 12%;       /* ink, a touch lighter than the navy */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card: 0 0% 100%;               /* a clean sheet */
+    --card-foreground: 210 50% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 210 50% 12%;
 
-    /* Deep Blue Primary */
-    --primary: 210 78% 16%;
-    --primary-foreground: 0 0% 98%;
-    --primary-light: 210 60% 25%;
-    
-    /* Burnt Orange Accent */
-    --accent: 24 80% 42%;
-    --accent-foreground: 0 0% 98%;
-    --accent-light: 24 75% 50%;
-    
-    /* Neutral Tones */
-    --secondary: 210 20% 92%;
-    --secondary-foreground: 210 78% 16%;
+    --primary: 209 71% 15%;          /* ink navy */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 209 50% 26%;
 
-    --muted: 210 15% 90%;
-    --muted-foreground: 0 0% 40%;
+    --accent: 21 76% 44%;            /* docket orange — totals and the main action only */
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 21 76% 52%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
+    --secondary: 75 8% 89%;
+    --secondary-foreground: 209 71% 15%;
 
-    --border: 210 15% 88%;
-    --input: 210 15% 88%;
-    --ring: 210 78% 16%;
+    --muted: 75 8% 89%;
+    --muted-foreground: 213 10% 40%; /* graphite */
 
-    --radius: 0.75rem;
+    --destructive: 0 68% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 90 6% 83%;             /* rule */
+    --input: 90 6% 78%;
+    --ring: 209 71% 15%;
+
+    --radius: 0.375rem;
 
     /* Sidebar */
-    --sidebar-background: 210 78% 16%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 24 80% 42%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 210 60% 25%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 210 60% 20%;
-    --sidebar-ring: 24 80% 42%;
+    --sidebar-background: 209 71% 15%;
+    --sidebar-foreground: 210 20% 88%;
+    --sidebar-primary: 21 76% 44%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 209 55% 21%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 209 50% 22%;
+    --sidebar-ring: 21 76% 52%;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(210 15% 10% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(210 15% 10% / 0.1), 0 2px 4px -2px hsl(210 15% 10% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(210 15% 10% / 0.1), 0 4px 6px -4px hsl(210 15% 10% / 0.1);
+    /* Paper on a desk: tight contact shadow, no soft glow */
+    --shadow-sm: 0 1px 0 0 hsl(209 40% 15% / 0.06);
+    --shadow-md: 0 1px 0 hsl(209 40% 15% / 0.06), 0 2px 6px -2px hsl(209 40% 15% / 0.12);
+    --shadow-lg: 0 1px 0 hsl(209 40% 15% / 0.08), 0 12px 28px -12px hsl(209 40% 15% / 0.28);
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(210 78% 16%), hsl(210 60% 25%));
@@ -107,13 +107,24 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-stretch: 100%;
+    font-feature-settings: "kern", "tnum" 0;
+    text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-    font-weight: 600;
+  /* Headings: Archivo set wide and heavy, like signwritten van livery */
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-weight: 750;
+    font-stretch: 112%;
+    letter-spacing: -0.012em;
   }
+
+  /* Money and quantities line up in columns */
+  .tabular { font-variant-numeric: tabular-nums lining-nums; }
+
+  :focus-visible { outline-offset: 2px; }
 }
 
 @layer utilities {
@@ -247,21 +258,48 @@ All colors MUST be HSL.
   }
 }
 
-/* ── Quotable mark ─────────────────────────────────────────── */
-.q-logo-inverted .q-ring { stroke: #fff; }
-.q-logo-inverted .q-gap { stroke: hsl(var(--sidebar-background)); }
+/* ── Quotable mark & wordmark ─────────────────────────────── */
+/* The mark is the Q: ring sits on the baseline at cap height, tail drops below it */
+.q-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-weight: 800;
+  font-stretch: 112%;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.q-wordmark-q { align-self: baseline; transform: translateY(0.115em); margin-right: -0.01em; flex: none; }
 
-@keyframes q-ring-draw { 0% { stroke-dashoffset: 190; } 22%, 100% { stroke-dashoffset: 0; } }
+@keyframes q-ring-draw { 0% { stroke-dashoffset: 214; } 22%, 100% { stroke-dashoffset: 0; } }
 @keyframes q-tape-pull {
-  0%, 22% { stroke-dashoffset: 38; }
+  0%, 22% { stroke-dashoffset: 40; }
   48% { stroke-dashoffset: -6; }
   56% { stroke-dashoffset: 3; }
   62%, 88% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: 38; }
+  100% { stroke-dashoffset: 40; }
 }
-.q-mark-animated .q-ring { stroke-dasharray: 190; animation: q-ring-draw 2.4s ease-out infinite; }
-.q-mark-animated .q-tail,
-.q-mark-animated .q-gap { stroke-dasharray: 38; animation: q-tape-pull 2.4s cubic-bezier(.2,.9,.3,1.2) infinite; }
+.q-mark-animated .q-ring { stroke-dasharray: 214; animation: q-ring-draw 2.4s ease-out infinite; }
+.q-mark-animated .q-tail { stroke-dasharray: 40; animation: q-tape-pull 2.4s cubic-bezier(.2,.9,.3,1.2) infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .q-mark-animated .q-ring, .q-mark-animated .q-tail, .q-mark-animated .q-gap { animation: none; stroke-dashoffset: 0; }
+  .q-mark-animated .q-ring, .q-mark-animated .q-tail { animation: none; stroke-dashoffset: 0; }
+}
+
+/* ── Landing: quote sheet lines fill in once on load ───────── */
+@keyframes docket-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.docket-line { animation: docket-in 420ms cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) { .docket-line { animation: none; } }
+
+/* ── Landing: job track — one line through the stages ──────── */
+.job-track > li { padding-left: 1.75rem; }
+.job-track-dot { position: absolute; left: 0; top: 0.4rem; width: 0.75rem; height: 0.75rem; border-radius: 999px;
+  background: hsl(var(--background)); border: 2px solid hsl(var(--primary)); z-index: 1; }
+.job-track-dot.is-last { background: hsl(var(--accent)); border-color: hsl(var(--accent)); }
+.job-track > li:not(:last-child)::before { content: ""; position: absolute; background: hsl(var(--border));
+  left: calc(0.375rem - 1px); width: 2px; top: 1.15rem; bottom: -2.5rem; }
+@media (min-width: 768px) {
+  .job-track > li { padding-left: 0; }
+  .job-track-dot { top: 0; }
+  .job-track > li:not(:last-child)::before { left: 0.75rem; right: -1.5rem; top: calc(0.375rem - 1px); bottom: auto; width: auto; height: 2px; }
 }

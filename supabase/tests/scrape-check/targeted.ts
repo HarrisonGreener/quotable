@@ -5,7 +5,7 @@
 
 import { readSitemap, fetchPage, extractProducts, similarity } from "../../functions/_shared/scraper.ts";
 import { recipeShoppingList, slugText } from "../../functions/_shared/recipes/index.ts";
-import { isCompatibleProduct } from "../../functions/_shared/quote-engine.ts";
+import { isCompatibleProduct, headWord } from "../../functions/_shared/quote-engine.ts";
 
 const SUPPLIERS: Record<string, { sitemap: string; pattern: RegExp }> = {
   Toolstation: { sitemap: "https://www.toolstation.com/sitemap.xml", pattern: /\/p\d{3,}/ },

@@ -33,11 +33,11 @@ export function TradeSearchHero() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search for your trade..."
+            placeholder="Check your trade"
             value={searchQuery}
             onChange={(e) => handleInputChange(e.target.value)}
             className={cn(
-              "pl-12 pr-4 h-14 text-base rounded-xl border-2 bg-background/80 backdrop-blur-sm transition-all duration-300",
+              "pl-12 pr-4 h-12 text-base rounded-md border bg-card transition-colors",
               isTradeSupported 
                 ? "border-green-500 focus-visible:ring-green-500/20" 
                 : "border-border focus-visible:ring-accent/20"
@@ -46,14 +46,14 @@ export function TradeSearchHero() {
           {isTradeSupported && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-green-500">
               <Check className="h-5 w-5" />
-              <span className="text-sm font-medium hidden sm:inline">Supported!</span>
+              <span className="text-sm font-medium hidden sm:inline">Supported</span>
             </div>
           )}
         </div>
 
         {/* Dropdown Results */}
         {searchQuery.length > 0 && !isTradeSupported && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-lg overflow-hidden z-50">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-md shadow-lg overflow-hidden z-50">
             {filteredTrades.length > 0 ? (
               <div className="py-2">
                 {filteredTrades.map((trade) => (

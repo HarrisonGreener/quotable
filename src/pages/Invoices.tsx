@@ -375,7 +375,6 @@ const Invoices = () => {
 
           <div className={`max-w-full ${isMobile ? 'p-3 space-y-4 pb-24' : 'p-6 space-y-8 pb-12'}`}>
             {isDemo && <DemoModeBanner />}
-            {isDemo && <DemoModeNotice />}
             {!isDemo && !isBrandComplete(brandSettings) && <BrandCompletionNotice brandSettings={brandSettings} />}
             
             <Tabs defaultValue="invoices" className="w-full mb-16 md:mb-10">

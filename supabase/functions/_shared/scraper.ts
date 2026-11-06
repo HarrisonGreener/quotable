@@ -274,7 +274,9 @@ export async function readSitemap(url: string, pattern: RegExp, limit = 5000, de
 
 const STOP = new Set(["the", "and", "for", "with", "per", "each", "pack", "x"]);
 export const tokens = (s: string) =>
-  s.toLowerCase().replace(/&/g, " and ").replace(/(\d)\s*mm(?:2|²)/g, "$1mm").replace(/(\d)\s+(mm|kg|ml|m)\b/g, "$1$2")
+  s.toLowerCase().replace(/&/g, " and ").replace(/(\d)\s*mm(?:2|²)/g, "$1mm")
+    .replace(/(\d)\s*(?:litres?|liters?|ltr)\b/g, "$1l").replace(/(\d)\s*(?:metres?|meters?|mtr)\b/g, "$1m")
+    .replace(/(\d)\s+(mm|kg|ml|m|l)\b/g, "$1$2")
     .replace(/[^a-z0-9.\s]/g, " ").split(/\s+/).map((w) => w.replace(/\.$/, "")).filter((w) => w.length > 1 && !STOP.has(w));
 
 /**
@@ -285,7 +287,8 @@ export function similarity(wanted: string, candidate: string): number {
   const a = tokens(wanted);
   const b = new Set(tokens(candidate));
   if (!a.length || !b.size) return 0;
-  const dim = /^\d+(\.\d+)?(mm|m|a|kw|w|v|l|kg|mm2|mm²)$/;
+  // Spec sizes must agree; pack sizes (litres, kg, metres) are converted later, so they don't veto
+  const dim = /^\d+(\.\d+)?(mm|a|kw|w|v)$/;
   const aDims = a.filter((t) => dim.test(t));
   const bDims = [...b].filter((t) => dim.test(t));
   if (aDims.length && bDims.length && !aDims.some((d) => b.has(d))) return 0; // wrong size

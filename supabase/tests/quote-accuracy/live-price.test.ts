@@ -68,8 +68,85 @@ describe("choosing the offer", () => {
     expect(sleeve).not.toBeNull();
   });
 
+  test("live evaluation round 1: right products now match, wrong ones don't", () => {
+    const c = (w: string, h: string) => isCompatibleProduct(w, h);
+    // should match
+    expect(c("CLS timber 38 x 89mm x 2.4m", "38mm x 89mm x 2.4m ECC CLS Profile Timber")).toBe(true);
+    expect(c("12.5mm plasterboard 2400 x 1200", "Knauf Standard Plasterboard Wallboard Tapered Edge 2400mm x 1200mm x 12.5mm")).toBe(true);
+    expect(c("Type 2 surge protection device", "Axiom Type 2 Surge Protection Device SP+N (SPD) 40kA")).toBe(true);
+    expect(c("C24 treated joists 47 x 150mm 4.8m", "47mm x 150mm x 4.8m Regularised Treated Sawn Timber C24")).toBe(true);
+    expect(c("Wall tiles 300 x 600mm", "Sutton White Glazed Porcelain Wall and Floor Tile 300 x 600mm Pack of 6")).toBe(true);
+    expect(c("13A double switched socket outlet", "MK Logic Plus 13A Double Switched Socket White")).toBe(true);
+    expect(c("Concrete fence post 2.4m slotted", "8ft Concrete Fence Post Slotted Intermediate")).toBe(true);
+    expect(c("Weed control membrane", "4TRADE Weed Control Landscaping Fabric 1m x 20m")).toBe(true);
+    // should not
+    expect(c("Ceiling paint white 5L", "IKOpro Black Bitumen Paint - 5L")).toBe(false);
+    expect(c("Thistle Multi-Finish 25kg", "British Gypsum Thistlepro Fastset Finish 25kg")).toBe(false);
+    expect(c("Bath taps pair chrome", "Bathrooms From TP Aura Basin Taps Chrome Pair")).toBe(false);
+    expect(c("13A double switched socket outlet", "BG Nexus 13A Double Switched Socket with USB A & C, 12W")).toBe(false);
+    expect(c("13A double switched socket outlet", "BG Decorative Weatherproof Double Switched Power Socket - 13A")).toBe(false);
+    expect(c("Concrete fence post 2.4m slotted", "9ft Concrete Fence Post Slotted Corner")).toBe(false);
+    expect(c("1.0mm twin and earth cable", "IDEAL Industries 45-235 Flat Cable Stripper for Twin & Earth")).toBe(false);
+    expect(L.convertPrice({ name: "Wall tiles 300 x 600mm", unit: "m²" }, { name: "Sutton Tile 300 x 600mm Pack of 6", price: 38.28 })?.unitPrice).toBeCloseTo(35.44, 1);
+  });
+
+  test("live evaluation round 2", () => {
+    const T: [string, string, boolean][] = [
+      ["No More Nails", "UniBond 310ml No More Nails Cartridge", true],
+      ["Close coupled toilet", "Toilet To Go Close Coupled Dual Flush", true],
+      ["Fire rated LED downlight", "Integral LED Evofire IP65 Fire Rated Downlight White with Insulation Guard", true],
+      ["10 way metal consumer unit", "bg metal 100a consumer unit 6 type a rcbos 10 way", true],
+      ["35mm 2-gang metal back box", "4Trade 2 Gang 35mm Metal Back Box", true],
+      ["16mm meter tails", "16mm 6181Y Meter Tail Cable Brown", true],
+      ["Thistle Multi-Finish 25kg", "British Gypsum Thistle Multi Finish Plaster - 25kg", true],
+      ["Double switched socket brushed chrome", "BG Nexus Double Switched Socket Brushed Chrome 13A", true],
+      ["Internal door 1981 x 762mm", "Internal Moulded Kensington Door 1981 mm x 762 mm x 35 mm", true],
+      ["Self levelling compound 20kg", "Stabila LAX 50 Self Levelling Laser Level", false],
+      ["Wallpaper", "Wallpaper Seam Roller", false],
+      ["35mm 2-gang metal back box", "BG Electrical HGS03 1 Gang 35mm Metal Flush Back Box", false],
+      // round 3–6
+      ["Wallpaper", "Wallpaper Hanging Scissors - 11in", false],
+      ["Plasterboard 12.5mm 2.4m x 1.2m", "Knauf Moisture Plasterboard Square Edge 12.5mm x 2400mm x 1200mm", false],
+      ["Laminate underlay 3mm", "Barrier 3mm Laminate & Wood Flooring Underlay with Built-In Moisture Protection - 15m2", true],
+      ["10 way metal consumer unit", "bg metal 100a consumer unit 6 type a rcbos", true],
+      ["Self levelling compound 20kg", "Setcrete Universal Floor Levelling Compound - 20kg", true],
+      ["TRV and lockshield valve set 15mm", "Towelrads Lincoln Dual Fuel Corner TRV & Lockshield Valve - White", false],
+    ];
+    for (const [w, h, ok] of T) expect([w, h, isCompatibleProduct(w, h)]).toEqual([w, h, ok]);
+  });
+
+  test("sizes in metres and millimetres compare correctly", () => {
+    expect(L.sameDimensions("Plasterboard 12.5mm 2.4m x 1.2m", "Gyproc Wallboard 2400mm x 1200mm x 12.5mm")).toBe(true);
+    expect(L.convertPrice({ name: "Scotia beading", unit: "m" }, { name: "QA Scotia White Beading", price: 1.61 })?.unitPrice).toBeCloseTo(0.67, 2);
+  });
+
+  test("Travis Perkins prices are ex VAT and get VAT added", () => {
+    expect(L.retailPrice("Travis Perkins", 29.55)).toBeCloseTo(35.46, 2);
+    expect(L.retailPrice("Wickes", 32.8)).toBe(32.8);
+    expect(L.retailPrice("Toolstation", 6.65)).toBe(6.65);
+  });
+
   test("search terms are plain words", () => {
     expect(L.searchTerms("2.5mm twin and earth cable")).toEqual(["twin", "earth", "cable"]);
+    expect(L.searchTerms("16mm meter tails")).toEqual(["meter", "tail"]);
     expect(L.searchTerms("Internal door 1981 x 762mm")).toEqual(["internal", "door", "1981", "762"]);
+  });
+});
+
+describe("AI evaluation round 1 fixes", () => {
+  test("matching and pricing", () => {
+    expect(isCompatibleProduct("Double switched socket white molded", "MK Rapid Fix Double Switched Socket White")).toBe(true);
+    expect(isCompatibleProduct("Flush mounting box 35mm 2 gang", "4Trade 2 Gang 35mm Metal Back Box")).toBe(true);
+    expect(isCompatibleProduct("Door closer CE marked", "Briton Door Closer Universal Silver")).toBe(true);
+    expect(isCompatibleProduct("Trade gloss or satinwood paint 750ml", "Wickes Exterior Satinwood Paint - Black - 750ml")).toBe(false);
+    expect(L.convertPrice({ name: "15mm angled radiator valves pair", unit: "pair" }, { name: "K-Rad Angled Radiator Valve & Lockshield - 15mm", price: 40 })?.unitPrice).toBe(40);
+  });
+});
+
+describe("AI evaluation round 2 fixes", () => {
+  test("context words", () => {
+    expect(isCompatibleProduct("Earth clamp for pipework", "Earth Clamp 12-32mm ECL14 Interior")).toBe(true);
+    expect(isCompatibleProduct("Radiator inhibitor 500ml", "Pro PT10 Heating System Inhibitor 500ml")).toBe(true);
+    expect(isCompatibleProduct("Type 22 radiator 600 x 800mm", "Wickes Bathroom Mirror 600 x 800mm")).toBe(false);
   });
 });
