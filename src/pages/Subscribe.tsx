@@ -41,7 +41,6 @@ export default function Subscribe() {
     "Professional PDF Exports",
     "Smart Scheduling Calendar",
     "Client Management (CRM)",
-    "Recurring Invoices",
     "Real-Time Material Pricing",
     "Tax Reports & Analytics",
     "Inventory Management",

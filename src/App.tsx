@@ -42,7 +42,6 @@ import {
   HelpClients,
   HelpInventoryPricing,
   HelpQuoteTemplates,
-  HelpRecurringInvoices,
   HelpTroubleshooting,
   HelpContact,
   PublicQuote,
@@ -134,7 +133,6 @@ const App = () => (
                     <Route path="/help/clients" element={<Protected><HelpClients /></Protected>} />
                     <Route path="/help/inventory-pricing" element={<Protected><HelpInventoryPricing /></Protected>} />
                     <Route path="/help/quote-templates" element={<Protected><HelpQuoteTemplates /></Protected>} />
-                    <Route path="/help/recurring-invoices" element={<Protected><HelpRecurringInvoices /></Protected>} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

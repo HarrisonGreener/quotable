@@ -1,4 +1,4 @@
-import { HelpCircle, DollarSign, Calendar, FileText, AlertCircle, Settings, PlayCircle, Mail, Users, Package, Copy, RefreshCw } from "lucide-react";
+import { HelpCircle, DollarSign, Calendar, FileText, AlertCircle, Settings, PlayCircle, Mail, Users, Package, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -29,12 +29,6 @@ const helpSections = [
     description: "Save and reuse common job configurations for faster quoting",
     icon: Copy,
     href: "/help/quote-templates"
-  },
-  {
-    title: "Recurring Invoices",
-    description: "Set up automated billing schedules for regular clients",
-    icon: RefreshCw,
-    href: "/help/recurring-invoices"
   },
   {
     title: "Scheduling & Calendar",
