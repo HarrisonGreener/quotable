@@ -96,7 +96,7 @@ export const AddEditClientDialog = ({
               id="companyName"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="e.g., ABC Construction Ltd"
+              placeholder="e.g., Ashworth Construction Ltd"
               required
             />
           </div>

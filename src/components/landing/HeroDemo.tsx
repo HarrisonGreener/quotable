@@ -74,16 +74,16 @@ export const HeroDemo = () => {
   const stage = t >= T.accepted ? "accepted" : t >= T.opened ? "opened" : t >= T.sent ? "sent" : t >= T.send ? "send" : null;
 
   return (
-    <figure className="mx-auto w-full max-w-[22rem] sm:max-w-[23rem]" aria-label="Example: a plastering quote made in Quotable">
+    <figure className="mx-auto w-[17.5rem] sm:w-[18.75rem] max-w-full" aria-label="Example: a plastering quote made in Quotable">
       <p className="sr-only">
         Example quote: “{JOB}” Materials {gbp(materials)} priced at Wickes and Travis Perkins, labour {LABOUR.days} days at {gbp(LABOUR.rate)} a day,
         VAT {gbp(vat)}, total {gbp(TOTAL)}. Sent to the customer by WhatsApp and accepted.
       </p>
 
       {/* the phone */}
-      <div aria-hidden className="relative rounded-[2.4rem] bg-primary p-[0.55rem] shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.45)]">
-        <div className="relative overflow-hidden rounded-[1.9rem] bg-card h-[38.5rem] flex flex-col">
-          <div className="mx-auto mt-2 h-[1.15rem] w-24 rounded-full bg-primary/95" />
+      <div aria-hidden className="relative flex aspect-[9/19.5] rounded-[2.6rem] bg-primary p-[0.5rem] shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.45)]">
+        <div className="relative flex-1 overflow-hidden rounded-[2.15rem] bg-card flex flex-col">
+          <div className="mx-auto mt-2.5 h-[1.1rem] w-[5.25rem] shrink-0 rounded-full bg-primary/95" />
 
           {/* header */}
           <div className="px-5 pt-3 pb-2 flex items-baseline justify-between">
@@ -169,7 +169,7 @@ export const HeroDemo = () => {
               </ol>
             )}
             {stage === "accepted" && (
-              <p className="hero-line mt-2.5 text-[0.72rem] text-muted-foreground">Accepted by Mrs J. Patel · deposit link sent</p>
+              <p className="hero-line mt-2.5 text-[0.72rem] text-muted-foreground">Accepted by Mrs K. Whitworth · deposit link sent</p>
             )}
           </div>
         </div>
