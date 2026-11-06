@@ -6,25 +6,11 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ALL_TRADES, TRADE_CATEGORIES, TRADE_SPECIALIZATIONS } from "@/data/trades";
 import NotFound from "./NotFound";
+import { applyMeta, type PageMeta } from "@/seo/meta";
+import { GUIDES, TEMPLATES, SITE_URL } from "@/seo/content";
 
 // SEO landing pages: /trades and /trades/:slug (e.g. /trades/electrician).
 // Each one is a real, useful page for that trade, not a keyword stub.
-
-const setMeta = (title: string, description: string, path: string) => {
-  document.title = title;
-  const set = (selector: string, attr: string, value: string) => {
-    let el = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
-    if (!el) {
-      el = document.createElement(selector.startsWith("link") ? "link" : "meta") as any;
-      if (selector.includes('name="')) (el as HTMLMetaElement).name = selector.match(/name="([^"]+)"/)![1];
-      if (selector.includes("canonical")) (el as HTMLLinkElement).rel = "canonical";
-      document.head.appendChild(el!);
-    }
-    el!.setAttribute(attr, value);
-  };
-  set('meta[name="description"]', "content", description);
-  set('link[rel="canonical"]', "href", `${window.location.origin}${path}`);
-};
 
 // Plural label for headings: "Electricians", "Painters & Decorators"
 const PLURAL_OVERRIDES: Record<string, string> = {
@@ -54,18 +40,40 @@ const EXAMPLE_JOBS: Record<string, string[]> = {
   "Plumbing & Heating": ["Combi boiler swap", "Replace kitchen mixer tap", "Add a radiator and TRVs"],
 };
 
+export const tradeMeta = (slug: string): PageMeta | null => {
+  const trade = ALL_TRADES.find((t) => t.value === slug && !SKIP.has(t.value));
+  if (!trade) return null;
+  const name = plural(trade.value, trade.label);
+  return {
+    path: `/trades/${trade.value}`,
+    title: `Quoting software for ${name.toLowerCase()} (UK) | Quotable`,
+    description: `Quotes for UK ${name.toLowerCase()} in minutes: materials priced live at UK merchants, labour at your rate, a link your customer can accept and pay, then invoicing in one click.`,
+    jsonLd: [{
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+        { "@type": "ListItem", position: 2, name: "Trades", item: `${SITE_URL}/trades` },
+        { "@type": "ListItem", position: 3, name, item: `${SITE_URL}/trades/${trade.value}` },
+      ],
+    }],
+  };
+};
+
+export const tradesIndexMeta = (): PageMeta => ({
+  path: "/trades",
+  title: "Quoting and invoicing software for every UK trade | Quotable",
+  description: "Quoting, customer acceptance and invoicing for 50+ UK trades, from electricians and plumbers to roofers, tilers and EV installers.",
+});
+
+export const TRADE_SLUGS = () => ALL_TRADES.filter((t) => !SKIP.has(t.value)).map((t) => t.value);
+
 export const TradePage = () => {
   const { slug } = useParams();
   const trade = ALL_TRADES.find((t) => t.value === slug && !SKIP.has(t.value));
 
   useEffect(() => {
-    if (!trade) return;
-    const name = plural(trade.value, trade.label);
-    setMeta(
-      `Quoting & invoicing app for ${name} | Quotable`,
-      `Quotable helps UK ${name.toLowerCase()} price jobs in minutes: AI breaks down materials, labour and overheads using UK supplier prices, then your customer accepts online and pays the deposit.`,
-      `/trades/${trade.value}`,
-    );
+    const m = trade && tradeMeta(trade.value);
+    if (m) applyMeta(m);
   }, [trade]);
 
   if (!trade) return <NotFound />;
@@ -121,6 +129,26 @@ export const TradePage = () => {
           </section>
         )}
 
+        {(() => {
+          const guides = GUIDES.filter((g) => g.trade.slug === trade.value);
+          const template = TEMPLATES.find((t) => t.trade.slug === trade.value);
+          if (!guides.length && !template) return null;
+          return (
+            <section className="pb-16 px-4">
+              <div className="container mx-auto max-w-4xl">
+                <h2 className="font-heading text-2xl text-primary">Pricing help for {name.toLowerCase()}</h2>
+                <ul className="mt-4 grid sm:grid-cols-2 gap-x-10">
+                  {template && (
+                    <li className="border-b border-border"><Link to={`/quote-templates/${template.slug}`} className="block py-3 hover:text-primary hover:underline underline-offset-4">Free {template.trade.singular} quote template</Link></li>
+                  )}
+                  {guides.map((g) => (
+                    <li key={g.slug} className="border-b border-border"><Link to={`/guides/${g.slug}`} className="block py-3 hover:text-primary hover:underline underline-offset-4">{g.h1}</Link></li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          );
+        })()}
       </main>
       <Footer />
     </div>
@@ -128,13 +156,7 @@ export const TradePage = () => {
 };
 
 export const TradesIndex = () => {
-  useEffect(() => {
-    setMeta(
-      "Quoting & invoicing for every UK trade | Quotable",
-      "AI quoting, customer acceptance and invoicing for 50+ UK trades, from electricians and plumbers to roofers, tilers and EV installers.",
-      "/trades",
-    );
-  }, []);
+  useEffect(() => { applyMeta(tradesIndexMeta()); }, []);
 
   return (
     <div className="min-h-screen bg-background">

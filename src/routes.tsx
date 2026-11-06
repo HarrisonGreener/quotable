@@ -42,3 +42,7 @@ export const HelpQuoteTemplates = lazy(() => import("./pages/help/QuoteTemplates
 export const HelpRecurringInvoices = lazy(() => import("./pages/help/RecurringInvoices"));
 export const HelpTroubleshooting = lazy(() => import("./pages/help/Troubleshooting"));
 export const HelpContact = lazy(() => import("./pages/help/Contact"));
+export const GuidesIndex = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.GuidesIndex })));
+export const GuidePage = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.GuidePage })));
+export const TemplatesIndex = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.TemplatesIndex })));
+export const TemplatePage = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.TemplatePage })));

@@ -303,3 +303,10 @@ All colors MUST be HSL.
   .job-track-dot { top: 0; }
   .job-track > li:not(:last-child)::before { left: 0.75rem; right: -1.5rem; top: calc(0.375rem - 1px); bottom: auto; width: auto; height: 2px; }
 }
+
+/* ── Printing a quote template: just the sheet ─────────────── */
+@media print {
+  body { background: #fff; }
+  main { padding: 0 !important; }
+  .print-sheet { box-shadow: none !important; border: 0 !important; margin: 0 !important; padding: 0 !important; }
+}

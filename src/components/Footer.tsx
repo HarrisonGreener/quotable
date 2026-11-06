@@ -25,7 +25,7 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
   }
 
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="print:hidden border-t border-border bg-background">
       <div className="container mx-auto px-4 py-10 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
         <div>
           <Wordmark size="md" />
@@ -34,7 +34,8 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
 
         <nav aria-label="Footer" className="grid grid-cols-2 sm:flex sm:gap-8 gap-3 text-sm">
           <Link to="/trades" className={linkClass}>Trades</Link>
-          <Link to="/help" className={linkClass}>Help</Link>
+          <Link to="/guides" className={linkClass}>Pricing guides</Link>
+          <Link to="/quote-templates" className={linkClass}>Quote templates</Link>
           {COMPANY.supportEmail ? (
             <a href={`mailto:${COMPANY.supportEmail}`} className={linkClass}>Contact</a>
           ) : (

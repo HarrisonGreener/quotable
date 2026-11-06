@@ -49,6 +49,10 @@ import {
   PublicInvoice,
   TradesIndex,
   TradePage,
+  GuidesIndex,
+  GuidePage,
+  TemplatesIndex,
+  TemplatePage,
 } from "@/routes";
 
 const queryClient = new QueryClient();
@@ -98,6 +102,10 @@ const App = () => (
                     <Route path="/q/:token" element={<Suspense fallback={<PageLoader />}><PublicQuote /></Suspense>} />
                     <Route path="/i/:token" element={<Suspense fallback={<PageLoader />}><PublicInvoice /></Suspense>} />
                     <Route path="/trades" element={<Suspense fallback={<PageLoader />}><TradesIndex /></Suspense>} />
+                    <Route path="/guides" element={<Suspense fallback={<PageLoader />}><GuidesIndex /></Suspense>} />
+                    <Route path="/guides/:slug" element={<Suspense fallback={<PageLoader />}><GuidePage /></Suspense>} />
+                    <Route path="/quote-templates" element={<Suspense fallback={<PageLoader />}><TemplatesIndex /></Suspense>} />
+                    <Route path="/quote-templates/:slug" element={<Suspense fallback={<PageLoader />}><TemplatePage /></Suspense>} />
                     <Route path="/trades/:slug" element={<Suspense fallback={<PageLoader />}><TradePage /></Suspense>} />
 
                     <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />

@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Logo } from "./Logo";
 
 export const Navbar = () => (
-  <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+  <nav className="print:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
     <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       <Logo size="md" />
 
