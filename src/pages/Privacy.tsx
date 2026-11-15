@@ -10,7 +10,7 @@ import { usePageMeta, type PageMeta } from "@/seo/meta";
 // it with", bump PRIVACY_VERSION and update LEGAL_UPDATED.
 
 const PROCESSORS: [string, string, string][] = [
-  ["Supabase", "Database, sign-in, file storage and server functions", "UK (London); support staff may access from the US"],
+  ["Supabase", "Database, sign-in, file storage and server functions", "EU (Ireland); support staff may access from the US"],
   ["Vercel", "Hosting the website", "UK/EU edge servers, with the company in the US"],
   ["Stripe", "Subscription payments and invoices for your Quotable plan", "UK/EU and US"],
   ["Resend", "Sending account emails (sign-up, password reset)", "US"],
