@@ -3,4 +3,4 @@ Allow: /
 Disallow: /q/
 Disallow: /i/
 
-Sitemap: https://quotable-it.co.uk/sitemap.xml
+Sitemap: https://quotable.uk/sitemap.xml

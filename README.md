@@ -1,6 +1,6 @@
 # Quotable-it
 
-**Live preview: https://harrisongreener.github.io/quotable/**
+**Live site: https://quotable.uk**
 
 
 Project Name: Quotable – AI-Powered Quoting, Invoicing & Tax SaaS

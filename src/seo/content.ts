@@ -8,7 +8,7 @@
 
 import { RECIPE_BY_ID, resolveParams, type Params } from "../../supabase/functions/_shared/recipes/index.ts";
 
-export const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://quotable-it.co.uk").replace(/\/$/, "");
+export const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://quotable.uk").replace(/\/$/, "");
 export const PRICES_CHECKED = "November 2026";
 
 export interface PublishedRange { low: number; high: number; source: string; sourceName: string; what: string }

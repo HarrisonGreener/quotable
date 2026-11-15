@@ -48,7 +48,7 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "https://quotable-it.co.uk";
+    const origin = req.headers.get("origin") || "https://quotable.uk";
 
     // Create checkout session with 30-day free trial
     const session = await stripe.checkout.sessions.create({
