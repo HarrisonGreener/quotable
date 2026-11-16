@@ -22,7 +22,9 @@ const signupSchema = z.object({
   confirmEmail: z.string().email("Invalid email format"),
   password: z.string()
     .min(8, "Password must be at least 8 characters")
-    .max(100, "Password too long"),
+    .max(100, "Password too long")
+    .regex(/[A-Za-z]/, "Password must include a letter")
+    .regex(/[0-9]/, "Password must include a number"),
   name: z.string().min(2, "Name is required").max(100, "Name too long").trim(),
   business: z.string().min(2, "Business name is required").max(200, "Business name too long").trim(),
 }).refine((data) => data.email === data.confirmEmail, {
@@ -476,6 +478,8 @@ const Auth = () => {
                             id="signup-password" 
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
+                            autoComplete="new-password"
+                            aria-describedby="signup-password-hint"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required 
@@ -495,6 +499,7 @@ const Auth = () => {
                             )}
                           </Button>
                         </div>
+                        <p id="signup-password-hint" className="text-xs text-muted-foreground">At least 8 characters, with a letter and a number.</p>
                       </div>
                       
                       <div className="space-y-3 pt-2">
