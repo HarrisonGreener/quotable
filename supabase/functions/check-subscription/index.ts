@@ -60,9 +60,11 @@ serve(async (req) => {
     logStep("Found Stripe customer", { customerId });
 
     // Check for active or trialing subscriptions
+    // Look at all of them: the newest isn't always the live one (e.g. an abandoned checkout)
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      limit: 1,
+      status: "all",
+      limit: 10,
     });
     
     // Filter for active or trialing
@@ -85,7 +87,10 @@ serve(async (req) => {
     }
 
     const productId = activeSubscription.items.data[0].price.product as string;
-    const subscriptionEnd = new Date(activeSubscription.current_period_end * 1000).toISOString();
+    // From Stripe API 2025-03 ("basil") the period end lives on the subscription item
+    const periodEnd = (activeSubscription.items.data[0] as { current_period_end?: number }).current_period_end
+      ?? (activeSubscription as unknown as { current_period_end?: number }).current_period_end;
+    const subscriptionEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
     const isTrialing = activeSubscription.status === 'trialing';
     const trialEnd = activeSubscription.trial_end 
       ? new Date(activeSubscription.trial_end * 1000).toISOString() 

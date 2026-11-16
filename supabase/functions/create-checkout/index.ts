@@ -27,6 +27,10 @@ serve(async (req) => {
 
     const { priceId } = await req.json();
     if (!priceId) throw new Error("Price ID is required");
+    // Only Quotable's own plans can be bought here (set STRIPE_PRICE_IDS to override, comma-separated)
+    const allowed = (Deno.env.get("STRIPE_PRICE_IDS") || "price_1SfRczEbsySHJL70bX2oXV2R,price_1SfRdPEbsySHJL708DMVKQW6")
+      .split(",").map((s) => s.trim()).filter(Boolean);
+    if (!allowed.includes(priceId)) throw new Error("Unknown plan");
     logStep("Price ID received", { priceId });
 
     const authHeader = req.headers.get("Authorization")!;
@@ -50,7 +54,13 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://quotable.uk";
 
-    // Create checkout session with 30-day free trial
+    // The free month is for new customers only: not again after cancelling and coming back
+    let hadSubscription = false;
+    if (customerId) {
+      const previous = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 1 });
+      hadSubscription = previous.data.length > 0;
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -61,9 +71,9 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      subscription_data: {
-        trial_period_days: 30,
-      },
+      ...(hadSubscription ? {} : { subscription_data: { trial_period_days: 30 } }),
+      payment_method_collection: "always",
+      allow_promotion_codes: true,
       success_url: `${origin}/subscription-success`,
       cancel_url: `${origin}/?checkout=cancelled`,
     });

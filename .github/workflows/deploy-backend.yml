@@ -24,9 +24,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  # Skip quietly until the project ID, access token and database password are all set
+  ready:
     runs-on: ubuntu-latest
-    if: ${{ vars.SUPABASE_PROJECT_REF != '' }}
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - id: check
+        env:
+          REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          if [ -n "$REF" ] && [ -n "$TOKEN" ] && [ -n "$PW" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::Back end not deployed: add SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD secrets and the SUPABASE_PROJECT_REF variable"; fi
+
+  deploy:
+    needs: ready
+    if: ${{ needs.ready.outputs.ok == 'true' }}
+    runs-on: ubuntu-latest
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
