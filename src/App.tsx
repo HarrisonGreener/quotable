@@ -10,6 +10,7 @@ import { ThemeManager } from "@/components/ThemeManager";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { QuotableLoader } from "@/components/Logo";
 import { toast } from "sonner";
+import { capturePromoFromUrl } from "@/utils/promo";
 import {
   Index,
   Auth,
@@ -51,7 +52,12 @@ import {
   GuidePage,
   TemplatesIndex,
   TemplatePage,
+  DayRatesIndex,
+  DayRatePage,
 } from "@/routes";
+
+// Remember ?code=… from a shared promo link for checkout
+capturePromoFromUrl();
 
 const queryClient = new QueryClient();
 
@@ -103,6 +109,8 @@ const App = () => (
                     <Route path="/guides/:slug" element={<Suspense fallback={<PageLoader />}><GuidePage /></Suspense>} />
                     <Route path="/quote-templates" element={<Suspense fallback={<PageLoader />}><TemplatesIndex /></Suspense>} />
                     <Route path="/quote-templates/:slug" element={<Suspense fallback={<PageLoader />}><TemplatePage /></Suspense>} />
+                    <Route path="/day-rates" element={<Suspense fallback={<PageLoader />}><DayRatesIndex /></Suspense>} />
+                    <Route path="/day-rates/:slug" element={<Suspense fallback={<PageLoader />}><DayRatePage /></Suspense>} />
                     <Route path="/trades/:slug" element={<Suspense fallback={<PageLoader />}><TradePage /></Suspense>} />
 
                     <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />

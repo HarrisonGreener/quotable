@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { DAY_RATES } from "@/seo/dayRates";
 import { Link, useParams } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
@@ -132,12 +133,16 @@ export const TradePage = () => {
         {(() => {
           const guides = GUIDES.filter((g) => g.trade.slug === trade.value);
           const template = TEMPLATES.find((t) => t.trade.slug === trade.value);
-          if (!guides.length && !template) return null;
+          const dayRate = DAY_RATES.find((d) => d.tradeSlug === trade.value);
+          if (!guides.length && !template && !dayRate) return null;
           return (
             <section className="pb-16 px-4">
               <div className="container mx-auto max-w-4xl">
                 <h2 className="font-heading text-2xl text-primary">Pricing help for {name.toLowerCase()}</h2>
                 <ul className="mt-4 grid sm:grid-cols-2 gap-x-10">
+                  {dayRate && (
+                    <li className="border-b border-border"><Link to={`/day-rates/${dayRate.slug}`} className="block py-3 hover:text-primary hover:underline underline-offset-4">{dayRate.plural} day rates by region (2026)</Link></li>
+                  )}
                   {template && (
                     <li className="border-b border-border"><Link to={`/quote-templates/${template.slug}`} className="block py-3 hover:text-primary hover:underline underline-offset-4">Free {template.trade.singular} quote template</Link></li>
                   )}

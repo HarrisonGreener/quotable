@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getPromo } from "@/utils/promo";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -103,8 +104,9 @@ export function useSubscription() {
       throw new Error('Not authenticated');
     }
 
+    const promoCode = getPromo();
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { priceId },
+      body: { priceId, ...(promoCode ? { promoCode } : {}) },
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },
@@ -112,7 +114,8 @@ export function useSubscription() {
 
     if (error) throw error;
     if (data?.url) {
-      window.open(data.url, '_blank');
+      // Same tab: a new tab opened after a wait is often blocked on phones
+      window.location.assign(data.url);
     }
   };
 

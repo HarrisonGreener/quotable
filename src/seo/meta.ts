@@ -3,6 +3,7 @@
 
 import { useEffect } from "react";
 import { SITE_URL, GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, workGuide } from "./content";
+import { DAY_RATES, DAY_RATE_BY_SLUG, DAY_RATES_CHECKED } from "./dayRates";
 
 export interface PageMeta {
   path: string;
@@ -125,9 +126,46 @@ export const templateMeta = (slug: string): PageMeta | null => {
   };
 };
 
+export const dayRatesIndexMeta = (): PageMeta => ({
+  path: "/day-rates",
+  title: "UK trade day rates 2026: what tradespeople charge per day, by region",
+  description: "Day rates for electricians, plumbers, plasterers, decorators, tilers, builders, roofers and carpenters across UK regions, with a calculator to work out your own.",
+  jsonLd: [breadcrumbs([["Home", "/"], ["Day rates", "/day-rates"]])],
+});
+
+export const dayRateMeta = (slug: string): PageMeta | null => {
+  const d = DAY_RATE_BY_SLUG.get(slug);
+  if (!d) return null;
+  const lo = Math.min(...d.rates.map((r) => r.low));
+  const hi = Math.max(...d.rates.map((r) => r.high));
+  const name = d.trade.charAt(0).toUpperCase() + d.trade.slice(1);
+  const answer = `Most self-employed ${d.plural.toLowerCase()} in the UK charge between £${lo} and £${hi} a day in 2026, depending on region: ${d.rates.map((r) => `${r.region} £${r.low}–£${r.high}`).join(", ")}.`;
+  return {
+    path: `/day-rates/${d.slug}`,
+    title: `${name} day rate UK (2026): what to charge per day, by region`,
+    description: `What ${d.plural.toLowerCase()} charge per day in the UK in 2026: £${lo}–£${hi} depending on region, with hourly equivalents, what puts you at the top of the range, and a calculator for your own rate.`,
+    jsonLd: [
+      {
+        "@type": "Article",
+        headline: `${name} day rate UK (2026)`,
+        dateModified: "2026-11-16",
+        author: { "@id": `${SITE_URL}/#org` },
+        publisher: { "@id": `${SITE_URL}/#org` },
+        mainEntityOfPage: `${SITE_URL}/day-rates/${d.slug}`,
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: [{ "@type": "Question", name: `How much does a ${d.trade} charge per day in the UK?`, acceptedAnswer: { "@type": "Answer", text: `${answer} Figures checked ${DAY_RATES_CHECKED}.` } }],
+      },
+      breadcrumbs([["Home", "/"], ["Day rates", "/day-rates"], [`${name} day rate`, `/day-rates/${d.slug}`]]),
+    ],
+  };
+};
+
 export const ALL_SEO_PATHS = () => [
   "/", "/guides", ...GUIDES.map((g) => `/guides/${g.slug}`),
   "/quote-templates", ...TEMPLATES.map((t) => `/quote-templates/${t.slug}`),
+  "/day-rates", ...DAY_RATES.map((d) => `/day-rates/${d.slug}`),
 ];
 
 /** Set title, description, canonical, social tags and JSON-LD in the browser. */

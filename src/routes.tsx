@@ -45,3 +45,5 @@ export const GuidesIndex = lazy(() => import("./seo/SeoPages").then((m) => ({ de
 export const GuidePage = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.GuidePage })));
 export const TemplatesIndex = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.TemplatesIndex })));
 export const TemplatePage = lazy(() => import("./seo/SeoPages").then((m) => ({ default: m.TemplatePage })));
+export const DayRatePage = lazy(() => import("./seo/DayRatePages").then((m) => ({ default: m.DayRatePage })));
+export const DayRatesIndex = lazy(() => import("./seo/DayRatePages").then((m) => ({ default: m.DayRatesIndex })));

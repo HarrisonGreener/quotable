@@ -25,7 +25,7 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { priceId } = await req.json();
+    const { priceId, promoCode } = await req.json();
     if (!priceId) throw new Error("Price ID is required");
     // Only Quotable's own plans can be bought here (set STRIPE_PRICE_IDS to override, comma-separated)
     const allowed = (Deno.env.get("STRIPE_PRICE_IDS") || "price_1SfRczEbsySHJL70bX2oXV2R,price_1SfRdPEbsySHJL708DMVKQW6")
@@ -61,6 +61,13 @@ serve(async (req) => {
       hadSubscription = previous.data.length > 0;
     }
 
+    let discountId: string | undefined;
+    if (typeof promoCode === "string" && /^[A-Za-z0-9_-]{3,40}$/.test(promoCode)) {
+      const found = await stripe.promotionCodes.list({ code: promoCode, active: true, limit: 1 });
+      discountId = found.data[0]?.id;
+      logStep("Promo code", { promoCode, applied: !!discountId });
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -73,7 +80,8 @@ serve(async (req) => {
       mode: "subscription",
       ...(hadSubscription ? {} : { subscription_data: { trial_period_days: 30 } }),
       payment_method_collection: "always",
-      allow_promotion_codes: true,
+      // A shared promo link pre-applies its code; otherwise people can type one at checkout
+      ...(discountId ? { discounts: [{ promotion_code: discountId }] } : { allow_promotion_codes: true }),
       success_url: `${origin}/subscription-success`,
       cancel_url: `${origin}/?checkout=cancelled`,
     });
