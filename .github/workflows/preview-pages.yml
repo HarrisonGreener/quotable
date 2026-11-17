@@ -31,9 +31,9 @@ jobs:
           # Served at the root of the custom domain (Settings → Pages → Custom domain: quotable.uk)
           VITE_BASE_PATH: /
           # Public browser keys for the existing back end (safe to expose; data is protected by row-level security)
-          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID || 'fatjgaqtnxehcjnvbldf' }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://fatjgaqtnxehcjnvbldf.supabase.co' }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdGpnYXF0bnhlaGNqbnZibGRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxODQyMzksImV4cCI6MjA3Nzc2MDIzOX0.ayFuQCulLXN-fqIOBDKESGLFzJST98slZ-K86hJlmfo' }}
+          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID || 'nhhbnioditbujhnjbaty' }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://nhhbnioditbujhnjbaty.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oaGJuaW9kaXRidWpobmpiYXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NDU2OTgsImV4cCI6MjExMDMyMTY5OH0.j1lNge7tI748dbznOkomYG1iQudpBSuGdGJ_zy_v6aY' }}
           VITE_SITE_URL: https://quotable.uk
       - name: Deep links work on Pages
         run: cp dist/index.html dist/404.html
