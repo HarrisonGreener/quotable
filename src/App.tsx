@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeManager } from "@/components/ThemeManager";
-import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import { GlobalErrorBoundary, reloadIfStale } from "@/components/GlobalErrorBoundary";
 import { QuotableLoader } from "@/components/Logo";
 import { toast } from "sonner";
 import { capturePromoFromUrl } from "@/utils/promo";
@@ -77,10 +77,21 @@ const UnhandledRejectionGuard = ({ children }: { children: React.ReactNode }) =>
     const handler = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
       event.preventDefault();
+      if (reloadIfStale(event.reason)) return;
       toast.error("Something went wrong. Please try again.");
     };
+    // Vite fires this when a page section can't load after an update
+    const onPreloadError = (event: Event) => {
+      if (reloadIfStale((event as Event & { payload?: unknown }).payload ?? new Error("Importing a module script failed"))) {
+        event.preventDefault();
+      }
+    };
     window.addEventListener("unhandledrejection", handler);
-    return () => window.removeEventListener("unhandledrejection", handler);
+    window.addEventListener("vite:preloadError", onPreloadError);
+    return () => {
+      window.removeEventListener("unhandledrejection", handler);
+      window.removeEventListener("vite:preloadError", onPreloadError);
+    };
   }, []);
   return <>{children}</>;
 };
