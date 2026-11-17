@@ -15,6 +15,16 @@ name: Deploy back end
 
 on:
   workflow_dispatch:
+    inputs:
+      import_token:
+        description: "One-off: switch on the data import with this token (leave empty normally)"
+        required: false
+        default: ""
+      end_import:
+        description: "One-off: switch the data import off and delete it"
+        type: boolean
+        required: false
+        default: false
   push:
     branches: [main, leave-lovable]
     paths: ["supabase/migrations/**", "supabase/functions/**", "supabase/config.toml"]
@@ -80,5 +90,22 @@ jobs:
           supabase secrets set --project-ref "$PROJECT_REF" "${args[@]}" > /dev/null
           echo "Set ${#args[@]} server secrets"
 
+      - name: Data import switch
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.import_token != '' || inputs.end_import) }}
+        env:
+          IMPORT_TOKEN_IN: ${{ inputs.import_token }}
+          END_IMPORT: ${{ inputs.end_import }}
+        run: |
+          if [ "$END_IMPORT" = "true" ]; then
+            supabase secrets unset --project-ref "$PROJECT_REF" IMPORT_TOKEN || true
+            echo "Import switched off"
+          else
+            echo "::add-mask::$IMPORT_TOKEN_IN"
+            supabase secrets set --project-ref "$PROJECT_REF" "IMPORT_TOKEN=$IMPORT_TOKEN_IN" > /dev/null
+            echo "Import switched on"
+          fi
+
       - name: Deploy server functions
-        run: supabase functions deploy --project-ref "$PROJECT_REF" --use-api
+        run: |
+          supabase functions deploy --project-ref "$PROJECT_REF" --use-api
+          if [ "${{ inputs.end_import }}" = "true" ]; then supabase functions delete import-data --project-ref "$PROJECT_REF" || true; fi
