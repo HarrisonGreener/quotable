@@ -14,8 +14,8 @@ const PROCESSORS: [string, string, string][] = [
   ["Vercel", "Hosting the website", "UK/EU edge servers, with the company in the US"],
   ["Stripe", "Subscription payments and invoices for your Quotable plan", "UK/EU and US"],
   ["Resend", "Sending account emails (sign-up, password reset)", "US"],
-  ["Groq", "AI that turns a job description into materials and labour", "US"],
-  ["Google (Gemini API, paid tier)", "AI, as a backup to Groq", "US and other Google locations"],
+  ["Google (Gemini API, paid tier)", "AI that turns a job description into materials and labour", "US and other Google locations"],
+  ["Groq", "AI, as a backup to Gemini when it's busy", "US"],
   ["IONOS", "Our email inbox", "UK/EU"],
 ];
 
@@ -96,9 +96,9 @@ export const privacySections: { id: string; title: string; body: ReactNode }[] =
         <>
           <p>
             When you create a quote, the job description and your relevant settings (such as your trade and rates) are sent to
-            an AI provider, which suggests the materials, quantities and labour. Groq, our main provider, has zero data
-            retention switched on for our account, so it doesn't store requests. Google's paid Gemini API, our backup, doesn't
-            use what we send to improve its products. We don't use the free tier of any AI service that would.
+            an AI provider, which suggests the materials, quantities and labour. Our main provider is Google's paid Gemini API,
+            which doesn't use what we send to improve its products. Groq, our backup when Gemini is busy, doesn't use what we
+            send to train its models either. We don't use any AI service that would.
           </p>
           <p>
             Only include what the AI needs to price the job. You don't need to put your customer's name or address in the job
