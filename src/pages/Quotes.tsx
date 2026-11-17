@@ -49,7 +49,7 @@ import {
   Copy,
   Loader2,
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { TapeLoader } from "@/components/TapeLoader";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { demoQuotes, demoInvoices, demoStats } from "@/data/demoData";
@@ -1604,15 +1604,8 @@ const Quotes = () => {
         {/* Loading Overlay */}
         {isGenerating && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
-            <Card className="p-8 text-center space-y-4 shadow-lg max-w-sm mx-4">
-              <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-              <div>
-                <h3 className="font-semibold text-lg">Generating Your Quote</h3>
-                <p className="text-muted-foreground text-sm">
-                  Analyzing materials, labour, and costs...
-                </p>
-              </div>
-              <Progress className="w-full" />
+            <Card className="mx-4 w-full max-w-sm p-8 shadow-lg">
+              <TapeLoader />
             </Card>
           </div>
         )}

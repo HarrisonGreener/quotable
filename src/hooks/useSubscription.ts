@@ -36,6 +36,9 @@ interface SubscriptionStatus {
 export function useSubscription() {
   const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
+  // True once the first check has finished. Later background re-checks don't count
+  // as "loading", so they never blank the page mid-task.
+  const [checked, setChecked] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionStatus>({
     subscribed: false,
     isTrialing: false,
@@ -82,6 +85,7 @@ export function useSubscription() {
       console.error('Error checking subscription:', error);
     } finally {
       setLoading(false);
+      setChecked(true);
     }
   }, [session?.access_token]);
 
@@ -161,6 +165,8 @@ export function useSubscription() {
   return {
     ...subscription,
     loading,
+    /** Only true until the first check is done: use this to gate the page */
+    initialLoading: !!session?.access_token && !checked && !isAdmin,
     checkSubscription,
     createCheckout,
     openCustomerPortal,

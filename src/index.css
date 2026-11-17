@@ -337,3 +337,17 @@ All colors MUST be HSL.
 .legal-table th { text-align: left; font-weight: 600; color: hsl(var(--primary)); background: hsl(var(--card)); }
 .legal-table th, .legal-table td { padding: 0.6rem 0.8rem; vertical-align: top; border-top: 1px solid hsl(var(--border)); }
 .legal-table tr:first-child th { border-top: 0; }
+
+/* Tape measure loader (TapeLoader.tsx): blade pulls out, holds, snaps back in.
+   Plays even with reduced motion on, as it's the only sign that work is happening. */
+.tape .tape-blade { animation: tape-pull 1.9s cubic-bezier(.45,0,.25,1) infinite; }
+@keyframes tape-pull {
+  0%   { transform: translateX(0); }
+  46%  { transform: translateX(92px); animation-timing-function: linear; }
+  58%  { transform: translateX(92px); animation-timing-function: cubic-bezier(.7,0,.9,.6); }
+  78%  { transform: translateX(-5px); animation-timing-function: ease-out; }
+  86%  { transform: translateX(2px); }
+  92%, 100% { transform: translateX(0); }
+}
+.tape-step { animation: tape-step .35s ease-out; }
+@keyframes tape-step { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

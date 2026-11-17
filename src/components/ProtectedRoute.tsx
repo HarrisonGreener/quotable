@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
+import { TapeMeasure } from "@/components/TapeLoader";
 import { ComplianceDialog } from "@/components/ComplianceDialog";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,7 +12,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, needsCompliance, markCompliant } = useAuth();
-  const { isActive, loading: subscriptionLoading } = useSubscription();
+  const { isActive, initialLoading: subscriptionLoading } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -82,7 +83,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   if (loading || checkingOnboarding || (user && subscriptionLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <TapeMeasure size={44} />
       </div>
     );
   }
