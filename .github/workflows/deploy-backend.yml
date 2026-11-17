@@ -65,7 +65,7 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY || secrets.STRIPE_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SEND_EMAIL_HOOK_SECRET: ${{ secrets.SEND_EMAIL_HOOK_SECRET }}
           GEMINI_BILLING: ${{ secrets.GEMINI_BILLING }}
