@@ -62,10 +62,16 @@ serve(async (req) => {
     }
 
     let discountId: string | undefined;
+    let freeForever = false;
     if (typeof promoCode === "string" && /^[A-Za-z0-9_-]{3,40}$/.test(promoCode)) {
       const found = await stripe.promotionCodes.list({ code: promoCode, active: true, limit: 1 });
-      discountId = found.data[0]?.id;
-      logStep("Promo code", { promoCode, applied: !!discountId });
+      const promo = found.data[0] as unknown as Record<string, any> | undefined;
+      discountId = promo?.id;
+      // Tester codes (100% off for ever) don't ask for a card
+      let coupon = promo?.coupon ?? promo?.promotion?.coupon;
+      if (typeof coupon === "string") coupon = await stripe.coupons.retrieve(coupon);
+      freeForever = coupon?.percent_off === 100 && coupon?.duration === "forever";
+      logStep("Promo code", { promoCode, applied: !!discountId, freeForever });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -79,7 +85,7 @@ serve(async (req) => {
       ],
       mode: "subscription",
       ...(hadSubscription ? {} : { subscription_data: { trial_period_days: 30 } }),
-      payment_method_collection: "always",
+      payment_method_collection: freeForever ? "if_required" : "always",
       // A shared promo link pre-applies its code; otherwise people can type one at checkout
       ...(discountId ? { discounts: [{ promotion_code: discountId }] } : { allow_promotion_codes: true }),
       success_url: `${origin}/subscription-success`,
