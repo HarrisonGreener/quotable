@@ -241,7 +241,7 @@ Smart Edit and AI Adjuster should be visually distinct buttons next to each quot
 ## Running it
 
 See **[SETUP.md](SETUP.md)** for the full self-hosting guide: Supabase, AI keys,
-deploying the server functions, hosting the front end, and moving data off Lovable.
+deploying the server functions, and hosting the front end.
 
 ## Development
 

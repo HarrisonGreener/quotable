@@ -1,3 +1,4 @@
+import { COMPANY } from "@/config/company";
 import { ArrowLeft, Mail, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -45,11 +46,11 @@ const Contact = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <a 
-                      href="mailto:support@quotable-it.co.uk" 
-                      className="text-accent hover:underline font-medium"
+                    <a
+                      href={`mailto:${COMPANY.supportEmail}`}
+                      className="text-accent hover:underline font-medium break-all"
                     >
-                      support@quotable-it.co.uk
+                      {COMPANY.supportEmail}
                     </a>
                     <p className="text-sm text-muted-foreground mt-3">
                       Response time: Within 24-48 hours
@@ -63,18 +64,15 @@ const Contact = () => {
                       <div className="p-2 rounded-lg bg-accent/10">
                         <MessageCircle className="h-5 w-5 text-accent" />
                       </div>
-                      <CardTitle>Live Chat</CardTitle>
+                      <CardTitle>Help assistant</CardTitle>
                     </div>
                     <CardDescription className="leading-relaxed">
-                      For urgent issues or if you need immediate assistance with the app.
+                      Instant answers about using Quotable, any time of day. Sign in and open Help to ask it.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-3">
-                      Available Monday - Friday, 9am - 5pm GMT
-                    </p>
-                    <Button variant="accent" disabled>
-                      Coming Soon
+                    <Button variant="accent" asChild>
+                      <Link to="/help">Ask the help assistant</Link>
                     </Button>
                   </CardContent>
                 </Card>

@@ -5,3 +5,4 @@ bulk-category-crawl
 scrape-merchant-prices
 seed-product-database
 crawl-supplier-catalogue
+get-latest-price

@@ -1,7 +1,7 @@
 # Running Quotable on your own stack
 
 Quotable is a React + Vite front end with a Supabase back end (Postgres, Auth,
-Edge Functions). None of it depends on Lovable any more. You need:
+Edge Functions). You need:
 
 - A free **Supabase** account → database, logins and server functions
 - Free AI keys — any one works, all three gives the most free quotes a day:
@@ -40,7 +40,7 @@ supabase db push
 ```
 
 This replays every file in `supabase/migrations/` and creates all tables, security
-rules and database functions exactly as they were on Lovable.
+rules and database functions.
 
 ## 4. Add your secrets
 
@@ -135,40 +135,6 @@ Point your domain at the host, then update the Site URL in step 7.
 Edit `src/config/company.ts` with your trading/legal name, company number,
 registered office and support email. They appear in the site footer. A UK limited
 company must show these on its website.
-
-## 10. Bring your data across from Lovable
-
-The old database can't be reached directly, so the data is pushed from Lovable into
-your new project through a one-off, token-locked function:
-
-1. Generate a random token: `openssl rand -hex 24`
-2. `supabase secrets set IMPORT_TOKEN=<that token>` (the function was deployed in step 5)
-3. Ask Claude to run the transfer, giving it **only your project ref and the import
-   token** — never your service_role key. It copies, in order: suppliers and price
-   data, compliance rules and quote templates, then your own account (your password
-   keeps working) and its clients, quotes, invoices, schedules and settings. Other
-   accounts on the old site are not copied.
-4. Run `supabase/setup/clean-imported-prices.sql` in the SQL editor. It renames the
-   old fake "Toolstation Public Catalogue" price list to **Quotable Reference Prices**
-   (so its rows show as estimates), deletes its random-noise price history, and
-   switches off scraped junk rows.
-5. When it's done, switch the importer off:
-   ```sh
-   supabase secrets unset IMPORT_TOKEN
-   supabase functions delete import-data
-   ```
-
-## 11. Switch off Lovable
-
-Once the new site works:
-
-- In Lovable, **unpublish** the project and disconnect GitHub.
-- The old database runs two scheduled jobs every morning at 06:00
-  (`daily-price-refresh` and `generate-recurring-invoices-daily`). They stop when the
-  Lovable project is deleted.
-- Delete the Lovable project to remove your users' data from Lovable.
-
----
 
 ## Checking quote accuracy
 

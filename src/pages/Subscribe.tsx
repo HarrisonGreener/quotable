@@ -46,7 +46,7 @@ export default function Subscribe() {
     "Real-Time Material Pricing",
     "Tax Reports & Analytics",
     "Inventory Management",
-    "Unlimited Quotes & Invoices",
+    "Up to 60 AI quotes a day, unlimited invoices",
   ];
 
   return (
@@ -56,10 +56,10 @@ export default function Subscribe() {
           <div className="text-center mb-8">
             <Crown className="h-12 w-12 text-primary mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Start Your Free Trial
+              Choose your plan
             </h1>
             <p className="text-muted-foreground text-lg">
-              Get 30 days free, then choose your plan. Cancel anytime.
+              New accounts get the first 30 days free. Cancel any time in the app, in two taps.
             </p>
             {promo && (
               <p className="mt-3 inline-block rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm text-foreground">

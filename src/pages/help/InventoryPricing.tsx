@@ -61,7 +61,7 @@ const InventoryPricingHelp = () => {
                     Where do the material prices come from?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
-                    Prices are sourced from UK merchants including Toolstation, Screwfix, City Plumbing, and trade suppliers. Prices are refreshed nightly, and anything we could not match to a real product is marked as an estimate. Look for the source badge on each item (e.g., "Toolstation", "Inventory", "Estimated") to see where the price originated.
+                    Prices are read from UK merchants' product pages, mainly Toolstation, Wickes and Travis Perkins, and kept up to date as quotes are made. Anything we couldn't match to a real product is marked as an estimate, so you can check it. Look for the source badge on each item (e.g., "Toolstation", "Inventory", "Estimated") to see where the price originated.
                   </AccordionContent>
                 </AccordionItem>
 

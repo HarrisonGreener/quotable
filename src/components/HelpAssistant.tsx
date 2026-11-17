@@ -1,3 +1,4 @@
+import { COMPANY } from "@/config/company";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Send, Loader2 } from "lucide-react";
@@ -48,7 +49,7 @@ export const HelpAssistant = () => {
       reply = {
         role: "assistant",
         content: status === 402 ? "The assistant is part of your Quotable subscription. Start or renew it from Account."
-          : message || "The assistant isn't available right now. Email support@quotable-it.co.uk and we'll help.",
+          : message || `The assistant isn't available right now. Email ${COMPANY.supportEmail} and we'll help.`,
       };
     } else {
       reply = { role: "assistant", content: data.reply, sources: data.sources };

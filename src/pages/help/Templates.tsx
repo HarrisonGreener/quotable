@@ -33,7 +33,7 @@ const Templates = () => {
                     What are the different PDF templates?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
-                    Quotable offers three PDF templates: Minimalist (clean and simple), Modern (bold and colorful), and Classic (traditional and professional). You can preview each template in Settings before choosing one. The template you select will be used for all quotes and invoices you export.
+                    Open PDF Templates in the sidebar to pick a starting style and preview it. The template you choose is used for the quotes and invoices you export or send.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -42,7 +42,7 @@ const Templates = () => {
                     How do I customize my PDF template?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
-                    Go to Settings and update your brand information—company name, logo, address, phone, email, and VAT number. This info appears on all PDFs. You can also choose which template style to use. Currently, the layout and colors of each template are fixed, but your branding is fully customizable.
+                    Go to Settings and update your brand information—company name, logo, address, phone, email, and VAT number. This info appears on all PDFs. In PDF Templates you can also change the layout, colours and which sections show.
                   </AccordionContent>
                 </AccordionItem>
 

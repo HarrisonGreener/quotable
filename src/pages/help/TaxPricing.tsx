@@ -69,7 +69,7 @@ const TaxPricing = () => {
                     Do I need to register for VAT or sales tax?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
-                    This depends on your country and annual revenue. In the UK, you must register for VAT if your taxable turnover exceeds £85,000 per year. In the US, sales tax rules vary by state. Consult a local accountant or tax advisor to understand your specific obligations.
+                    In the UK you must register for VAT once your taxable turnover goes over £90,000 in any 12 months (you can choose to register below that). Check gov.uk or speak to an accountant about your own situation.
                   </AccordionContent>
                 </AccordionItem>
 

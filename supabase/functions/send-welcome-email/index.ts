@@ -98,11 +98,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { userName, userEmail }: WelcomeEmailRequest = await req.json();
+    // Only ever email the signed-in user, never an address from the request,
+    // and escape the name so nobody can inject content into a Quotable email.
+    const body: Partial<WelcomeEmailRequest> = await req.json().catch(() => ({}));
+    const userEmail = user.email;
+    if (!userEmail) {
+      return new Response(JSON.stringify({ error: "No email on this account" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const esc = (t: string) => t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    const rawName = String(user.user_metadata?.full_name || body.userName || userEmail.split("@")[0]).slice(0, 60);
+    const userName = esc(rawName);
 
-    console.log("Sending welcome email to:", userEmail);
-
-    const html = generateWelcomeEmailHTML(userName, userEmail);
+    const html = generateWelcomeEmailHTML(userName, esc(userEmail));
 
     const emailResponse = await resend.emails.send({
       from: "Quotable <hello@mail.quotable-it.co.uk>",

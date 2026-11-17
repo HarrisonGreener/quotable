@@ -188,7 +188,7 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
               <div className="p-8 sm:p-10 border-b md:border-b-0 md:border-r border-border">
                 <h2 className="text-3xl sm:text-4xl leading-tight text-primary">One plan, everything included</h2>
                 <p className="mt-4 text-foreground/75 leading-relaxed">
-                  Unlimited quotes, invoices and customers. Your first month is free, and you can cancel any time.
+                  Up to 60 AI quotes a day, with unlimited invoices and customers. Your first month is free, and you can cancel any time.
                 </p>
               </div>
               <div className="p-8 sm:p-10 border-b md:border-b-0 md:border-r border-border flex flex-col">

@@ -58,8 +58,43 @@ const AppSettings = () => {
     }
   };
 
-  const handleExportData = () => {
-    toast.info("Data export feature coming soon");
+  const [exporting, setExporting] = useState(false);
+  // Downloads everything in the account as one file (portable, as promised in the terms)
+  const handleExportData = async () => {
+    setExporting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in");
+      const tables = [
+        "quotes", "invoices", "clients", "schedules", "inventory",
+        "brand_settings", "app_settings", "pdf_templates", "quote_templates", "invoice_templates",
+      ];
+      const out: Record<string, unknown> = {
+        exported_at: new Date().toISOString(),
+        account: { id: user.id, email: user.email },
+      };
+      for (const t of tables) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.from as any)(t).select("*").eq("user_id", user.id);
+        if (error) throw error;
+        out[t] = data ?? [];
+      }
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `quotable-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success("Your data has been downloaded");
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Couldn't export your data. Please try again.");
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleSaveSettings = async () => {
@@ -181,9 +216,9 @@ const AppSettings = () => {
                 <CardDescription>Export all your data</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" onClick={handleExportData}>
+                <Button variant="outline" onClick={handleExportData} disabled={exporting}>
                   <Download className="mr-2 h-4 w-4" />
-                  Export All Data (CSV)
+                  {exporting ? "Preparing download…" : "Export all my data"}
                 </Button>
               </CardContent>
             </Card>
