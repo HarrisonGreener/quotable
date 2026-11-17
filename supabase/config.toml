@@ -45,8 +45,6 @@ verify_jwt = true
 [functions.seed-product-database]
 verify_jwt = true
 
-[functions.import-data]
-verify_jwt = false
 
 [functions.cancel-subscription]
 verify_jwt = true
