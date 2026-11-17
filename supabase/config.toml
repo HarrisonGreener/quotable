@@ -21,13 +21,7 @@ verify_jwt = true
 [functions.fetch-market-prices]
 verify_jwt = true
 
-[functions.scrape-merchant-prices]
-verify_jwt = true
-
 [functions.refresh-prices-cron]
-verify_jwt = true
-
-[functions.crawl-supplier-catalogue]
 verify_jwt = true
 
 [functions.discover-product-urls]
@@ -38,13 +32,6 @@ verify_jwt = true
 
 [functions.get-realtime-price]
 verify_jwt = true
-
-[functions.bulk-category-crawl]
-verify_jwt = true
-
-[functions.seed-product-database]
-verify_jwt = true
-
 
 [functions.cancel-subscription]
 verify_jwt = true

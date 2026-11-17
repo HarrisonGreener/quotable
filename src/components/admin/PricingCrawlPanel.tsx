@@ -22,7 +22,6 @@ interface PricingStats {
 
 export const PricingCrawlPanel = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isCrawling, setIsCrawling] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<CrawlResult[]>([]);
   const [stats, setStats] = useState<PricingStats | null>(null);
@@ -92,38 +91,6 @@ export const PricingCrawlPanel = () => {
     }
   };
 
-  const runCatalogueCrawl = async () => {
-    setIsCrawling(true);
-    setProgress(0);
-    setResults([]);
-
-    try {
-      toast.info('Starting supplier catalogue crawl...');
-      setProgress(20);
-
-      const { data, error } = await supabase.functions.invoke('crawl-supplier-catalogue', {
-        body: {}
-      });
-
-      if (error) throw error;
-
-      setProgress(100);
-
-      const saved = data?.products_saved || 0;
-      const pages = data?.pages_crawled || 0;
-      const suppliers = data?.suppliers_crawled || 0;
-
-      toast.success(`Crawl complete: ${saved} products saved from ${pages} pages across ${suppliers} suppliers`);
-
-      await fetchStats();
-    } catch (err) {
-      console.error('Crawl error:', err);
-      toast.error('Crawl failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
-    } finally {
-      setIsCrawling(false);
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -132,7 +99,7 @@ export const PricingCrawlPanel = () => {
           Pricing Engine Control Panel
         </CardTitle>
         <CardDescription>
-          Refresh market prices and crawl supplier catalogues to expand the product matching pool
+          Refresh market prices and the merchant product index
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -162,7 +129,7 @@ export const PricingCrawlPanel = () => {
         </Button>
 
         {/* Progress */}
-        {(isRefreshing || isCrawling) && (
+        {isRefreshing && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>{isRefreshing ? 'Refreshing prices...' : 'Crawling catalogues...'}</span>
@@ -174,13 +141,9 @@ export const PricingCrawlPanel = () => {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
-          <Button onClick={runFullRefresh} disabled={isRefreshing || isCrawling}>
+          <Button onClick={runFullRefresh} disabled={isRefreshing}>
             {isRefreshing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
             Full Price Refresh
-          </Button>
-          <Button variant="secondary" onClick={runCatalogueCrawl} disabled={isRefreshing || isCrawling}>
-            {isCrawling ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Database className="h-4 w-4 mr-2" />}
-            Deep Catalogue Crawl
           </Button>
         </div>
 

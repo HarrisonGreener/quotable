@@ -7,7 +7,7 @@
 #              SUPABASE_DB_PASSWORD   (the database password chosen when creating the project)
 #   Variables: SUPABASE_PROJECT_REF   (the xxxx in https://xxxx.supabase.co)
 # Optional secrets passed to the server if present: GROQ_API_KEY, GEMINI_API_KEY,
-# STRIPE_SECRET_KEY, RESEND_API_KEY, SEND_EMAIL_HOOK_SECRET, IMPORT_TOKEN.
+# STRIPE_SECRET_KEY, RESEND_API_KEY, SEND_EMAIL_HOOK_SECRET, GEMINI_BILLING.
 #
 # Run it from the Actions tab → "Deploy back end" → Run workflow. It also runs by
 # itself when database or function code changes on main.
@@ -15,16 +15,6 @@ name: Deploy back end
 
 on:
   workflow_dispatch:
-    inputs:
-      import_token:
-        description: "One-off: switch on the data import with this token (leave empty normally)"
-        required: false
-        default: ""
-      end_import:
-        description: "One-off: switch the data import off and delete it"
-        type: boolean
-        required: false
-        default: false
   push:
     branches: [main, leave-lovable]
     paths: ["supabase/migrations/**", "supabase/functions/**", "supabase/config.toml"]
@@ -78,12 +68,11 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SEND_EMAIL_HOOK_SECRET: ${{ secrets.SEND_EMAIL_HOOK_SECRET }}
-          IMPORT_TOKEN: ${{ secrets.IMPORT_TOKEN }}
           GEMINI_BILLING: ${{ secrets.GEMINI_BILLING }}
         run: |
           # Only send the ones that are set; values never appear in the log
           args=()
-          for k in GROQ_API_KEY GEMINI_API_KEY GEMINI_BILLING STRIPE_SECRET_KEY RESEND_API_KEY SEND_EMAIL_HOOK_SECRET IMPORT_TOKEN; do
+          for k in GROQ_API_KEY GEMINI_API_KEY GEMINI_BILLING STRIPE_SECRET_KEY RESEND_API_KEY SEND_EMAIL_HOOK_SECRET; do
             v="${!k}"
             [ -n "$v" ] && args+=("$k=$v")
           done
@@ -91,22 +80,13 @@ jobs:
           supabase secrets set --project-ref "$PROJECT_REF" "${args[@]}" > /dev/null
           echo "Set ${#args[@]} server secrets"
 
-      - name: Data import switch
-        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.import_token != '' || inputs.end_import) }}
-        env:
-          IMPORT_TOKEN_IN: ${{ inputs.import_token }}
-          END_IMPORT: ${{ inputs.end_import }}
-        run: |
-          if [ "$END_IMPORT" = "true" ]; then
-            supabase secrets unset --project-ref "$PROJECT_REF" IMPORT_TOKEN || true
-            echo "Import switched off"
-          else
-            echo "::add-mask::$IMPORT_TOKEN_IN"
-            supabase secrets set --project-ref "$PROJECT_REF" "IMPORT_TOKEN=$IMPORT_TOKEN_IN" > /dev/null
-            echo "Import switched on"
-          fi
-
       - name: Deploy server functions
         run: |
           supabase functions deploy --project-ref "$PROJECT_REF" --use-api
-          if [ "${{ inputs.end_import }}" = "true" ]; then supabase functions delete import-data --project-ref "$PROJECT_REF" || true; fi
+
+      - name: Remove retired server functions
+        run: |
+          # Functions deleted from the code are listed in supabase/retired-functions.txt
+          grep -vE '^\s*(#|$)' supabase/retired-functions.txt | while read -r fn; do
+            supabase functions delete "$fn" --project-ref "$PROJECT_REF" >/dev/null 2>&1 && echo "Removed $fn" || true
+          done

@@ -1,0 +1,7 @@
+# Server functions that were removed from the code. The deploy deletes them from
+# Supabase if they're still there. Add a name here when you delete a function folder.
+import-data
+bulk-category-crawl
+scrape-merchant-prices
+seed-product-database
+crawl-supplier-catalogue
