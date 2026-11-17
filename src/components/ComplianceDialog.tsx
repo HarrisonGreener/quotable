@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { TERMS_VERSION, PRIVACY_VERSION } from "@/config/legal";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +12,7 @@ import { Label } from "@/components/ui/label";
 import { TermsDialog } from "@/components/TermsDialog";
 import { PrivacyDialog } from "@/components/PrivacyDialog";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, saveTermsAcceptance } from "@/contexts/AuthContext";
 
 interface ComplianceDialogProps {
   open: boolean;
@@ -39,20 +37,8 @@ export const ComplianceDialog = ({ open, onCompliance }: ComplianceDialogProps) 
 
     setIsLoading(true);
     try {
-      // Use upsert to handle both insert and update in one operation
-      await supabase.from('user_terms_acceptance').upsert({
-        user_id: user.id,
-        terms_version: TERMS_VERSION,
-        privacy_accepted: true,
-        privacy_version: PRIVACY_VERSION,
-        privacy_accepted_at: new Date().toISOString(),
-        accepted_at: new Date().toISOString(),
-        user_agent: navigator.userAgent,
-      }, {
-        onConflict: 'user_id'
-      });
-
-      toast.success("Thank you for accepting our updated policies");
+      if (!(await saveTermsAcceptance(user.id))) throw new Error("save failed");
+      toast.success("Thanks, you're all set");
       onCompliance();
     } catch (error) {
       toast.error("Failed to record acceptance. Please try again.");

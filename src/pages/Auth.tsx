@@ -149,6 +149,10 @@ const Auth = () => {
         data: {
           full_name: validation.data.name,
           business_name: validation.data.business,
+          // Ticked on the sign-up form; saved properly on first sign-in
+          terms_version: TERMS_VERSION,
+          privacy_version: PRIVACY_VERSION,
+          terms_accepted_at: new Date().toISOString(),
         },
       },
     });

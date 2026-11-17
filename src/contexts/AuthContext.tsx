@@ -18,6 +18,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** Records that this user accepted the current terms and privacy policy. */
+export const saveTermsAcceptance = async (userId: string, acceptedAt?: string) => {
+  const at = acceptedAt || new Date().toISOString();
+  const { error } = await supabase.from('user_terms_acceptance').upsert({
+    user_id: userId,
+    terms_version: TERMS_VERSION,
+    privacy_accepted: true,
+    privacy_version: PRIVACY_VERSION,
+    privacy_accepted_at: at,
+    accepted_at: at,
+    user_agent: navigator.userAgent,
+  }, { onConflict: 'user_id' });
+  if (error) console.error('Error saving terms acceptance:', error);
+  return !error;
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -76,25 +92,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data: acceptance, error } = await supabase
         .from('user_terms_acceptance')
-        .select('*')
+        .select('terms_version, privacy_version, privacy_accepted')
         .eq('user_id', user.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
+      if (error) throw error;
 
-      // If no acceptance record or error (not found), user needs to accept
-      if (error && error.code === 'PGRST116') {
-        setNeedsCompliance(true);
+      const current = (a?: { terms_version?: string | null; privacy_version?: string | null; privacy_accepted?: boolean | null } | null) =>
+        !!a && a.privacy_accepted !== false && a.terms_version === TERMS_VERSION && a.privacy_version === PRIVACY_VERSION;
+
+      if (current(acceptance)) {
+        setNeedsCompliance(false);
         return;
       }
 
-      // Check if user needs to accept updated terms/privacy
-      const needsAcceptance = !acceptance || 
-                              !acceptance.privacy_accepted || 
-                              acceptance.terms_version !== TERMS_VERSION || 
-                              acceptance.privacy_version !== PRIVACY_VERSION;
+      // Ticked the boxes on the sign-up form (before the email was confirmed, so it
+      // couldn't be saved then): record that now rather than asking again.
+      const meta = user.user_metadata ?? {};
+      if (meta.terms_version === TERMS_VERSION && meta.privacy_version === PRIVACY_VERSION) {
+        const ok = await saveTermsAcceptance(user.id, meta.terms_accepted_at);
+        if (ok) {
+          setNeedsCompliance(false);
+          return;
+        }
+      }
 
-      setNeedsCompliance(needsAcceptance);
+      // New to these versions (first Google sign-in, or the terms have changed)
+      setNeedsCompliance(true);
     } catch (error) {
+      // Don't block anyone over a failed check; it runs again next sign-in
       console.error('Error checking compliance:', error);
     }
   };
@@ -117,18 +142,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const isNewUser = !appSettings;
 
-      // Use upsert for terms acceptance to prevent duplicates
-      await supabase.from('user_terms_acceptance').upsert({
-        user_id: user.id,
-        terms_version: TERMS_VERSION,
-        privacy_accepted: true,
-        privacy_version: PRIVACY_VERSION,
-        privacy_accepted_at: new Date().toISOString(),
-        user_agent: navigator.userAgent,
-      }, {
-        onConflict: 'user_id'
-      });
-      
       // Send welcome email ONLY for truly new Google OAuth users
       if (isNewUser) {
         try {
