@@ -54,7 +54,7 @@ export const termsSections: { id: string; title: string; body: ReactNode }[] = [
             days' notice by email before it applies to you, so you can cancel first.
           </p>
           <p>
-            <strong>Cancelling.</strong> You can cancel at any time from Account, then Manage subscription. You keep access
+            <strong>Cancelling.</strong> You can cancel at any time in the app: Account, then Cancel subscription. It takes two taps. You keep access
             until the end of the period you've paid for, and you won't be charged again. Payments already made aren't
             refunded for unused time, unless the law requires it.
           </p>

@@ -24,6 +24,7 @@ import { TradeAutocomplete } from "@/components/TradeAutocomplete";
 import { TRADE_SPECIALIZATIONS, TRADE_CERTIFICATIONS, ALL_TRADES } from "@/data/trades";
 import { PreferredSuppliers } from "@/components/PreferredSuppliers";
 import { useSubscription } from "@/hooks/useSubscription";
+import { CancelSubscription } from "@/components/CancelSubscription";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 
@@ -33,7 +34,7 @@ const Account = () => {
   const isDemo = searchParams.get("demo") === "true";
   const isMobile = useIsMobile();
   const { signOut } = useAuth();
-  const { isActive, isTrialing, subscriptionEnd, trialEnd, loading: subscriptionLoading, getPlanName, openCustomerPortal } = useSubscription();
+  const { isActive, subscribed, isTrialing, subscriptionEnd, trialEnd, cancelAtPeriodEnd, loading: subscriptionLoading, getPlanName, openCustomerPortal, setCancelled } = useSubscription();
   
   // Brand Settings
   const [companyName, setCompanyName] = useState("");
@@ -507,7 +508,7 @@ const Account = () => {
                       )}
                       {!isTrialing && subscriptionEnd && (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Renews on</span>
+                          <span className="text-muted-foreground">{cancelAtPeriodEnd ? "Access until" : "Renews on"}</span>
                           <span className="font-medium">{format(new Date(subscriptionEnd), 'dd MMM yyyy')}</span>
                         </div>
                       )}
@@ -518,8 +519,15 @@ const Account = () => {
                       className="w-full"
                     >
                       <CreditCard className="h-4 w-4 mr-2" />
-                      Manage Subscription
+                      Change plan, card or invoices
                     </Button>
+                    {subscribed && (
+                      <CancelSubscription
+                        cancelAtPeriodEnd={!!cancelAtPeriodEnd}
+                        accessUntil={isTrialing ? trialEnd : subscriptionEnd}
+                        setCancelled={setCancelled}
+                      />
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-4">

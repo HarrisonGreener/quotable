@@ -112,7 +112,8 @@ serve(async (req) => {
       productId,
       priceId,
       subscriptionEnd,
-      trialEnd
+      trialEnd,
+      cancelAtPeriodEnd: activeSubscription.cancel_at_period_end ?? false,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

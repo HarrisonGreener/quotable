@@ -28,6 +28,7 @@ interface SubscriptionStatus {
   isTrialing: boolean;
   productId: string | null;
   priceId?: string | null;
+  cancelAtPeriodEnd?: boolean;
   subscriptionEnd: string | null;
   trialEnd: string | null;
 }
@@ -73,6 +74,7 @@ export function useSubscription() {
         isTrialing: data.isTrialing ?? false,
         productId: data.productId ?? null,
         priceId: data.priceId ?? null,
+        cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
         subscriptionEnd: data.subscriptionEnd ?? null,
         trialEnd: data.trialEnd ?? null,
       });
@@ -138,6 +140,16 @@ export function useSubscription() {
     }
   };
 
+  /** Cancel at the end of the paid period, or undo a pending cancel. */
+  const setCancelled = async (cancel: boolean, reason?: string) => {
+    const { data, error } = await supabase.functions.invoke('cancel-subscription', {
+      body: { action: cancel ? 'cancel' : 'resume', ...(reason ? { reason } : {}) },
+    });
+    if (error) throw error;
+    setSubscription((s) => ({ ...s, cancelAtPeriodEnd: !!data?.cancelAtPeriodEnd }));
+    return data as { cancelAtPeriodEnd: boolean; accessUntil: string | null };
+  };
+
   const getPlanName = () => {
     if (!subscription.subscribed) return null;
     // Both plans are prices on one Stripe product, so tell them apart by price
@@ -152,6 +164,7 @@ export function useSubscription() {
     checkSubscription,
     createCheckout,
     openCustomerPortal,
+    setCancelled,
     getPlanName,
     isActive: isAdmin || subscription.subscribed,
     isAdmin,
