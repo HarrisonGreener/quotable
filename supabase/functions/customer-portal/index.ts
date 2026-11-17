@@ -51,6 +51,8 @@ serve(async (req) => {
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${origin}/account`,
+      // Quotable's portal settings in Stripe: cancel at period end, switch monthly/yearly, update card
+      configuration: Deno.env.get("STRIPE_PORTAL_CONFIG") || "bpc_1UcZxWIlyZyID4OezGaV5QGR",
     });
     logStep("Customer portal session created", { sessionId: portalSession.id });
 

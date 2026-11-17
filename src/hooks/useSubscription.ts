@@ -6,14 +6,14 @@ import { useAuth } from '@/contexts/AuthContext';
 // Stripe product/price IDs
 export const STRIPE_PRODUCTS = {
   monthly: {
-    productId: 'prod_Tch128VW012Eti',
-    priceId: 'price_1SfRczEbsySHJL70bX2oXV2R',
+    productId: 'prod_VdrgDNMBgv7pnT',
+    priceId: 'price_1UcZxJIlyZyID4OeJdFgtWyc',
     price: 14.99,
     interval: 'month',
   },
   annual: {
-    productId: 'prod_Tch1BZWFrWWxTo',
-    priceId: 'price_1SfRdPEbsySHJL708DMVKQW6',
+    productId: 'prod_VdrgDNMBgv7pnT',
+    priceId: 'price_1UcZxKIlyZyID4OeQHFbHXLw',
     price: 159.99,
     interval: 'year',
   },
@@ -27,6 +27,7 @@ interface SubscriptionStatus {
   subscribed: boolean;
   isTrialing: boolean;
   productId: string | null;
+  priceId?: string | null;
   subscriptionEnd: string | null;
   trialEnd: string | null;
 }
@@ -71,6 +72,7 @@ export function useSubscription() {
         subscribed: data.subscribed ?? false,
         isTrialing: data.isTrialing ?? false,
         productId: data.productId ?? null,
+        priceId: data.priceId ?? null,
         subscriptionEnd: data.subscriptionEnd ?? null,
         trialEnd: data.trialEnd ?? null,
       });
@@ -132,14 +134,15 @@ export function useSubscription() {
 
     if (error) throw error;
     if (data?.url) {
-      window.open(data.url, '_blank');
+      window.location.assign(data.url);
     }
   };
 
   const getPlanName = () => {
     if (!subscription.subscribed) return null;
-    if (subscription.productId === STRIPE_PRODUCTS.annual.productId) return 'Annual';
-    if (subscription.productId === STRIPE_PRODUCTS.monthly.productId) return 'Monthly';
+    // Both plans are prices on one Stripe product, so tell them apart by price
+    if (subscription.priceId === STRIPE_PRODUCTS.annual.priceId) return 'Annual';
+    if (subscription.priceId === STRIPE_PRODUCTS.monthly.priceId) return 'Monthly';
     return 'Pro';
   };
 

@@ -28,7 +28,7 @@ serve(async (req) => {
     const { priceId, promoCode } = await req.json();
     if (!priceId) throw new Error("Price ID is required");
     // Only Quotable's own plans can be bought here (set STRIPE_PRICE_IDS to override, comma-separated)
-    const allowed = (Deno.env.get("STRIPE_PRICE_IDS") || "price_1SfRczEbsySHJL70bX2oXV2R,price_1SfRdPEbsySHJL708DMVKQW6")
+    const allowed = (Deno.env.get("STRIPE_PRICE_IDS") || "price_1UcZxJIlyZyID4OeJdFgtWyc,price_1UcZxKIlyZyID4OeQHFbHXLw")
       .split(",").map((s) => s.trim()).filter(Boolean);
     if (!allowed.includes(priceId)) throw new Error("Unknown plan");
     logStep("Price ID received", { priceId });

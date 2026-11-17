@@ -87,6 +87,7 @@ serve(async (req) => {
     }
 
     const productId = activeSubscription.items.data[0].price.product as string;
+    const priceId = activeSubscription.items.data[0].price.id;
     // From Stripe API 2025-03 ("basil") the period end lives on the subscription item
     const periodEnd = (activeSubscription.items.data[0] as { current_period_end?: number }).current_period_end
       ?? (activeSubscription as unknown as { current_period_end?: number }).current_period_end;
@@ -100,6 +101,7 @@ serve(async (req) => {
       subscriptionId: activeSubscription.id, 
       status: activeSubscription.status,
       productId,
+      priceId,
       isTrialing,
       trialEnd
     });
@@ -108,6 +110,7 @@ serve(async (req) => {
       subscribed: true,
       isTrialing,
       productId,
+      priceId,
       subscriptionEnd,
       trialEnd
     }), {
