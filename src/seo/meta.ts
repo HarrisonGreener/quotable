@@ -37,6 +37,8 @@ export const LANDING_FAQ: [string, string][] = [
     "Every quote has a link your customer opens on their phone. They accept with a tap and can pay a deposit through your own payment link. When the work's done, the quote becomes an invoice in one click."],
   ["Does it handle VAT and Making Tax Digital?",
     "VAT is worked out on every line if you're registered, and invoices export in the format Xero, QuickBooks and FreeAgent expect."],
+  ["Is there an app?",
+    "Yes. Add Quotable to your iPhone or Android home screen from the browser in four taps and it opens full screen like any other app, with nothing to download from an app store. quotable.uk/app shows you how."],
   ["How much does it cost?",
     "£14.99 a month or £159.99 a year, with the first month free. You can also look around a sample account without signing up."],
 ];

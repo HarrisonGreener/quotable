@@ -37,6 +37,7 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
           <Link to="/guides" className={linkClass}>Pricing guides</Link>
           <Link to="/quote-templates" className={linkClass}>Quote templates</Link>
           <Link to="/day-rates" className={linkClass}>Day rates</Link>
+          <Link to="/app" className={linkClass}>Get the app</Link>
           {COMPANY.supportEmail ? (
             <a href={`mailto:${COMPANY.supportEmail}`} className={linkClass}>Contact</a>
           ) : (

@@ -12,6 +12,7 @@ import { DAY_RATES } from "./dayRates";
 import { DayRatePage, DayRatesIndex } from "./DayRatePages";
 import Terms, { termsMeta } from "@/pages/Terms";
 import Privacy, { privacyMeta } from "@/pages/Privacy";
+import GetApp, { appMeta } from "@/pages/GetApp";
 
 export { SITE_URL };
 
@@ -25,6 +26,7 @@ export const pages = (): PageMeta[] => [
   ...TRADE_SLUGS().map((s) => tradeMeta(s)!).filter(Boolean),
   dayRatesIndexMeta(),
   ...DAY_RATES.map((d) => dayRateMeta(d.slug)!),
+  appMeta,
   termsMeta,
   privacyMeta,
 ];
@@ -42,6 +44,7 @@ export const render = (path: string, basename = "") =>
         <Route path="/trades/:slug" element={<TradePage />} />
         <Route path="/day-rates" element={<DayRatesIndex />} />
         <Route path="/day-rates/:slug" element={<DayRatePage />} />
+        <Route path="/app" element={<GetApp />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
       </Routes>

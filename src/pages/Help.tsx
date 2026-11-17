@@ -1,4 +1,4 @@
-import { HelpCircle, DollarSign, Calendar, FileText, AlertCircle, Settings, PlayCircle, Mail, Users, Package, Copy } from "lucide-react";
+import { HelpCircle, DollarSign, Calendar, FileText, AlertCircle, Settings, PlayCircle, Mail, Users, Package, Copy, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -6,6 +6,12 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const helpSections = [
+  {
+    title: "Add Quotable to your home screen",
+    description: "Open Quotable with one tap on your phone, like any other app",
+    icon: Smartphone,
+    href: "/app"
+  },
   {
     title: "Getting the Most Accurate Quote",
     description: "Learn how to create detailed quotes that reflect the true cost of your work",

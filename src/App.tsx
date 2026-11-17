@@ -54,6 +54,7 @@ import {
   TemplatePage,
   DayRatesIndex,
   DayRatePage,
+  GetApp,
 } from "@/routes";
 
 // Remember ?code=… from a shared promo link for checkout
@@ -109,6 +110,7 @@ const App = () => (
                     <Route path="/guides/:slug" element={<Suspense fallback={<PageLoader />}><GuidePage /></Suspense>} />
                     <Route path="/quote-templates" element={<Suspense fallback={<PageLoader />}><TemplatesIndex /></Suspense>} />
                     <Route path="/quote-templates/:slug" element={<Suspense fallback={<PageLoader />}><TemplatePage /></Suspense>} />
+                    <Route path="/app" element={<Suspense fallback={<PageLoader />}><GetApp /></Suspense>} />
                     <Route path="/day-rates" element={<Suspense fallback={<PageLoader />}><DayRatesIndex /></Suspense>} />
                     <Route path="/day-rates/:slug" element={<Suspense fallback={<PageLoader />}><DayRatePage /></Suspense>} />
                     <Route path="/trades/:slug" element={<Suspense fallback={<PageLoader />}><TradePage /></Suspense>} />

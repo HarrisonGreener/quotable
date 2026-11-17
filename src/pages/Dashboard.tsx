@@ -29,6 +29,7 @@ import { demoQuotes, demoInvoices, demoStats } from "@/data/demoData";
 import { DemoModeNotice } from "@/components/DemoModeNotice";
 import { getDemoData, setDemoData, isDemoMode } from "@/utils/demoMode";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
+import { InstallPrompt } from "@/components/InstallApp";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -248,6 +249,7 @@ const Dashboard = () => {
 
           <div className={`space-y-6 max-w-full ${isMobile ? 'p-4' : 'p-6'}`}>
             {isDemo && <DemoModeBanner />}
+            {!isDemo && <InstallPrompt />}
             
             {/* Setup Checklist */}
             {!isDemo && showChecklist && !isLoading && (
