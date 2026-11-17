@@ -40,7 +40,7 @@ export const hasPaidAccess = async (user: Who): Promise<boolean> => {
 };
 
 /** Counts one use of `kind` today and says whether it's within the daily limit. */
-export const withinDailyLimit = async (userId: string, kind: "quote" | "summary", limit: number): Promise<boolean> => {
+export const withinDailyLimit = async (userId: string, kind: "quote" | "summary" | "help", limit: number): Promise<boolean> => {
   const { data, error } = await serviceClient().rpc("bump_ai_usage", { _user_id: userId, _kind: kind, _limit: limit });
   if (error) { console.error("Usage counter failed, allowing:", error.message); return true; }
   return data === true;
@@ -50,9 +50,11 @@ const reply = (status: number, error: string, cors: Record<string, string>) =>
   new Response(JSON.stringify({ error }), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
 /** Both checks; returns a Response to send back if the call shouldn't go ahead. */
-export const checkAiAccess = async (user: Who, kind: "quote" | "summary", cors: Record<string, string>) => {
+export const checkAiAccess = async (user: Who, kind: "quote" | "summary" | "help", cors: Record<string, string>) => {
   if (!(await hasPaidAccess(user))) return reply(402, "Your subscription isn't active. Start or renew it to create quotes.", cors);
-  const limit = Number(Deno.env.get(kind === "quote" ? "QUOTES_PER_DAY" : "SUMMARIES_PER_DAY") || (kind === "quote" ? 60 : 120));
+  const env = { quote: "QUOTES_PER_DAY", summary: "SUMMARIES_PER_DAY", help: "HELP_PER_DAY" }[kind];
+  const fallback = { quote: 60, summary: 120, help: 40 }[kind];
+  const limit = Number(Deno.env.get(env) || fallback);
   if (!(await withinDailyLimit(user.id, kind, limit))) {
     return reply(429, `You've reached today's limit of ${limit}. It resets at midnight; contact us if you need more.`, cors);
   }

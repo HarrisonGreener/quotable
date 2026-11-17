@@ -1,4 +1,5 @@
 import { HelpCircle, DollarSign, Calendar, FileText, AlertCircle, Settings, PlayCircle, Mail, Users, Package, Copy, Smartphone } from "lucide-react";
+import { HelpAssistant } from "@/components/HelpAssistant";
 import { Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -105,6 +106,10 @@ const Help = () => {
                 <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
                   Find answers to common questions and get the most out of Quotable.
                 </p>
+              </div>
+
+              <div className="mb-10 max-w-3xl">
+                <HelpAssistant />
               </div>
 
               {/* Help Sections Grid */}

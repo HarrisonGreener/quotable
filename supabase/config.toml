@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.cancel-subscription]
 verify_jwt = true
+
+[functions.help-chat]
+verify_jwt = true
