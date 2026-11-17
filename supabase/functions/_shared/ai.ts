@@ -13,7 +13,7 @@
 //   CEREBRAS_API_KEY  – https://cloud.cerebras.ai           (~1M tokens/day free)
 //   GEMINI_API_KEY    – https://aistudio.google.com/apikey  (Flash-Lite has the most free requests)
 // Optional:
-//   AI_ORDER          – default "groq,gemini-lite,gemini"
+//   AI_ORDER          – default: "gemini-lite,groq,gemini" when GEMINI_BILLING=on, else "groq,gemini-lite,gemini"
 //   GEMINI_BILLING    – "on" once the Gemini key's project has billing enabled (required for UK users)
 //   GROQ_MODEL        – default "openai/gpt-oss-120b"
 //   CEREBRAS_MODEL    – default "gpt-oss-120b"
@@ -89,7 +89,9 @@ const providers = (): Provider[] => {
     for (const model of fallbacks.filter((m) => m !== main)) byName.gemini.push({ name: "gemini", url, key: gemini, model });
   }
 
-  const order = (Deno.env.get("AI_ORDER") || "groq,gemini-lite,gemini").split(",").map((s) => s.trim().toLowerCase())
+  // Paid Gemini first once billing is on (no queueing between users); free Groq as backup
+  const defaultOrder = Deno.env.get("GEMINI_BILLING") === "on" ? "gemini-lite,groq,gemini" : "groq,gemini-lite,gemini";
+  const order = (Deno.env.get("AI_ORDER") || defaultOrder).split(",").map((s) => s.trim().toLowerCase())
     .flatMap((n) => (n === "gemini" && !(Deno.env.get("AI_ORDER") || "").includes("gemini-lite") && Deno.env.get("AI_ORDER") ? ["gemini-lite", "gemini"] : [n]));
   const list = order.flatMap((n) => byName[n] ?? []);
   // anything with a key but left out of AI_ORDER still goes last

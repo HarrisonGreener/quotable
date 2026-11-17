@@ -79,10 +79,11 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SEND_EMAIL_HOOK_SECRET: ${{ secrets.SEND_EMAIL_HOOK_SECRET }}
           IMPORT_TOKEN: ${{ secrets.IMPORT_TOKEN }}
+          GEMINI_BILLING: ${{ secrets.GEMINI_BILLING }}
         run: |
           # Only send the ones that are set; values never appear in the log
           args=()
-          for k in GROQ_API_KEY GEMINI_API_KEY STRIPE_SECRET_KEY RESEND_API_KEY SEND_EMAIL_HOOK_SECRET IMPORT_TOKEN; do
+          for k in GROQ_API_KEY GEMINI_API_KEY GEMINI_BILLING STRIPE_SECRET_KEY RESEND_API_KEY SEND_EMAIL_HOOK_SECRET IMPORT_TOKEN; do
             v="${!k}"
             [ -n "$v" ] && args+=("$k=$v")
           done
