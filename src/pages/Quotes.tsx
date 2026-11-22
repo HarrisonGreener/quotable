@@ -260,7 +260,8 @@ const Quotes = () => {
   // Save draft to localStorage
   const saveDraftToStorage = useCallback(async (data: typeof draftData) => {
     try {
-      const draftKey = isDemo ? 'quotable_demo_quote_draft' : `quotable_quote_draft_${user?.id || 'temp'}`;
+      if (!isDemo && !user?.id) return; // not signed in yet: nothing to save against
+      const draftKey = isDemo ? 'quotable_demo_quote_draft' : `quotable_quote_draft_${user.id}`;
       localStorage.setItem(draftKey, JSON.stringify(data));
     } catch (error) {
       console.error('Failed to save draft:', error);
@@ -269,8 +270,11 @@ const Quotes = () => {
 
   // Load draft from localStorage
   const loadDraft = useCallback(() => {
+    if (!isDemo && !user?.id) return; // wait until we know who's signed in
     try {
-      const draftKey = isDemo ? 'quotable_demo_quote_draft' : `quotable_quote_draft_${user?.id || 'temp'}`;
+      // Old builds could leave a shared "temp" draft that kept refilling the form
+      try { localStorage.removeItem('quotable_quote_draft_temp'); } catch { /* ignore */ }
+      const draftKey = isDemo ? 'quotable_demo_quote_draft' : `quotable_quote_draft_${user.id}`;
       const savedDraft = localStorage.getItem(draftKey);
       
       if (savedDraft) {
@@ -302,8 +306,9 @@ const Quotes = () => {
   // Clear draft from localStorage
   const clearDraft = useCallback(() => {
     try {
-      const draftKey = isDemo ? 'quotable_demo_quote_draft' : `quotable_quote_draft_${user?.id || 'temp'}`;
+      const draftKey = isDemo ? 'quotable_demo_quote_draft' : `quotable_quote_draft_${user?.id}`;
       localStorage.removeItem(draftKey);
+      localStorage.removeItem('quotable_quote_draft_temp');
     } catch (error) {
       console.error('Failed to clear draft:', error);
     }
@@ -332,6 +337,10 @@ const Quotes = () => {
     setOriginalQuote(null);
     setIncludeCalloutFee(false);
     setSuggestedOverheads([]);
+    setSelectedClientId(null);
+    setEditingQuoteId(null);
+    setIsGeneratorMinimized(false);
+    setAdjustmentPrompt("");
   }, []);
 
   // Auto-save draft (with debounce) - silently without toast notifications
@@ -1854,11 +1863,23 @@ const Quotes = () => {
                               {editingQuoteId ? "Update your quote details" : "AI-powered quote generation with smart estimates"}
                             </CardDescription>
                           </div>
-                          {showQuote && (
-                            <Button variant="ghost" size="sm" className="h-8 px-2">
-                              Minimize
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {!editingQuoteId && (jobDescription || client || showQuote) && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9 px-3"
+                                onClick={(e) => { e.stopPropagation(); clearDraft(); resetForm(); }}
+                              >
+                                <Plus className="mr-1 h-4 w-4" /> Start new quote
+                              </Button>
+                            )}
+                            {showQuote && (
+                              <Button variant="ghost" size="sm" className="h-8 px-2">
+                                Minimize
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       )}
                     </CardHeader>
