@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main, leave-lovable]
-    paths: ["supabase/migrations/**", "supabase/functions/**", "supabase/config.toml"]
+    paths: ["supabase/migrations/**", "supabase/functions/**", "supabase/config.toml", "supabase/auth-emails/**"]
 
 concurrency:
   group: deploy-backend
@@ -80,6 +80,21 @@ jobs:
           args+=("SCRAPER_USER_AGENT=QuotableBot/1.0 (+https://quotable.uk)")
           supabase secrets set --project-ref "$PROJECT_REF" "${args[@]}" > /dev/null
           echo "Set ${#args[@]} server secrets"
+
+      - name: Account emails (branded templates and sender)
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+        run: |
+          python3 scripts/auth-email-config.py > /tmp/auth.json
+          code=$(curl -s -o /tmp/auth-out.txt -w '%{http_code}' -X PATCH \
+            "https://api.supabase.com/v1/projects/$PROJECT_REF/config/auth" \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
+            --data @/tmp/auth.json)
+          rm -f /tmp/auth.json
+          if [ "$code" != "200" ]; then echo "::error::Auth email settings failed ($code)"; head -c 300 /tmp/auth-out.txt; exit 1; fi
+          if [ -n "$SMTP_USER" ] && [ -n "$SMTP_PASSWORD" ]; then echo "Templates updated; sending through $SMTP_USER"; else echo "Templates updated; add SMTP_USER and SMTP_PASSWORD secrets to send from your own mailbox"; fi
 
       - name: Deploy server functions
         run: |
