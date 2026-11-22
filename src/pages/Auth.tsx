@@ -498,22 +498,22 @@ const Auth = () => {
                   <TabsContent value="signup">
                     <form onSubmit={handleSignup} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
+                        <Label htmlFor="name">Full name</Label>
                         <Input 
                           id="name" 
                           type="text" 
-                          placeholder="John Doe"
+                          placeholder="Sam Taylor"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           required 
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="business">Business Name</Label>
+                        <Label htmlFor="business">Business name</Label>
                         <Input 
                           id="business" 
                           type="text" 
-                          placeholder="Your Business Ltd"
+                          placeholder="Taylor Plastering"
                           value={business}
                           onChange={(e) => setBusiness(e.target.value)}
                           required 
@@ -531,7 +531,7 @@ const Auth = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirm-email">Confirm Email</Label>
+                        <Label htmlFor="confirm-email">Confirm email</Label>
                         <Input 
                           id="confirm-email" 
                           type="email" 
