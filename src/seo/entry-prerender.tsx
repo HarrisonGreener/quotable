@@ -13,6 +13,14 @@ import { DayRatePage, DayRatesIndex } from "./DayRatePages";
 import Terms, { termsMeta } from "@/pages/Terms";
 import Privacy, { privacyMeta } from "@/pages/Privacy";
 import GetApp, { appMeta } from "@/pages/GetApp";
+import { SoftwarePage, SOFTWARE_PATHS, softwareMeta } from "./growth/SoftwarePages";
+import { BUSINESS_GUIDES, businessGuideMeta } from "./growth/BusinessGuides";
+import { ToolsIndex, ToolPage, TOOL_SLUGS, toolMeta, toolsIndexMeta } from "./growth/tools/ToolPages";
+import { InvoiceTemplatesIndex, InvoiceTemplatePage, INVOICE_TEMPLATE_SLUGS, invoiceTemplateMeta, invoiceTemplatesIndexMeta } from "./growth/InvoiceTemplates";
+import { useParams } from "react-router-dom";
+
+const ToolRoute = () => { const { slug = "" } = useParams(); return <ToolPage slug={slug} />; };
+const InvoiceTemplateRoute = () => { const { slug = "" } = useParams(); return <InvoiceTemplatePage slug={slug} />; };
 
 export { SITE_URL };
 
@@ -26,6 +34,12 @@ export const pages = (): PageMeta[] => [
   ...TRADE_SLUGS().map((s) => tradeMeta(s)!).filter(Boolean),
   dayRatesIndexMeta(),
   ...DAY_RATES.map((d) => dayRateMeta(d.slug)!),
+  ...SOFTWARE_PATHS.map((p) => softwareMeta(p)!),
+  ...BUSINESS_GUIDES.map((b) => businessGuideMeta(b.slug)!),
+  toolsIndexMeta(),
+  ...TOOL_SLUGS.map((s) => toolMeta(s)!),
+  invoiceTemplatesIndexMeta(),
+  ...INVOICE_TEMPLATE_SLUGS.map((s) => invoiceTemplateMeta(s)!),
   appMeta,
   termsMeta,
   privacyMeta,
@@ -44,6 +58,14 @@ export const render = (path: string, basename = "") =>
         <Route path="/trades/:slug" element={<TradePage />} />
         <Route path="/day-rates" element={<DayRatesIndex />} />
         <Route path="/day-rates/:slug" element={<DayRatePage />} />
+        <Route path="/quoting-software" element={<SoftwarePage path="/quoting-software" />} />
+        <Route path="/invoicing-software" element={<SoftwarePage path="/invoicing-software" />} />
+        <Route path="/job-management-software" element={<SoftwarePage path="/job-management-software" />} />
+        <Route path="/estimating-software" element={<SoftwarePage path="/estimating-software" />} />
+        <Route path="/tools" element={<ToolsIndex />} />
+        <Route path="/tools/:slug" element={<ToolRoute />} />
+        <Route path="/invoice-templates" element={<InvoiceTemplatesIndex />} />
+        <Route path="/invoice-templates/:slug" element={<InvoiceTemplateRoute />} />
         <Route path="/app" element={<GetApp />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />

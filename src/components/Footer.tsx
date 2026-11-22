@@ -31,10 +31,17 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
           <p className="mt-3 text-sm text-muted-foreground max-w-xs">Quotes, jobs and invoices for UK tradespeople.</p>
         </div>
 
-        <nav aria-label="Footer" className="grid grid-cols-2 sm:flex sm:gap-8 gap-x-6 gap-y-0 text-sm">
+        <nav aria-label="Footer" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-0 text-sm">
+          <Link to="/quoting-software" className={linkClass}>Quoting software</Link>
+          <Link to="/invoicing-software" className={linkClass}>Invoicing app</Link>
+          <Link to="/job-management-software" className={linkClass}>Job management</Link>
+          <Link to="/estimating-software" className={linkClass}>Estimating</Link>
+          <Link to="/tools" className={linkClass}>Free tools</Link>
+          <Link to="/tools/invoice-generator" className={linkClass}>Invoice generator</Link>
           <Link to="/trades" className={linkClass}>Trades</Link>
-          <Link to="/guides" className={linkClass}>Pricing guides</Link>
+          <Link to="/guides" className={linkClass}>Guides</Link>
           <Link to="/quote-templates" className={linkClass}>Quote templates</Link>
+          <Link to="/invoice-templates" className={linkClass}>Invoice templates</Link>
           <Link to="/day-rates" className={linkClass}>Day rates</Link>
           <Link to="/app" className={linkClass}>Get the app</Link>
           {COMPANY.supportEmail ? (

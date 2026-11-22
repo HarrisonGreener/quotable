@@ -13,6 +13,12 @@ export const Navbar = () => (
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2">
+        <Link to="/quoting-software" className="hidden lg:inline-flex px-3 py-2 text-[0.95rem] text-foreground/80 hover:text-primary rounded-sm">
+          Software
+        </Link>
+        <Link to="/tools" className="hidden md:inline-flex px-3 py-2 text-[0.95rem] text-foreground/80 hover:text-primary rounded-sm">
+          Free tools
+        </Link>
         <Link to="/trades" className="hidden md:inline-flex px-3 py-2 text-[0.95rem] text-foreground/80 hover:text-primary rounded-sm">
           Trades
         </Link>

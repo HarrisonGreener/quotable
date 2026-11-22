@@ -13,7 +13,7 @@ export interface PageMeta {
   noindex?: boolean;
 }
 
-const ORG = {
+export const ORG = {
   "@type": "Organization",
   "@id": `${SITE_URL}/#org`,
   name: "Quotable",
@@ -21,7 +21,7 @@ const ORG = {
   logo: `${SITE_URL}/favicon.png`,
 };
 
-const breadcrumbs = (items: [string, string][]) => ({
+export const breadcrumbs = (items: [string, string][]) => ({
   "@type": "BreadcrumbList",
   itemListElement: items.map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: `${SITE_URL}${path}` })),
 });
@@ -71,8 +71,8 @@ export const landingMeta = (): PageMeta => ({
 
 export const guidesIndexMeta = (): PageMeta => ({
   path: "/guides",
-  title: "How to price jobs: UK pricing guides for tradespeople (2026)",
-  description: "Materials, quantities, labour hours and worked examples for pricing common jobs, from adding a socket to skimming a room. Typical UK prices for 2026.",
+  title: "Guides for UK tradespeople: how to price jobs, write quotes and get paid (2026)",
+  description: "How to price common jobs with materials, labour and worked examples, plus how to write a quote, what an invoice must include, VAT for trades and chasing late payment.",
   jsonLd: [breadcrumbs([["Home", "/"], ["Pricing guides", "/guides"]])],
 });
 

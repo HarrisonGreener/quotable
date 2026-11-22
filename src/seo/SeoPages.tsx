@@ -1,45 +1,12 @@
 import { Link, useParams } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import NotFound from "@/pages/NotFound";
 import { GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, gbp, workGuide, type GuideDef } from "./content";
 import { guideMeta, guidesIndexMeta, templateMeta, templatesIndexMeta, usePageMeta } from "./meta";
-import { OFFER } from "@/config/offer";
+import { BUSINESS_GUIDES, BUSINESS_GUIDE_BY_SLUG, BusinessGuidePage, businessGuideMeta } from "./growth/BusinessGuides";
 
-const Shell = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-background">
-    <Navbar />
-    <main className="px-4 pt-28 sm:pt-32 pb-24">{children}</main>
-    <Footer />
-  </div>
-);
-
-const Crumbs = ({ items }: { items: [string, string?][] }) => (
-  <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-6">
-    <ol className="flex flex-wrap gap-x-2">
-      {items.map(([label, to], i) => (
-        <li key={label} className="flex gap-2">
-          {to ? <Link to={to} className="hover:text-primary underline-offset-4 hover:underline">{label}</Link> : <span aria-current="page">{label}</span>}
-          {i < items.length - 1 && <span aria-hidden>/</span>}
-        </li>
-      ))}
-    </ol>
-  </nav>
-);
-
-const Cta = ({ title, text }: { title: string; text: string }) => (
-  <section className="mt-16 rounded-md bg-primary text-white p-8 sm:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-    <div>
-      <h2 className="text-2xl sm:text-3xl text-white">{title}</h2>
-      <p className="mt-3 text-white/75 max-w-xl leading-relaxed">{text}</p>
-    </div>
-    <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-      <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">{OFFER.button}</Link></Button>
-      <Button asChild variant="ghost" size="lg" className="h-12 px-5 text-white hover:bg-white/10 hover:text-white"><Link to="/auth?demo=true">Try the sample account</Link></Button>
-    </div>
-  </section>
-);
+export { Shell, Crumbs, Cta } from "./layout";
+import { Shell, Crumbs, Cta } from "./layout";
 
 // ── Pricing guide ──────────────────────────────────────────────────
 
@@ -103,7 +70,9 @@ const WorkedQuote = ({ g }: { g: GuideDef }) => {
 export const GuidePage = () => {
   const { slug = "" } = useParams();
   const g = GUIDE_BY_SLUG.get(slug);
-  usePageMeta(g ? guideMeta(slug) : null);
+  const business = !g && BUSINESS_GUIDE_BY_SLUG.has(slug);
+  usePageMeta(g ? guideMeta(slug) : business ? businessGuideMeta(slug) : null);
+  if (business) return <BusinessGuidePage slug={slug} />;
   if (!g) return <NotFound />;
   const w = workGuide(g);
   const related = GUIDES.filter((x) => x.trade.slug === g.trade.slug && x.slug !== g.slug).slice(0, 4);
@@ -187,10 +156,20 @@ export const GuidesIndex = () => {
   return (
     <Shell>
       <div className="container mx-auto max-w-5xl">
-        <h1 className="text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] text-primary">How to price jobs</h1>
+        <h1 className="text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] text-primary">Guides for tradespeople: pricing, quotes and invoices</h1>
         <p className="mt-5 text-lg leading-relaxed text-foreground/80 max-w-2xl">
           Materials, quantities, labour hours and a worked example for common jobs, with typical UK prices for {PRICES_CHECKED}.
         </p>
+        <section className="mt-12">
+          <h2 className="text-lg text-primary pb-2 border-b-2 border-primary">Quotes, invoices and getting paid</h2>
+          <ul className="grid md:grid-cols-2 gap-x-12">
+            {BUSINESS_GUIDES.map((b) => (
+              <li key={b.slug} className="border-b border-border">
+                <Link to={`/guides/${b.slug}`} className="block py-3 hover:text-primary hover:underline underline-offset-4">{b.h1}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
         <div className="mt-12 grid md:grid-cols-2 gap-x-12 gap-y-10">
           {[...byTrade].map(([trade, list]) => (
             <section key={trade}>

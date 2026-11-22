@@ -55,6 +55,11 @@ import {
   DayRatesIndex,
   DayRatePage,
   GetApp,
+  SoftwarePage,
+  ToolsIndex,
+  ToolRoute,
+  InvoiceTemplatesIndex,
+  InvoiceTemplateRoute,
 } from "@/routes";
 
 // Remember ?code=… from a shared promo link for checkout
@@ -122,6 +127,14 @@ const App = () => (
                     <Route path="/quote-templates" element={<Suspense fallback={<PageLoader />}><TemplatesIndex /></Suspense>} />
                     <Route path="/quote-templates/:slug" element={<Suspense fallback={<PageLoader />}><TemplatePage /></Suspense>} />
                     <Route path="/app" element={<Suspense fallback={<PageLoader />}><GetApp /></Suspense>} />
+                    <Route path="/quoting-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/quoting-software" /></Suspense>} />
+                    <Route path="/invoicing-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/invoicing-software" /></Suspense>} />
+                    <Route path="/job-management-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/job-management-software" /></Suspense>} />
+                    <Route path="/estimating-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/estimating-software" /></Suspense>} />
+                    <Route path="/tools" element={<Suspense fallback={<PageLoader />}><ToolsIndex /></Suspense>} />
+                    <Route path="/tools/:slug" element={<Suspense fallback={<PageLoader />}><ToolRoute /></Suspense>} />
+                    <Route path="/invoice-templates" element={<Suspense fallback={<PageLoader />}><InvoiceTemplatesIndex /></Suspense>} />
+                    <Route path="/invoice-templates/:slug" element={<Suspense fallback={<PageLoader />}><InvoiceTemplateRoute /></Suspense>} />
                     <Route path="/day-rates" element={<Suspense fallback={<PageLoader />}><DayRatesIndex /></Suspense>} />
                     <Route path="/day-rates/:slug" element={<Suspense fallback={<PageLoader />}><DayRatePage /></Suspense>} />
                     <Route path="/trades/:slug" element={<Suspense fallback={<PageLoader />}><TradePage /></Suspense>} />

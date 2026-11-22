@@ -48,3 +48,10 @@ export const TemplatePage = lazy(() => import("./seo/SeoPages").then((m) => ({ d
 export const DayRatePage = lazy(() => import("./seo/DayRatePages").then((m) => ({ default: m.DayRatePage })));
 export const DayRatesIndex = lazy(() => import("./seo/DayRatePages").then((m) => ({ default: m.DayRatesIndex })));
 export const GetApp = lazy(() => import("./pages/GetApp"));
+
+// Growth pages: software pages, free tools, invoice templates
+export const SoftwarePage = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.SoftwarePage })));
+export const ToolsIndex = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.ToolsIndex })));
+export const ToolRoute = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.ToolRoute })));
+export const InvoiceTemplatesIndex = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.InvoiceTemplatesIndex })));
+export const InvoiceTemplateRoute = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.InvoiceTemplateRoute })));
