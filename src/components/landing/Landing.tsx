@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { TradeSearchHero } from "@/components/TradeSearchHero";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LANDING_FAQ } from "@/seo/meta";
-import { OFFER } from "@/config/offer";
+import { EARLY_ACCESS, OFFER } from "@/config/offer";
 
 const STAGES = [
   { name: "Quoted", text: "Type or say the job. Check the lines, add your photos, send it as a link or PDF." },
@@ -78,6 +78,12 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
         <section className="px-4 pt-24 sm:pt-36 pb-16 sm:pb-28">
           <div className="container mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-14 lg:gap-16 items-center">
             <div className="max-w-xl">
+              {EARLY_ACCESS && (
+                <p className="mb-5 inline-flex flex-wrap items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm text-foreground">
+                  <span className="font-semibold uppercase tracking-wide text-accent text-xs">{OFFER.badge}</span>
+                  <span>Your {OFFER.short}</span>
+                </p>
+              )}
               <h1 className="text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.02] text-primary">
                 Type the job.
                 <br />
