@@ -463,7 +463,7 @@ const Quotes = () => {
   const handleEditQuote = (quote: any) => {
     if (isDemo) {
       toast.error("Editing is not available in demo mode", {
-        description: "Subscribe to Quotable Pro to edit and manage your quotes",
+        description: "Subscribe to Quotable to edit and manage your quotes",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
@@ -988,7 +988,7 @@ const Quotes = () => {
   const handleExportPDF = async () => {
     if (isDemo) {
       toast.error("PDF export is not available in demo mode", {
-        description: "Subscribe to Quotable Pro to save and export professional PDFs",
+        description: "Subscribe to Quotable to save and export professional PDFs",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")

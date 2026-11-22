@@ -93,7 +93,7 @@ const Reports = () => {
   const handleDownloadReport = async () => {
     if (isDemo) {
       toast.error("Report export is not available in demo mode", {
-        description: "Subscribe to Quotable Pro to export professional tax reports",
+        description: "Subscribe to Quotable to export professional tax reports",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
