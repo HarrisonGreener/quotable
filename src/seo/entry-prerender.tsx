@@ -18,6 +18,8 @@ import { BUSINESS_GUIDES, businessGuideMeta } from "./growth/BusinessGuides";
 import { ToolsIndex, ToolPage, TOOL_SLUGS, toolMeta, toolsIndexMeta } from "./growth/tools/ToolPages";
 import { InvoiceTemplatesIndex, InvoiceTemplatePage, INVOICE_TEMPLATE_SLUGS, invoiceTemplateMeta, invoiceTemplatesIndexMeta } from "./growth/InvoiceTemplates";
 import { useParams } from "react-router-dom";
+import { ComparePage, CompareIndex, COMPARE_SLUGS, compareMeta, compareIndexMeta, roundupMeta } from "./growth/Compare";
+const CompareRoute = () => { const { slug = "" } = useParams(); return slug === "best-quoting-software-uk" ? <CompareIndex roundup /> : <ComparePage slug={slug} />; };
 
 const ToolRoute = () => { const { slug = "" } = useParams(); return <ToolPage slug={slug} />; };
 const InvoiceTemplateRoute = () => { const { slug = "" } = useParams(); return <InvoiceTemplatePage slug={slug} />; };
@@ -38,6 +40,9 @@ export const pages = (): PageMeta[] => [
   ...BUSINESS_GUIDES.map((b) => businessGuideMeta(b.slug)!),
   toolsIndexMeta(),
   ...TOOL_SLUGS.map((s) => toolMeta(s)!),
+  compareIndexMeta(),
+  roundupMeta(),
+  ...COMPARE_SLUGS.map((s) => compareMeta(s)!),
   invoiceTemplatesIndexMeta(),
   ...INVOICE_TEMPLATE_SLUGS.map((s) => invoiceTemplateMeta(s)!),
   appMeta,
@@ -62,6 +67,8 @@ export const render = (path: string, basename = "") =>
         <Route path="/invoicing-software" element={<SoftwarePage path="/invoicing-software" />} />
         <Route path="/job-management-software" element={<SoftwarePage path="/job-management-software" />} />
         <Route path="/estimating-software" element={<SoftwarePage path="/estimating-software" />} />
+        <Route path="/compare" element={<CompareIndex />} />
+        <Route path="/compare/:slug" element={<CompareRoute />} />
         <Route path="/tools" element={<ToolsIndex />} />
         <Route path="/tools/:slug" element={<ToolRoute />} />
         <Route path="/invoice-templates" element={<InvoiceTemplatesIndex />} />

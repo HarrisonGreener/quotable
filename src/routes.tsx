@@ -55,3 +55,5 @@ export const ToolsIndex = lazy(() => import("./seo/growth/routes").then((m) => (
 export const ToolRoute = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.ToolRoute })));
 export const InvoiceTemplatesIndex = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.InvoiceTemplatesIndex })));
 export const InvoiceTemplateRoute = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.InvoiceTemplateRoute })));
+export const CompareIndexRoute = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.CompareIndexRoute })));
+export const CompareRoute = lazy(() => import("./seo/growth/routes").then((m) => ({ default: m.CompareRoute })));

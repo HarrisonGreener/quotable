@@ -38,6 +38,7 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
           <Link to="/estimating-software" className={linkClass}>Estimating</Link>
           <Link to="/tools" className={linkClass}>Free tools</Link>
           <Link to="/tools/invoice-generator" className={linkClass}>Invoice generator</Link>
+          <Link to="/compare" className={linkClass}>Compare</Link>
           <Link to="/trades" className={linkClass}>Trades</Link>
           <Link to="/guides" className={linkClass}>Guides</Link>
           <Link to="/quote-templates" className={linkClass}>Quote templates</Link>

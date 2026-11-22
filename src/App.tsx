@@ -60,6 +60,8 @@ import {
   ToolRoute,
   InvoiceTemplatesIndex,
   InvoiceTemplateRoute,
+  CompareIndexRoute,
+  CompareRoute,
 } from "@/routes";
 
 // Remember ?code=… from a shared promo link for checkout
@@ -131,6 +133,8 @@ const App = () => (
                     <Route path="/invoicing-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/invoicing-software" /></Suspense>} />
                     <Route path="/job-management-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/job-management-software" /></Suspense>} />
                     <Route path="/estimating-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/estimating-software" /></Suspense>} />
+                    <Route path="/compare" element={<Suspense fallback={<PageLoader />}><CompareIndexRoute /></Suspense>} />
+                    <Route path="/compare/:slug" element={<Suspense fallback={<PageLoader />}><CompareRoute /></Suspense>} />
                     <Route path="/tools" element={<Suspense fallback={<PageLoader />}><ToolsIndex /></Suspense>} />
                     <Route path="/tools/:slug" element={<Suspense fallback={<PageLoader />}><ToolRoute /></Suspense>} />
                     <Route path="/invoice-templates" element={<Suspense fallback={<PageLoader />}><InvoiceTemplatesIndex /></Suspense>} />
