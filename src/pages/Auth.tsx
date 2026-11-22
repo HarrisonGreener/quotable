@@ -18,6 +18,7 @@ import { PrivacyDialog } from "@/components/PrivacyDialog";
 import { z } from "zod";
 import { GoogleSignIn } from "@/components/GoogleSignIn";
 import { OFFER } from "@/config/offer";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email format").max(255, "Email too long"),
@@ -59,6 +60,7 @@ const Auth = () => {
   // Set when a log-in fails because the email isn't confirmed yet
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+  const [showCheckEmail, setShowCheckEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [business, setBusiness] = useState("");
@@ -202,6 +204,7 @@ const Auth = () => {
       // (Terms acceptance is saved from the sign-up details on first sign-in; the
       // welcome email goes out then too.)
       setPendingEmail(validation.data.email);
+      setShowCheckEmail(true);
       setIsLoading(false);
       return;
     }
@@ -686,6 +689,26 @@ const Auth = () => {
         onOpenChange={setShowPrivacyDialog}
         onAccept={() => setPrivacyAccepted(true)}
       />
+
+      {/* Pop-up straight after sign-up: the account works once the email is confirmed */}
+      <Dialog open={showCheckEmail && !!pendingEmail} onOpenChange={setShowCheckEmail}>
+        <DialogContent className="max-w-sm text-center">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent/10 text-accent">
+            <Mail className="h-7 w-7" aria-hidden />
+          </div>
+          <DialogHeader className="sm:text-center">
+            <DialogTitle className="font-heading text-2xl text-primary">Confirm your email</DialogTitle>
+            <DialogDescription className="text-base leading-relaxed">
+              Your account's nearly ready. We've sent a link to{" "}
+              <strong className="break-all text-foreground">{pendingEmail}</strong>. Tap it to confirm your email, then you can log in.
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Can't see it? Check your junk or spam folder.</p>
+          <Button variant="accent" className="h-12 w-full" onClick={() => setShowCheckEmail(false)}>
+            OK, I'll check my email
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
