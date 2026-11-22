@@ -54,7 +54,7 @@ const SubscriptionSuccess = () => {
           <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
             <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
           </div>
-          <CardTitle className="font-heading text-2xl">Welcome to Quotable Pro!</CardTitle>
+          <CardTitle className="font-heading text-2xl">Welcome to Quotable</CardTitle>
           <CardDescription className="text-base">
             Your subscription has been activated successfully
           </CardDescription>
