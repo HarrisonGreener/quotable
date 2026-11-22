@@ -1,3 +1,4 @@
+import { FeedbackCard } from "@/components/Feedback";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { StatsCard } from "@/components/StatsCard";
@@ -249,6 +250,7 @@ const Dashboard = () => {
 
           <div className={`space-y-6 max-w-full ${isMobile ? 'p-4' : 'p-6'}`}>
             {isDemo && <DemoModeBanner />}
+            {!isDemo && <FeedbackCard />}
             {!isDemo && <InstallPrompt />}
             
             {/* Setup Checklist */}

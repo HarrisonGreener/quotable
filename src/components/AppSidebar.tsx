@@ -7,6 +7,7 @@ import {
   User,
   Calendar,
   HelpCircle,
+  MessageSquareHeart,
   TrendingUp,
   Shield,
   Users,
@@ -29,6 +30,7 @@ import { Logo } from "./Logo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { EarlyAccessBadge } from "./EarlyAccessBadge";
+import { feedbackHref } from "./Feedback";
 
 type Item = { title: string; url: string; icon: typeof FileText };
 const GROUPS: { label: string; items: Item[] }[] = [
@@ -103,6 +105,20 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+        <SidebarGroup className="py-1 mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-11 md:h-10 hover:bg-transparent active:bg-transparent">
+                  <a href={feedbackHref()} className={linkClass({ isActive: false })}>
+                    <MessageSquareHeart className="w-[18px] h-[18px] shrink-0" strokeWidth={1.75} />
+                    <span className="text-[0.95rem]">Send feedback</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

@@ -37,6 +37,7 @@ serve(async (req) => {
 <li style="margin-bottom:8px;"><strong>Describe a job.</strong> Go to Quotes, then Create Quote, and type or say the job with sizes, e.g. "Re-skim a 3m by 3m bedroom, walls sound".</li>
 <li style="margin-bottom:8px;"><strong>Check and send.</strong> Materials come priced from UK merchants. Check the lines, then send it by WhatsApp or email. Your customer can accept with one tap.</li>
 </ol>
+<p style="margin:0 0 14px;"><strong>You're one of our first users.</strong> Quotable is in early access, so your feedback really shapes it. Just reply to this email with anything that's off, confusing or missing. We read every message.</p>
 <p style="margin:0;">Tip: put Quotable on your phone's home screen so it opens like an app. Steps at <a href="https://quotable.uk/app" style="color:#0b2741;">quotable.uk/app</a>.</p>`,
       button: { label: "Make your first quote", url: "https://quotable.uk/quotes" },
     });
@@ -49,6 +50,8 @@ Thanks for signing up to Quotable. To get your first quote out:
 
 Make your first quote: https://quotable.uk/quotes
 Put it on your home screen: https://quotable.uk/app
+
+You're one of our first users. Quotable is in early access, so just reply to this email with anything that's off, confusing or missing. We read every message.
 
 Questions? Reply to this email or contact support@quotable.uk.`;
 
