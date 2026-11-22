@@ -95,7 +95,7 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
               </p>
               <div className="mt-9 flex flex-col sm:flex-row gap-3 sm:items-center">
                 <Button asChild variant="accent" size="lg" className="h-12 px-7 text-base">
-                  <Link to="/auth">Start your free month</Link>
+                  <Link to="/auth">{OFFER.button}</Link>
                 </Button>
                 <Button asChild variant="ghost" size="lg" className="h-12 px-5 text-base text-primary underline underline-offset-4 decoration-border hover:decoration-primary hover:bg-transparent">
                   <Link to="/auth?demo=true">Look around with sample data</Link>
@@ -248,7 +248,7 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
               Price the job before you're back in the van.
             </h2>
             <Button asChild variant="accent" size="lg" className="h-12 px-7 text-base shrink-0">
-              <Link to="/auth">Start your free month</Link>
+              <Link to="/auth">{OFFER.button}</Link>
             </Button>
           </div>
         </section>

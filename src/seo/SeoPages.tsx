@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import NotFound from "@/pages/NotFound";
 import { GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, gbp, workGuide, type GuideDef } from "./content";
 import { guideMeta, guidesIndexMeta, templateMeta, templatesIndexMeta, usePageMeta } from "./meta";
+import { OFFER } from "@/config/offer";
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-background">
@@ -34,7 +35,7 @@ const Cta = ({ title, text }: { title: string; text: string }) => (
       <p className="mt-3 text-white/75 max-w-xl leading-relaxed">{text}</p>
     </div>
     <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-      <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">Start your free month</Link></Button>
+      <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">{OFFER.button}</Link></Button>
       <Button asChild variant="ghost" size="lg" className="h-12 px-5 text-white hover:bg-white/10 hover:text-white"><Link to="/auth?demo=true">Try the sample account</Link></Button>
     </div>
   </section>

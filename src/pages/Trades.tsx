@@ -9,6 +9,7 @@ import { ALL_TRADES, TRADE_CATEGORIES, TRADE_SPECIALIZATIONS } from "@/data/trad
 import NotFound from "./NotFound";
 import { applyMeta, type PageMeta } from "@/seo/meta";
 import { GUIDES, TEMPLATES, SITE_URL } from "@/seo/content";
+import { OFFER } from "@/config/offer";
 
 // SEO landing pages: /trades and /trades/:slug (e.g. /trades/electrician).
 // Each one is a real, useful page for that trade, not a keyword stub.
@@ -96,7 +97,7 @@ export const TradePage = () => {
               prices them from UK suppliers, and gives your customer a link to accept and pay the deposit.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <Link to="/auth"><Button variant="accent" size="lg">Start your free month</Button></Link>
+              <Link to="/auth"><Button variant="accent" size="lg">{OFFER.button}</Button></Link>
               <Link to="/auth?demo=true"><Button variant="outline" size="lg">Try Demo</Button></Link>
             </div>
           </div>

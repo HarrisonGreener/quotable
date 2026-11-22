@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { OFFER } from "@/config/offer";
 
 /** One slim strip on every page in demo mode. */
 export const DemoModeBanner = () => (
@@ -8,7 +9,7 @@ export const DemoModeBanner = () => (
       You're looking at a sample account. Nothing you change here is saved.
     </p>
     <Button asChild size="sm" variant="accent" className="h-9 shrink-0">
-      <Link to="/auth">Start your free month</Link>
+      <Link to="/auth">{OFFER.button}</Link>
     </Button>
   </div>
 );

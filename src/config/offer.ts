@@ -8,6 +8,7 @@ export const OFFER = EARLY_ACCESS
   ? {
       badge: "Early access",
       cta: "Start free",
+      button: "Get 3 months free",
       short: "first 3 months free",
       line: "Early access: your first 3 months free (limited places), then £14.99 a month. Cancel any time.",
       fallback: "If early access places have gone, you still get your first month free.",
@@ -15,6 +16,7 @@ export const OFFER = EARLY_ACCESS
   : {
       badge: "",
       cta: "Start free month",
+      button: "Start your free month",
       short: "first month free",
       line: "Your first month is free, then £14.99 a month. Cancel any time.",
       fallback: "",

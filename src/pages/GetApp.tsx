@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { InstallGuide } from "@/components/InstallApp";
 import { usePageMeta, type PageMeta } from "@/seo/meta";
+import { OFFER } from "@/config/offer";
 
 export const appMeta: PageMeta = {
   path: "/app",
@@ -32,7 +33,7 @@ const GetApp = () => {
             <p>To remove it, press and hold the icon and choose Remove (iPhone) or Uninstall (Android). Your account and data aren't affected.</p>
           </section>
           <div className="mt-12 flex flex-col sm:flex-row gap-3">
-            <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">Start your free month</Link></Button>
+            <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">{OFFER.button}</Link></Button>
             <Button asChild variant="outline" size="lg" className="h-12 px-6"><Link to="/dashboard">Open Quotable</Link></Button>
           </div>
         </div>

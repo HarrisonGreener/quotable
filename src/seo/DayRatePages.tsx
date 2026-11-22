@@ -7,6 +7,7 @@ import NotFound from "@/pages/NotFound";
 import { DAY_RATES, DAY_RATE_BY_SLUG, DAY_RATES_CHECKED, perHour, type DayRateDef } from "./dayRates";
 import { GUIDES, TEMPLATES } from "./content";
 import { dayRateMeta, dayRatesIndexMeta, usePageMeta } from "./meta";
+import { OFFER } from "@/config/offer";
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-background">
@@ -168,7 +169,7 @@ export const DayRatePage = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">Start your free month</Link></Button>
+            <Button asChild variant="accent" size="lg" className="h-12 px-6"><Link to="/auth">{OFFER.button}</Link></Button>
             <Button asChild variant="ghost" size="lg" className="h-12 px-5 text-white hover:bg-white/10 hover:text-white"><Link to="/auth?demo=true">Try the sample account</Link></Button>
           </div>
         </section>
