@@ -6,7 +6,6 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
   const legalLine = [
     COMPANY.legalName,
     COMPANY.companyNumber && `Registered in England & Wales no. ${COMPANY.companyNumber}`,
-    COMPANY.registeredOffice && `Registered office: ${COMPANY.registeredOffice}`,
     COMPANY.vatNumber && `VAT ${COMPANY.vatNumber}`,
   ].filter(Boolean).join(". ");
 
