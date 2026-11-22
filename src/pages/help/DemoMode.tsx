@@ -42,7 +42,7 @@ const DemoMode = () => {
                     Why can't I save data in demo mode?
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground leading-relaxed">
-                    Demo mode is read-only. Any changes you make won't be saved when you close the tab or refresh the page. This is intentional—it keeps the demo clean for everyone. To save your own quotes, invoices and schedules, create an account. The first month is free.
+                    Demo mode is read-only. Any changes you make won't be saved when you close the tab or refresh the page. This is intentional—it keeps the demo clean for everyone. To save your own quotes, invoices and schedules, create an account. During early access, your first 3 months are free.
                   </AccordionContent>
                 </AccordionItem>
 

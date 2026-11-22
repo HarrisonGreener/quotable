@@ -17,6 +17,7 @@ import { TermsDialog } from "@/components/TermsDialog";
 import { PrivacyDialog } from "@/components/PrivacyDialog";
 import { z } from "zod";
 import { GoogleSignIn } from "@/components/GoogleSignIn";
+import { OFFER } from "@/config/offer";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email format").max(255, "Email too long"),
@@ -253,7 +254,7 @@ const Auth = () => {
             <CardDescription>
               {isDemoMode
                 ? "A sample account with example quotes, jobs and invoices."
-                : "Your first month is free."
+                : `${OFFER.badge ? OFFER.badge + ": your " : "Your "}${OFFER.short}.`
               }
             </CardDescription>
           </CardHeader>

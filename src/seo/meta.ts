@@ -40,13 +40,13 @@ export const LANDING_FAQ: [string, string][] = [
   ["Is there an app?",
     "Yes. Add Quotable to your iPhone or Android home screen from the browser in four taps and it opens full screen like any other app, with nothing to download from an app store. quotable.uk/app shows you how."],
   ["How much does it cost?",
-    "£14.99 a month or £159.99 a year, with the first month free. You can also look around a sample account without signing up."],
+    "£14.99 a month or £159.99 a year. During early access, your first 3 months are free (limited places), otherwise the first month is free. You can also look around a sample account without signing up."],
 ];
 
 export const landingMeta = (): PageMeta => ({
   path: "/",
   title: "Quotable: quoting software for UK tradespeople, with live material prices",
-  description: "Type the job and get a priced quote: materials priced live at UK merchants, labour at your rate, a link your customer can accept and pay. Invoicing and scheduling included. First month free.",
+  description: "Type the job and get a priced quote: materials priced live at UK merchants, labour at your rate, a link your customer can accept and pay. Invoicing and scheduling included. Early access: first 3 months free.",
   jsonLd: [
     ORG,
     {

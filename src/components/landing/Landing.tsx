@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { TradeSearchHero } from "@/components/TradeSearchHero";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { LANDING_FAQ } from "@/seo/meta";
+import { OFFER } from "@/config/offer";
 
 const STAGES = [
   { name: "Quoted", text: "Type or say the job. Check the lines, add your photos, send it as a link or PDF." },
@@ -188,16 +189,16 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
               <div className="p-8 sm:p-10 border-b md:border-b-0 md:border-r border-border">
                 <h2 className="text-3xl sm:text-4xl leading-tight text-primary">One plan, everything included</h2>
                 <p className="mt-4 text-foreground/75 leading-relaxed">
-                  Up to 60 AI quotes a day, with unlimited invoices and customers. Your first month is free, and you can cancel any time.
+                  Up to 60 AI quotes a day, with unlimited invoices and customers. {OFFER.line}
                 </p>
               </div>
               <div className="p-8 sm:p-10 border-b md:border-b-0 md:border-r border-border flex flex-col">
                 <p className="text-sm text-muted-foreground">Monthly</p>
                 <p className="mt-2 font-heading text-5xl text-primary tabular">£14.99</p>
-                <p className="text-sm text-muted-foreground mt-1">a month after your free month</p>
+                <p className="text-sm text-muted-foreground mt-1">a month after your {OFFER.short.replace("first ", "")}</p>
                 <Button variant="outline" size="lg" className="w-full h-12 mt-8"
                   onClick={() => handleSubscribe("monthly")} disabled={subLoading}>
-                  Start free month
+                  {OFFER.cta}
                 </Button>
               </div>
               <div className="p-8 sm:p-10 flex flex-col">
@@ -206,7 +207,7 @@ const LandingBody = ({ handleSubscribe, subLoading }: { handleSubscribe: (plan: 
                 <p className="text-sm text-muted-foreground mt-1">a year, which saves £19.89</p>
                 <Button variant="accent" size="lg" className="w-full h-12 mt-8"
                   onClick={() => handleSubscribe("annual")} disabled={subLoading}>
-                  Start free month
+                  {OFFER.cta}
                 </Button>
               </div>
             </div>

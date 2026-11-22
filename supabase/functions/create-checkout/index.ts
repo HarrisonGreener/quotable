@@ -61,20 +61,25 @@ serve(async (req) => {
       hadSubscription = previous.data.length > 0;
     }
 
+    // Early access: new customers get the EARLY deal automatically while it lasts
+    // (capped in Stripe). A code they bring with them takes priority.
+    const EARLY_ACCESS_CODE = Deno.env.get("EARLY_ACCESS_CODE") ?? "EARLY";
+    const code = typeof promoCode === "string" && promoCode ? promoCode : (!hadSubscription && EARLY_ACCESS_CODE) || "";
+
     let discountId: string | undefined;
     let freeForever = false;
-    if (typeof promoCode === "string" && /^[A-Za-z0-9_-]{3,40}$/.test(promoCode)) {
-      const found = await stripe.promotionCodes.list({ code: promoCode, active: true, limit: 1 });
+    if (/^[A-Za-z0-9_-]{3,40}$/.test(code)) {
+      const found = await stripe.promotionCodes.list({ code, active: true, limit: 1 });
       const promo = found.data[0] as unknown as Record<string, any> | undefined;
       discountId = promo?.id;
       // Tester codes (100% off for ever) don't ask for a card
       let coupon = promo?.coupon ?? promo?.promotion?.coupon;
       if (typeof coupon === "string") coupon = await stripe.coupons.retrieve(coupon);
       freeForever = coupon?.percent_off === 100 && coupon?.duration === "forever";
-      logStep("Promo code", { promoCode, applied: !!discountId, freeForever });
+      logStep("Promo code", { code, applied: !!discountId, freeForever });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const makeSession = (withDiscount: boolean) => stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
@@ -84,13 +89,23 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      ...(hadSubscription ? {} : { subscription_data: { trial_period_days: 30 } }),
-      payment_method_collection: freeForever ? "if_required" : "always",
-      // A shared promo link pre-applies its code; otherwise people can type one at checkout
-      ...(discountId ? { discounts: [{ promotion_code: discountId }] } : { allow_promotion_codes: true }),
+      // A code replaces the free month (e.g. EARLY = first 3 months free); otherwise new customers get 30 days free
+      ...(hadSubscription || (withDiscount && discountId) ? {} : { subscription_data: { trial_period_days: 30 } }),
+      payment_method_collection: withDiscount && freeForever ? "if_required" : "always",
+      ...(withDiscount && discountId ? { discounts: [{ promotion_code: discountId }] } : { allow_promotion_codes: true }),
       success_url: `${origin}/subscription-success`,
       cancel_url: `${origin}/?checkout=cancelled`,
     });
+
+    let session;
+    try {
+      session = await makeSession(true);
+    } catch (e) {
+      // e.g. the code is used up or this customer isn't eligible: carry on without it
+      if (!discountId) throw e;
+      logStep("Code not accepted, continuing without it", { message: e instanceof Error ? e.message : String(e) });
+      session = await makeSession(false);
+    }
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 

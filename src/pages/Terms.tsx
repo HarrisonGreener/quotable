@@ -44,8 +44,9 @@ export const termsSections: { id: string; title: string; body: ReactNode }[] = [
       body: (
         <>
           <p>
-            <strong>Free month.</strong> New accounts get the first month free. You add a payment card through Stripe when
-            you start. Unless you cancel before the free month ends, your subscription starts automatically and you'll be
+            <strong>Free period.</strong> New accounts get a free period before paying: the first month, or longer during an
+            offer such as early access (the offer is shown before you subscribe). You add a payment card through Stripe when
+            you start. Unless you cancel before the free period ends, your subscription continues automatically and you'll be
             charged the plan price you chose.
           </p>
           <p>

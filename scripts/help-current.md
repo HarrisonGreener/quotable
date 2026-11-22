@@ -41,7 +41,7 @@ Add your logo, business name, address and colours in Account, under Brand Detail
 Add it to your home screen to use it like an app: on iPhone in Safari tap Share then Add to Home Screen; on Android in Chrome tap the menu then Install app. Full steps at quotable.uk/app.
 
 ## Plans and billing
-£14.99 a month or £159.99 a year, with the first month free for new customers. Cancel any time in the app: Account, then Cancel subscription (two taps). You keep access until the end of the period you've paid for. "Change plan, card or invoices" in Account opens the billing portal to switch monthly/yearly, update your card or download invoices. Promo codes can be entered at checkout or shared as links like quotable.uk/?code=CODE.
+£14.99 a month or £159.99 a year. Quotable is in early access: new customers get their first 3 months free while places last (applied automatically at checkout), otherwise the first month is free. Spotted a problem or have an idea? Email support@quotable.uk. Cancel any time in the app: Account, then Cancel subscription (two taps). You keep access until the end of the period you've paid for. "Change plan, card or invoices" in Account opens the billing portal to switch monthly/yearly, update your card or download invoices. Promo codes can be entered at checkout or shared as links like quotable.uk/?code=CODE.
 
 ## Account and data
 Sign in with email and password or with Google. Reset a forgotten password from the sign-in page. To close your account and delete your data, email support. Data is stored securely; see the privacy policy at quotable.uk/privacy. Terms are at quotable.uk/terms.

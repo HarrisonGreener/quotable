@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useSubscription, STRIPE_PRODUCTS } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { OFFER } from "@/config/offer";
 
 export default function Subscribe() {
   const { createCheckout, isActive, loading } = useSubscription();
@@ -59,7 +60,7 @@ export default function Subscribe() {
               Choose your plan
             </h1>
             <p className="text-muted-foreground text-lg">
-              New accounts get the first 30 days free. Cancel any time in the app, in two taps.
+              {OFFER.line}{OFFER.fallback ? ` ${OFFER.fallback}` : ""}
             </p>
             {promo && (
               <p className="mt-3 inline-block rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm text-foreground">

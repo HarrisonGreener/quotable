@@ -71,9 +71,9 @@ const SubscriptionSuccess = () => {
                 <div className="flex items-center gap-3">
                   <Crown className="h-6 w-6 text-primary" />
                   <div>
-                    <p className="font-medium">Quotable Pro {getPlanName() || ''}</p>
+                    <p className="font-medium">Quotable {getPlanName() || ''}</p>
                     <p className="text-sm text-muted-foreground">
-                      {isTrialing ? '30-day free trial started' : 'Full access activated'}
+                      {isTrialing ? 'Your free month has started' : 'You\'re all set. Any free months show on your billing page.'}
                     </p>
                   </div>
                 </div>

@@ -28,6 +28,7 @@ import {
 import { Logo } from "./Logo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { EarlyAccessBadge } from "./EarlyAccessBadge";
 
 type Item = { title: string; url: string; icon: typeof FileText };
 const GROUPS: { label: string; items: Item[] }[] = [
@@ -80,6 +81,7 @@ export function AppSidebar() {
     <Sidebar className={isMobile ? "w-64" : ""}>
       <SidebarHeader className="px-5 pt-6 pb-5">
         <Logo inverted size="md" />
+        <EarlyAccessBadge inverted className="ml-2" />
       </SidebarHeader>
       <SidebarContent className="px-2 pb-4">
         {groups.map((group) => (
