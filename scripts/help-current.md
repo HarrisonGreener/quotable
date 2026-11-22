@@ -1,7 +1,7 @@
 # CURRENT FACTS ABOUT QUOTABLE (always right; use these first)
 
 ## What Quotable is
-Quotable is quoting, invoicing and scheduling software for UK tradespeople, made by Quotable Ltd. Website: quotable.uk. Support email: support@quotable-it.co.uk.
+Quotable is quoting, invoicing and scheduling software for UK tradespeople, made by Quotable Ltd. Website: quotable.uk. Support email: support@quotable.uk.
 
 ## Making a quote
 Go to Quotes, then Create Quote. Describe the job in your own words, typed or by tapping the microphone to speak. Quotable lists the materials and quantities, prices each one, and works out labour from your rate. You can edit any line before saving or sending.

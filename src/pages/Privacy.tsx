@@ -13,7 +13,7 @@ const PROCESSORS: [string, string, string][] = [
   ["Supabase", "Database, sign-in, file storage and server functions", "EU (Ireland); support staff may access from the US"],
   ["Vercel", "Hosting the website", "UK/EU edge servers, with the company in the US"],
   ["Stripe", "Subscription payments and invoices for your Quotable plan", "UK/EU and US"],
-  ["Resend", "Sending account emails (sign-up, password reset)", "US"],
+  ["Google (Workspace)", "Sending account emails (sign-up, password reset) and support email", "US and other Google locations"],
   ["Google (Gemini API, paid tier)", "AI that turns a job description into materials and labour", "US and other Google locations"],
   ["Groq", "AI, as a backup to Gemini when it's busy", "US"],
   ["IONOS", "Our email inbox", "UK/EU"],

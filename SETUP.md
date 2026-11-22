@@ -7,7 +7,7 @@ Edge Functions). You need:
 - Free AI keys — any one works, all three gives the most free quotes a day:
   **Groq** (console.groq.com), **Cerebras** (cloud.cerebras.ai), **Google AI Studio** (Gemini)
 - A host for the front end → **Vercel** or **Netlify** (both free)
-- Your existing **Stripe** and **Resend** keys, if you use payments and emails
+- Your **Stripe** key for payments, and a Google Workspace app password for sending emails
 
 Total time: about 30 minutes.
 

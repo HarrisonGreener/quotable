@@ -6,3 +6,4 @@ scrape-merchant-prices
 seed-product-database
 crawl-supplier-catalogue
 get-latest-price
+send-auth-email

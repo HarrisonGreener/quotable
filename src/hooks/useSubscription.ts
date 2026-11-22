@@ -21,7 +21,7 @@ export const STRIPE_PRODUCTS = {
 
 // Admin emails that bypass subscription checks
 // Only used to skip the paywall screen in the browser; the server checks roles itself.
-const ADMIN_EMAILS = ['harrygreener01@gmail.com', 'harry@quotable-it.co.uk'];
+const ADMIN_EMAILS = ['harrygreener01@gmail.com', 'harrison@quotable.uk'];
 
 interface SubscriptionStatus {
   subscribed: boolean;

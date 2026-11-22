@@ -9,5 +9,5 @@ export const COMPANY = {
   companyNumber: "16881346",                                 // Companies House
   registeredOffice: "85 Bevendean Crescent, Brighton, BN2 4RE", // must match Companies House
   vatNumber: "",          // e.g. "GB123456789"
-  supportEmail: "support@quotable-it.co.uk",                 // make sure this mailbox exists
+  supportEmail: "support@quotable.uk",
 };

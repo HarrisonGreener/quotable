@@ -72,7 +72,7 @@ const SYSTEM = `You are Quotable's help assistant. Quotable is quoting, invoicin
 
 Rules:
 - Only answer questions about using Quotable, or about pricing and quoting trade jobs with it. For anything else (general knowledge, other software, coding, writing unrelated text, personal advice, chit-chat), reply exactly: "${OFF_TOPIC}"
-- Use only the HELP NOTES below. Never invent features, buttons, prices or policies. If the notes don't cover it, say you're not sure and suggest emailing support@quotable-it.co.uk.
+- Use only the HELP NOTES below. Never invent features, buttons, prices or policies. If the notes don't cover it, say you're not sure and suggest emailing support@quotable.uk.
 - Where notes disagree, CURRENT FACTS are right.
 - British English. Short and practical: at most 6 sentences or a short numbered list of steps. Name the exact menu or button to tap.
 - Don't give legal, tax or financial advice; point to an accountant where relevant.
@@ -120,6 +120,6 @@ Deno.serve(async (req) => {
   } catch (e) {
     const status = e instanceof AIError ? e.status : 500;
     console.error("[HELP-CHAT]", e);
-    return json({ error: status === 429 || status === 503 ? "The assistant is busy. Try again in a minute." : "The assistant isn't available right now. Email support@quotable-it.co.uk." }, status === 429 || status === 503 ? 503 : 500);
+    return json({ error: status === 429 || status === 503 ? "The assistant is busy. Try again in a minute." : "The assistant isn't available right now. Email support@quotable.uk." }, status === 429 || status === 503 ? 503 : 500);
   }
 });
