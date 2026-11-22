@@ -2127,7 +2127,9 @@ const Quotes = () => {
                       </details>
 
                       {/* Action: sticks to the bottom of the screen on phones */}
-                      <div className="sticky bottom-0 z-10 -mx-4 sm:-mx-6 border-t border-border bg-card/95 px-4 sm:px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                      {/* Room for the pinned bar on phones */}
+                      <div className="h-24 lg:hidden" aria-hidden />
+                      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-card/85 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:static lg:z-auto lg:-mx-6 lg:mt-2 lg:bg-transparent lg:px-6 lg:shadow-none lg:backdrop-blur-none">
                         {editingQuoteId ? (
                           <div className="flex gap-2">
                             <Button variant="outline" onClick={handleCancelEdit} className="h-12 flex-1">Cancel</Button>
