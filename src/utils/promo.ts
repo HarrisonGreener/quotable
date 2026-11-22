@@ -26,3 +26,11 @@ export const getPromo = (): string | null => {
 export const clearPromo = () => {
   try { sessionStorage.removeItem(KEY); } catch { /* ignore */ }
 };
+
+/** Remember a code typed on the plan page so checkout applies it. */
+export const setPromo = (code: string) => {
+  try {
+    const c = code.trim().toUpperCase();
+    if (VALID.test(c)) sessionStorage.setItem(KEY, c);
+  } catch { /* storage blocked */ }
+};

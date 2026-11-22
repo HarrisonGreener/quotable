@@ -64,19 +64,24 @@ serve(async (req) => {
     // Early access: new customers get the EARLY deal automatically while it lasts
     // (capped in Stripe). A code they bring with them takes priority.
     const EARLY_ACCESS_CODE = Deno.env.get("EARLY_ACCESS_CODE") ?? "EARLY";
-    const code = typeof promoCode === "string" && promoCode ? promoCode : (!hadSubscription && EARLY_ACCESS_CODE) || "";
+    const typed = typeof promoCode === "string" ? promoCode.trim().toUpperCase() : "";
+    const candidates = [typed, !hadSubscription ? EARLY_ACCESS_CODE : ""].filter((c, i, a) => c && a.indexOf(c) === i);
 
     let discountId: string | undefined;
     let freeForever = false;
-    if (/^[A-Za-z0-9_-]{3,40}$/.test(code)) {
+    // Use the code they typed; if it doesn't work, fall back to the early access deal
+    for (const code of candidates) {
+      if (!/^[A-Za-z0-9_-]{3,40}$/.test(code)) continue;
       const found = await stripe.promotionCodes.list({ code, active: true, limit: 1 });
       const promo = found.data[0] as unknown as Record<string, any> | undefined;
-      discountId = promo?.id;
+      if (!promo) continue;
+      discountId = promo.id;
       // Tester codes (100% off for ever) don't ask for a card
-      let coupon = promo?.coupon ?? promo?.promotion?.coupon;
+      let coupon = promo.coupon ?? promo.promotion?.coupon;
       if (typeof coupon === "string") coupon = await stripe.coupons.retrieve(coupon);
       freeForever = coupon?.percent_off === 100 && coupon?.duration === "forever";
-      logStep("Promo code", { code, applied: !!discountId, freeForever });
+      logStep("Promo code", { code, freeForever });
+      break;
     }
 
     const makeSession = (withDiscount: boolean) => stripe.checkout.sessions.create({

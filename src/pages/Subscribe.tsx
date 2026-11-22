@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getPromo } from "@/utils/promo";
+import { PromoCodeBox } from "@/components/PromoCodeBox";
 import { useNavigate } from "react-router-dom";
 import { Check, Crown, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { OFFER } from "@/config/offer";
 
 export default function Subscribe() {
   const { createCheckout, isActive, loading } = useSubscription();
-  const promo = getPromo();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
@@ -62,11 +61,7 @@ export default function Subscribe() {
             <p className="text-muted-foreground text-lg">
               {OFFER.line}{OFFER.fallback ? ` ${OFFER.fallback}` : ""}
             </p>
-            {promo && (
-              <p className="mt-3 inline-block rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm text-foreground">
-                Code <strong>{promo}</strong> will be applied at checkout.
-              </p>
-            )}
+            <PromoCodeBox />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-8">
