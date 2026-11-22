@@ -12,12 +12,12 @@ SUBJECTS = {
     "invite": "You've been invited to Quotable",
 }
 cfg = {"hook_send_email_enabled": False}
-for k, subj in SUBJECTS.items():
-    cfg[f"mailer_subjects_{k}"] = subj
-    cfg[f"mailer_templates_{k}_content"] = (DIR / f"{k}.html").read_text()
-
 user, pw = os.environ.get("SMTP_USER", ""), os.environ.get("SMTP_PASSWORD", "")
 if user and pw:
+    # Supabase only allows custom templates with your own mail server
+    for k, subj in SUBJECTS.items():
+        cfg[f"mailer_subjects_{k}"] = subj
+        cfg[f"mailer_templates_{k}_content"] = (DIR / f"{k}.html").read_text()
     sender = os.environ.get("SMTP_FROM", "") or user
     m = re.match(r"\s*(.*?)\s*<([^>]+)>\s*$", sender)
     name, addr = (m.group(1) or "Quotable", m.group(2)) if m else ("Quotable", sender.strip())

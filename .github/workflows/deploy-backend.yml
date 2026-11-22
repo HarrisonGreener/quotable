@@ -93,8 +93,8 @@ jobs:
             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
             --data @/tmp/auth.json)
           rm -f /tmp/auth.json
-          if [ "$code" != "200" ]; then echo "::error::Auth email settings failed ($code)"; head -c 300 /tmp/auth-out.txt; exit 1; fi
-          if [ -n "$SMTP_USER" ] && [ -n "$SMTP_PASSWORD" ]; then echo "Templates updated; sending through $SMTP_USER"; else echo "Templates updated; add SMTP_USER and SMTP_PASSWORD secrets to send from your own mailbox"; fi
+          if [ "$code" != "200" ]; then echo "::warning::Account email settings not applied ($code)"; head -c 300 /tmp/auth-out.txt; exit 0; fi
+          if [ -n "$SMTP_USER" ] && [ -n "$SMTP_PASSWORD" ]; then echo "Branded emails on; sending through $SMTP_USER"; else echo "::notice::Add SMTP_USER and SMTP_PASSWORD secrets to send account emails from your own mailbox"; fi
 
       - name: Deploy server functions
         run: |
