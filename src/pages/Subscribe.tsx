@@ -131,7 +131,7 @@ export default function Subscribe() {
           {/* Features List */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Everything included in Quotable Pro</CardTitle>
+              <CardTitle className="text-lg">Everything included</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">

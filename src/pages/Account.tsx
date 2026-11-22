@@ -479,7 +479,7 @@ const Account = () => {
                   <Crown className="h-5 w-5 text-primary" />
                   Subscription
                 </CardTitle>
-                <CardDescription>Your Quotable Pro subscription status</CardDescription>
+                <CardDescription>Your Quotable subscription</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {subscriptionLoading ? (
@@ -498,7 +498,7 @@ const Account = () => {
                     <div className="grid gap-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Plan</span>
-                        <span className="font-medium">Quotable Pro {getPlanName()}</span>
+                        <span className="font-medium">Quotable {getPlanName()}</span>
                       </div>
                       {isTrialing && trialEnd && (
                         <div className="flex justify-between">
@@ -540,7 +540,7 @@ const Account = () => {
                       className="w-full"
                     >
                       <Crown className="h-4 w-4 mr-2" />
-                      Subscribe to Quotable Pro
+                      Subscribe to Quotable
                     </Button>
                   </div>
                 )}

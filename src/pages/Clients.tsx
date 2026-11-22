@@ -105,7 +105,7 @@ export default function Clients() {
   const handleAddClient = () => {
     if (isDemo) {
       toast.error("Cannot add clients in demo mode", {
-        description: "Subscribe to Quotable Pro to manage your client contacts",
+        description: "Subscribe to Quotable to manage your client contacts",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
@@ -120,7 +120,7 @@ export default function Clients() {
   const handleEditClient = (client: any) => {
     if (isDemo) {
       toast.error("Cannot edit clients in demo mode", {
-        description: "Subscribe to Quotable Pro to manage your client contacts",
+        description: "Subscribe to Quotable to manage your client contacts",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
@@ -135,7 +135,7 @@ export default function Clients() {
   const handleDeleteClient = (client: any) => {
     if (isDemo) {
       toast.error("Cannot delete clients in demo mode", {
-        description: "Subscribe to Quotable Pro to manage your client contacts",
+        description: "Subscribe to Quotable to manage your client contacts",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
@@ -179,7 +179,7 @@ export default function Clients() {
   const handleViewDetails = (client: any) => {
     if (isDemo) {
       toast.error("Cannot view client details in demo mode", {
-        description: "Subscribe to Quotable Pro to see client history",
+        description: "Subscribe to Quotable to see client history",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")

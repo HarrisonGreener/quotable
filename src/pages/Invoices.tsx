@@ -224,7 +224,7 @@ const Invoices = () => {
   const handleExportPDF = async (invoice: any) => {
     if (isDemo) {
       toast.error("PDF export is not available in demo mode", {
-        description: "Subscribe to Quotable Pro to save and export professional PDFs",
+        description: "Subscribe to Quotable to save and export professional PDFs",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
@@ -339,7 +339,7 @@ const Invoices = () => {
     if (!deleteInvoiceId) return;
     if (isDemo) {
       toast.error("Cannot delete invoices in demo mode", {
-        description: "Subscribe to Quotable Pro to manage your invoices",
+        description: "Subscribe to Quotable to manage your invoices",
         action: {
           label: "Sign Up",
           onClick: () => navigate("/auth")
