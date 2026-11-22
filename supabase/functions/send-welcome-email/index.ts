@@ -37,7 +37,7 @@ serve(async (req) => {
 <li style="margin-bottom:8px;"><strong>Describe a job.</strong> Go to Quotes, then Create Quote, and type or say the job with sizes, e.g. "Re-skim a 3m by 3m bedroom, walls sound".</li>
 <li style="margin-bottom:8px;"><strong>Check and send.</strong> Materials come priced from UK merchants. Check the lines, then send it by WhatsApp or email. Your customer can accept with one tap.</li>
 </ol>
-<p style="margin:0;">Tip: put Quotable on your phone's home screen so it opens like an app. Steps at <a href="https://quotable.uk/app" style="color:#0b2a42;">quotable.uk/app</a>.</p>`,
+<p style="margin:0;">Tip: put Quotable on your phone's home screen so it opens like an app. Steps at <a href="https://quotable.uk/app" style="color:#0b2741;">quotable.uk/app</a>.</p>`,
       button: { label: "Make your first quote", url: "https://quotable.uk/quotes" },
     });
     const text = `${first ? `Hi ${first},` : "Hi,"}
