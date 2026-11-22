@@ -1967,7 +1967,7 @@ const Quotes = () => {
                               value={postcode}
                               onChange={(e) => setPostcode(e.target.value)}
                               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePostcodeLookup(); } }}
-                              className="h-12 text-base uppercase"
+                              className="h-12 text-base uppercase placeholder:normal-case"
                             />
                             <Button
                               type="button"
