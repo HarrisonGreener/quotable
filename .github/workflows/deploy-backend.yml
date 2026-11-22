@@ -7,7 +7,7 @@
 #              SUPABASE_DB_PASSWORD   (the database password chosen when creating the project)
 #   Variables: SUPABASE_PROJECT_REF   (the xxxx in https://xxxx.supabase.co)
 # Optional secrets passed to the server if present: GROQ_API_KEY, GEMINI_API_KEY,
-# GEMINI_BILLING, STRIPE_SECRET_KEY, SMTP_USER, SMTP_PASSWORD, SMTP_FROM.
+# GEMINI_BILLING, STRIPE_SECRET_KEY, SMTP_HOST, SMTP_USER, SMTP_PASSWORD, SMTP_FROM.
 #
 # Run it from the Actions tab → "Deploy back end" → Run workflow. It also runs by
 # itself when database or function code changes on main.
@@ -66,6 +66,7 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY || secrets.STRIPE_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
@@ -73,7 +74,7 @@ jobs:
         run: |
           # Only send the ones that are set; values never appear in the log
           args=()
-          for k in GROQ_API_KEY GEMINI_API_KEY GEMINI_BILLING STRIPE_SECRET_KEY SMTP_USER SMTP_PASSWORD SMTP_FROM; do
+          for k in GROQ_API_KEY GEMINI_API_KEY GEMINI_BILLING STRIPE_SECRET_KEY SMTP_HOST SMTP_USER SMTP_PASSWORD SMTP_FROM; do
             v="${!k}"
             [ -n "$v" ] && args+=("$k=$v")
           done
@@ -83,6 +84,7 @@ jobs:
 
       - name: Account emails (branded templates and sender)
         env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}

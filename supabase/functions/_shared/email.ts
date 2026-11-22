@@ -1,8 +1,9 @@
-// Sends Quotable's own emails (welcome etc.) through the Google Workspace mailbox,
-// so they come from @quotable.uk and pass SPF/DKIM. Needs these server secrets:
-//   SMTP_USER      the Workspace account that signs in (e.g. harrison@quotable.uk)
-//   SMTP_PASSWORD  a Google app password for that account
-//   SMTP_FROM      optional sender, e.g. "Quotable <support@quotable.uk>"
+// Sends Quotable's own emails (welcome etc.) from @quotable.uk over SMTP, through
+// Resend (smtp.resend.com) or Google Workspace (smtp.gmail.com). Server secrets:
+//   SMTP_HOST      e.g. smtp.resend.com (defaults to smtp.gmail.com)
+//   SMTP_USER      "resend" for Resend, or the Workspace account
+//   SMTP_PASSWORD  the Resend API key, or a Google app password
+//   SMTP_FROM      sender, e.g. "Quotable <support@quotable.uk>"
 // Port 465 (TLS) is used because Supabase blocks outgoing 25 and 587.
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
