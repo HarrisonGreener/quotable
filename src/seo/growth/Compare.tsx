@@ -21,7 +21,7 @@ interface Competitor {
   yearOne: string; // one person, one year, as listed
   pricingUrl: string;
   trial: string;
-  strengths: string[]; // where they're genuinely stronger
+  strengths: string[]; // what they add (mainly for bigger teams)
   bestFor: string;
   rows: [feature: string, them: string | boolean, us: string | boolean][];
   faqs: Faq[];
@@ -145,7 +145,7 @@ const COMMON_FAQS = (c: Competitor): Faq[] => [
 ];
 
 const Cell = ({ v }: { v: string | boolean }) =>
-  v === true ? <Check className="h-5 w-5 text-accent" aria-label="Yes" /> : v === false ? <Minus className="h-5 w-5 text-muted-foreground" aria-label="No" /> : <span>{v}</span>;
+  v === true ? <Check className="h-5 w-5 text-accent" aria-label="Yes" /> : v === false ? <span className="inline-flex items-center gap-1.5 text-muted-foreground"><Minus className="h-4 w-4" aria-hidden />Not included</span> : <span>{v}</span>;
 
 export const ComparePage = ({ slug }: { slug: string }) => {
   const c = BY_SLUG.get(slug.replace(/^quotable-vs-/, ""));
@@ -206,14 +206,14 @@ export const ComparePage = ({ slug }: { slug: string }) => {
 
         <section className="mt-12 grid md:grid-cols-2 gap-8">
           <div>
-            <h2 className="text-xl text-primary">Where {c.name} is stronger</h2>
+            <h2 className="text-xl text-primary">What {c.name} adds for bigger teams</h2>
             <ul className="mt-3 space-y-2 list-disc pl-5 marker:text-muted-foreground leading-relaxed text-foreground/85">
               {c.strengths.map((s) => <li key={s}>{s}</li>)}
             </ul>
             <p className="mt-4 text-sm text-muted-foreground"><strong className="text-foreground">Best for:</strong> {c.bestFor}</p>
           </div>
           <div>
-            <h2 className="text-xl text-primary">Where Quotable is stronger</h2>
+            <h2 className="text-xl text-primary">Why Quotable suits sole traders</h2>
             <ul className="mt-3 space-y-2 list-disc pl-5 marker:text-accent leading-relaxed text-foreground/85">
               <li>Describe the job, typed or spoken, and get the materials listed and priced live from UK merchants</li>
               <li>One simple price for one person, with nothing per user</li>
