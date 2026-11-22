@@ -46,6 +46,7 @@ import {
   FileText,
   BookTemplate,
   Plus,
+  ChevronDown,
   Copy,
   Loader2,
 } from "lucide-react";
@@ -859,7 +860,11 @@ const Quotes = () => {
       setEditingQuoteId(null);
       setIsGeneratorMinimized(true);
       clearDraft();
-      toast.success("Quote generated successfully!");
+      toast.success("Your quote's ready. Check it over before sending.");
+      // On phones, jump to the finished quote
+      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+        setTimeout(() => document.getElementById("generated-quote")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("An error occurred. Please try again.");
@@ -1838,14 +1843,22 @@ const Quotes = () => {
 
               {/* Create Quote Tab */}
               <TabsContent value="create" className="mt-0">
-                <div className={`flex gap-6 ${isGeneratorMinimized && showQuote ? 'flex-row' : 'grid lg:grid-cols-2'}`}>
+                <div className={`gap-6 ${isGeneratorMinimized && showQuote ? (isMobile ? 'flex flex-col' : 'flex flex-row') : 'grid lg:grid-cols-2'}`}>
                   {/* Quote Generator - Collapsible */}
-                  <Card className={`shadow-smooth transition-all duration-300 ${isGeneratorMinimized && showQuote ? 'w-auto flex-shrink-0' : 'w-full'}`}>
+                  <Card className={`shadow-smooth transition-all duration-300 ${isGeneratorMinimized && showQuote && !isMobile ? 'w-auto flex-shrink-0' : 'w-full'}`}>
                     <CardHeader 
                       className={`cursor-pointer ${isGeneratorMinimized && showQuote ? 'p-3' : ''}`}
                       onClick={() => showQuote && setIsGeneratorMinimized(!isGeneratorMinimized)}
                     >
-                      {isGeneratorMinimized && showQuote ? (
+                      {isGeneratorMinimized && showQuote && isMobile ? (
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-primary">Job details</p>
+                            <p className="truncate text-sm text-muted-foreground">{client ? `${client}: ` : ""}{jobDescription}</p>
+                          </div>
+                          <span className="shrink-0 text-sm font-medium text-primary underline underline-offset-2">Edit</span>
+                        </div>
+                      ) : isGeneratorMinimized && showQuote ? (
                         <div className="flex flex-col items-center gap-2">
                           <Sparkles className="h-5 w-5 text-primary" />
                           <span className="text-xs font-medium writing-mode-vertical" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
@@ -1853,17 +1866,18 @@ const Quotes = () => {
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <CardTitle className="font-heading flex items-center gap-2">
-                              <Sparkles className="h-5 w-5 text-primary" />
-                              {editingQuoteId ? "Edit Quote" : "Generate New Quote"}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <CardTitle className="font-heading text-xl sm:text-2xl text-primary">
+                              {editingQuoteId ? "Edit quote" : "New quote"}
                             </CardTitle>
-                            <CardDescription>
-                              {editingQuoteId ? "Update your quote details" : "AI-powered quote generation with smart estimates"}
+                            <CardDescription className="mt-1 leading-relaxed">
+                              {editingQuoteId
+                                ? "Change the details and save."
+                                : "Describe the job. Quotable lists the materials, prices them at UK merchants and adds your labour."}
                             </CardDescription>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex shrink-0 items-center gap-1">
                             {!editingQuoteId && (jobDescription || client || showQuote) && (
                               <Button
                                 variant="outline"
@@ -1871,12 +1885,12 @@ const Quotes = () => {
                                 className="h-9 px-3"
                                 onClick={(e) => { e.stopPropagation(); clearDraft(); resetForm(); }}
                               >
-                                <Plus className="mr-1 h-4 w-4" /> Start new quote
+                                <Plus className="mr-1 h-4 w-4" /> {isMobile ? "New" : "Start new quote"}
                               </Button>
                             )}
-                            {showQuote && (
+                            {showQuote && !isMobile && (
                               <Button variant="ghost" size="sm" className="h-8 px-2">
-                                Minimize
+                                Minimise
                               </Button>
                             )}
                           </div>
@@ -1884,299 +1898,272 @@ const Quotes = () => {
                       )}
                     </CardHeader>
                     {!(isGeneratorMinimized && showQuote) && (
-                    <CardContent className={`${isMobile ? 'space-y-5 px-4' : 'space-y-4'}`}>
-                      <div className="space-y-2">
-                        <Label htmlFor="client" className={isMobile ? 'text-base' : ''}>Client Name *</Label>
-                        <ClientAutocomplete
-                          clients={clients}
-                          value={client}
-                          onValueChange={setClient}
-                          onClientSelect={(selectedClient) => {
-                            if (selectedClient) {
-                              setSelectedClientId(selectedClient.id);
-                              if (selectedClient.address) {
-                                setAddress(selectedClient.address);
-                              }
-                            } else {
-                              setSelectedClientId(null);
-                            }
-                          }}
-                          disabled={isDemo}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="postcode" className={isMobile ? 'text-base' : ''}>Postcode</Label>
-                        <div className="flex gap-2">
-                          <Input 
-                            id="postcode" 
-                            placeholder="e.g. SW1A 1AA"
-                            value={postcode}
-                            onChange={(e) => setPostcode(e.target.value)}
-                            className={isMobile ? 'h-12' : ''}
-                          />
-                          <Button 
-                            variant="outline" 
-                            onClick={handlePostcodeLookup}
-                            disabled={lookingUpPostcode}
-                            className={isMobile ? 'h-12 w-12' : ''}
-                          >
-                            <Search className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {address && (
-                        <div className="space-y-2">
-                          <Label htmlFor="address" className={isMobile ? 'text-base' : ''}>Location</Label>
-                          <Input 
-                            id="address" 
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className={isMobile ? 'h-12' : ''}
-                          />
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        <Label htmlFor="category" className={isMobile ? 'text-base' : ''}>Job Category *</Label>
-                        <TradeAutocomplete
-                          value={category}
-                          onValueChange={setCategory}
-                          placeholder="Search for your trade..."
-                          disabled={isDemo}
-                        />
-                      </div>
-
-                      {category === "other" && (
-                        <div className="space-y-2">
-                          <Label htmlFor="customCategory" className={isMobile ? 'text-base' : ''}>Describe Your Trade</Label>
-                          <Input 
-                            id="customCategory" 
-                            placeholder="e.g., Solar Panel Maintenance"
-                            value={customCategory}
-                            onChange={(e) => setCustomCategory(e.target.value)}
-                            className={isMobile ? 'h-12' : ''}
-                          />
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <Label htmlFor="jobDescription" className={isMobile ? 'text-base' : ''}>Job Description</Label>
+                    <CardContent className="space-y-7 px-4 sm:px-6 pb-0">
+                      {/* 1. The job: the most important part, so it comes first */}
+                      <section className="space-y-2.5">
+                        <div className="flex items-end justify-between gap-2">
+                          <Label htmlFor="jobDescription" className="text-base font-semibold text-primary">What's the job?</Label>
                           <VoiceInputButton onText={(t) => setJobDescription((d) => appendDictation(d, t))} />
                         </div>
-                        <Textarea 
+                        <Textarea
                           id="jobDescription"
-                          placeholder="Describe the work required in detail, or tap Speak and say it..."
-                          rows={isMobile ? 3 : 4}
+                          placeholder="e.g. Re-skim the back bedroom walls, about 3m by 3m, walls sound, ready for decorating"
+                          rows={isMobile ? 5 : 5}
                           value={jobDescription}
                           onChange={(e) => setJobDescription(e.target.value)}
-                          className={isMobile ? 'text-base' : ''}
+                          className="text-base leading-relaxed min-h-[8.5rem]"
                         />
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          Include sizes, what's there now, the finish you want and any access issues. The more detail, the more accurate the quote.
+                        </p>
+                        {!jobDescription && !isDemo && (
+                          <div className="flex flex-wrap gap-2 pt-1" aria-label="Example jobs">
+                            {[
+                              "Add 3 double sockets in the kitchen",
+                              "Replace a 600mm radiator in the lounge",
+                              "Paint a 4m by 3.5m bedroom, walls and ceiling",
+                            ].map((ex) => (
+                              <button
+                                key={ex}
+                                type="button"
+                                onClick={() => setJobDescription(ex)}
+                                className="min-h-[2.25rem] rounded-full border border-border bg-secondary/50 px-3 text-left text-sm text-foreground/80 hover:border-primary"
+                              >
+                                {ex}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         <QuotePhotos userId={isDemo ? undefined : user?.id} photos={photos} onChange={setPhotos} />
-                      </div>
+                      </section>
 
-                      <div className={`space-y-3 ${isMobile ? 'p-3' : 'p-4'} border rounded-lg`}>
-                        <Label className={isMobile ? 'text-base' : ''}>Payment Structure</Label>
-                        <label htmlFor="paymentJob" className={`flex items-center gap-3 ${isMobile ? 'min-h-[44px] py-2' : 'space-x-2'} cursor-pointer`}>
-                          <Checkbox 
-                            id="paymentJob" 
-                            checked={paymentType === "job"}
-                            onCheckedChange={(checked) => checked && setPaymentType("job")}
-                            className={isMobile ? 'h-5 w-5' : ''}
+                      {/* 2. Customer and where */}
+                      <section className="space-y-4 border-t border-border pt-6">
+                        <h3 className="text-base font-semibold text-primary">Customer</h3>
+                        <div className="space-y-2">
+                          <Label htmlFor="client">Name</Label>
+                          <ClientAutocomplete
+                            clients={clients}
+                            value={client}
+                            onValueChange={setClient}
+                            onClientSelect={(selectedClient) => {
+                              if (selectedClient) {
+                                setSelectedClientId(selectedClient.id);
+                                if (selectedClient.address) setAddress(selectedClient.address);
+                              } else {
+                                setSelectedClientId(null);
+                              }
+                            }}
+                            disabled={isDemo}
                           />
-                          <span className={isMobile ? 'text-base' : 'text-sm'}>
-                            Charge by the job (fixed price)
-                          </span>
-                        </label>
-                        <label htmlFor="paymentHourly" className={`flex items-center gap-3 ${isMobile ? 'min-h-[44px] py-2' : 'space-x-2'} cursor-pointer`}>
-                          <Checkbox 
-                            id="paymentHourly" 
-                            checked={paymentType === "hourly"}
-                            onCheckedChange={(checked) => checked && setPaymentType("hourly")}
-                            className={isMobile ? 'h-5 w-5' : ''}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="postcode">Job postcode <span className="font-normal text-muted-foreground">(helps local pricing)</span></Label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="postcode"
+                              placeholder="e.g. BN1 1AA"
+                              autoCapitalize="characters"
+                              value={postcode}
+                              onChange={(e) => setPostcode(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handlePostcodeLookup(); } }}
+                              className="h-12 text-base uppercase"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={handlePostcodeLookup}
+                              disabled={lookingUpPostcode || !postcode.trim()}
+                              className="h-12 shrink-0 px-4"
+                            >
+                              {lookingUpPostcode ? <Loader2 className="h-4 w-4 animate-spin" /> : "Find"}
+                            </Button>
+                          </div>
+                        </div>
+                        {address && (
+                          <div className="space-y-2">
+                            <Label htmlFor="address">Address</Label>
+                            <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base" />
+                          </div>
+                        )}
+                      </section>
+
+                      {/* 3. Trade and how you charge */}
+                      <section className="space-y-4 border-t border-border pt-6">
+                        <h3 className="text-base font-semibold text-primary">Your pricing</h3>
+                        <div className="space-y-2">
+                          <Label htmlFor="category">Trade</Label>
+                          <TradeAutocomplete
+                            value={category}
+                            onValueChange={setCategory}
+                            placeholder="Search for your trade..."
+                            disabled={isDemo}
                           />
-                          <span className={isMobile ? 'text-base' : 'text-sm'}>
-                            Charge by the hour
-                          </span>
-                        </label>
-                        {paymentType === "hourly" && (
-                          <div className="space-y-2 ml-8">
-                            <Label htmlFor="hourlyRate" className={isMobile ? 'text-base' : ''}>Hourly Rate (£)</Label>
-                            <Input 
-                              id="hourlyRate" 
-                              type="number" 
-                              min="0" 
-                              value={hourlyRate === 0 ? '' : hourlyRate}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '') {
-                                  setHourlyRate(0);
-                                  return;
-                                }
-                                const parsed = parseFloat(val);
-                                if (!Number.isNaN(parsed) && parsed >= 0) {
-                                  setHourlyRate(parsed);
-                                }
-                              }}
-                              className={isMobile ? 'h-12' : ''}
+                        </div>
+                        {category === "other" && (
+                          <div className="space-y-2">
+                            <Label htmlFor="customCategory">Describe your trade</Label>
+                            <Input
+                              id="customCategory"
+                              placeholder="e.g. Solar panel maintenance"
+                              value={customCategory}
+                              onChange={(e) => setCustomCategory(e.target.value)}
+                              className="h-12 text-base"
                             />
                           </div>
                         )}
-                        <label htmlFor="paymentDay" className={`flex items-center gap-3 ${isMobile ? 'min-h-[44px] py-2' : 'space-x-2'} cursor-pointer`}>
-                          <Checkbox 
-                            id="paymentDay" 
-                            checked={paymentType === "day"}
-                            onCheckedChange={(checked) => checked && setPaymentType("day")}
-                            className={isMobile ? 'h-5 w-5' : ''}
-                          />
-                          <span className={isMobile ? 'text-base' : 'text-sm'}>
-                            Charge by the day
-                          </span>
-                        </label>
-                        {paymentType === "day" && (
-                          <div className="space-y-2 ml-8">
-                            <Label htmlFor="dayRate" className={isMobile ? 'text-base' : ''}>Day Rate (£)</Label>
-                            <Input 
-                              id="dayRate" 
-                              type="number" 
-                              min="0" 
-                              value={dayRate === 0 ? '' : dayRate}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '') {
-                                  setDayRate(0);
-                                  return;
-                                }
-                                const parsed = parseFloat(val);
-                                if (!Number.isNaN(parsed) && parsed >= 0) {
-                                  setDayRate(parsed);
-                                }
-                              }}
-                              className={isMobile ? 'h-12' : ''}
-                            />
+                        <div className="space-y-2">
+                          <span id="charge-label" className="text-sm font-medium">How do you charge for this job?</span>
+                          <div role="radiogroup" aria-labelledby="charge-label" className="grid grid-cols-3 gap-1 rounded-lg bg-secondary/60 p-1">
+                            {([["job", "Fixed price"], ["hourly", "By the hour"], ["day", "By the day"]] as const).map(([value, label]) => (
+                              <button
+                                key={value}
+                                type="button"
+                                role="radio"
+                                aria-checked={paymentType === value}
+                                onClick={() => setPaymentType(value)}
+                                className={`min-h-[2.75rem] rounded-md px-2 text-sm font-medium transition-colors ${
+                                  paymentType === value ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {paymentType === "job"
+                              ? "One total for the job. Labour is worked out from your rates in Account."
+                              : paymentType === "hourly"
+                                ? "Labour shown as hours at your hourly rate."
+                                : "Labour shown as days at your day rate."}
+                          </p>
+                        </div>
+                        {paymentType !== "job" && (
+                          <div className="space-y-2">
+                            <Label htmlFor={paymentType === "hourly" ? "hourlyRate" : "dayRate"}>{paymentType === "hourly" ? "Hourly rate" : "Day rate"}</Label>
+                            <div className="relative">
+                              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                              <Input
+                                id={paymentType === "hourly" ? "hourlyRate" : "dayRate"}
+                                type="number"
+                                inputMode="decimal"
+                                min="0"
+                                value={(paymentType === "hourly" ? hourlyRate : dayRate) || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const parsed = val === "" ? 0 : parseFloat(val);
+                                  if (Number.isNaN(parsed) || parsed < 0) return;
+                                  if (paymentType === "hourly") setHourlyRate(parsed); else setDayRate(parsed);
+                                }}
+                                className="h-12 pl-7 text-base"
+                              />
+                            </div>
                           </div>
                         )}
                         {appSettings.default_callout_fee && (
-                          <label htmlFor="calloutFee" className={`flex items-center gap-3 ${isMobile ? 'min-h-[44px] py-2' : 'space-x-2 mt-2'} cursor-pointer`}>
-                            <Checkbox 
-                              id="calloutFee" 
-                              checked={includeCalloutFee}
-                              onCheckedChange={(checked) => setIncludeCalloutFee(checked as boolean)}
-                              className={isMobile ? 'h-5 w-5' : ''}
-                            />
-                            <span className={isMobile ? 'text-base' : 'text-sm'}>
-                              Include call-out fee (£{appSettings.default_callout_fee})
-                            </span>
+                          <label htmlFor="calloutFee" className="flex min-h-[2.75rem] cursor-pointer items-center gap-3">
+                            <Checkbox id="calloutFee" checked={includeCalloutFee} onCheckedChange={(checked) => setIncludeCalloutFee(checked as boolean)} className="h-5 w-5" />
+                            <span className="text-sm">Add call-out fee (£{appSettings.default_callout_fee})</span>
                           </label>
                         )}
-                      </div>
+                      </section>
 
-                      <div className={`space-y-3 ${isMobile ? 'p-3' : 'p-4'} border rounded-lg`}>
-                        <Label className={isMobile ? 'text-base' : ''}>Additional Options</Label>
-                        <label htmlFor="equipmentRental" className={`flex items-center gap-3 ${isMobile ? 'min-h-[44px] py-2' : 'space-x-2'} cursor-pointer`}>
-                          <Checkbox 
-                            id="equipmentRental" 
-                            checked={equipmentRental}
-                            onCheckedChange={(checked) => {
-                              setEquipmentRental(checked as boolean);
-                              if (!checked) setEquipmentRentalDetails("");
-                            }}
-                            className={isMobile ? 'h-5 w-5' : ''}
-                          />
-                          <span className={isMobile ? 'text-base' : 'text-sm'}>
-                            Equipment rental required
-                          </span>
-                        </label>
-                        {equipmentRental && (
-                          <div className="space-y-2 ml-8">
-                            <Label htmlFor="equipmentDetails" className={isMobile ? 'text-base' : ''}>What equipment do you need?</Label>
-                            <Input 
-                              id="equipmentDetails" 
-                              value={equipmentRentalDetails}
-                              onChange={(e) => setEquipmentRentalDetails(e.target.value)}
-                              placeholder="e.g. Scaffolding, cherry picker, excavator..."
-                              className={isMobile ? 'h-12' : ''}
+                      {/* 4. Extras, tucked away */}
+                      <details className="group border-t border-border pt-5" open={equipmentRental || undefined}>
+                        <summary className="flex min-h-[2.75rem] cursor-pointer list-none items-center justify-between text-base font-semibold text-primary">
+                          More options
+                          <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
+                        </summary>
+                        <div className="mt-3 space-y-4">
+                          <label htmlFor="equipmentRental" className="flex min-h-[2.75rem] cursor-pointer items-center gap-3">
+                            <Checkbox
+                              id="equipmentRental"
+                              checked={equipmentRental}
+                              onCheckedChange={(checked) => {
+                                setEquipmentRental(checked as boolean);
+                                if (!checked) setEquipmentRentalDetails("");
+                              }}
+                              className="h-5 w-5"
+                            />
+                            <span className="text-sm">Needs equipment hire</span>
+                          </label>
+                          {equipmentRental && (
+                            <div className="space-y-2 pl-8">
+                              <Label htmlFor="equipmentDetails">What equipment?</Label>
+                              <Input
+                                id="equipmentDetails"
+                                value={equipmentRentalDetails}
+                                onChange={(e) => setEquipmentRentalDetails(e.target.value)}
+                                placeholder="e.g. Scaffold tower, mini digger"
+                                className="h-12 text-base"
+                              />
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between gap-4">
+                            <div>
+                              <Label htmlFor="includeEstimates" className="cursor-pointer text-sm font-medium">Fill in prices it can't find exactly</Label>
+                              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                                {appSettings.skip_ai_pricing
+                                  ? "Overrides your 'quotes without prices' setting for this quote."
+                                  : "Estimated prices are marked so you know which to check."}
+                              </p>
+                            </div>
+                            <Switch
+                              id="includeEstimates"
+                              checked={includeEstimates}
+                              onCheckedChange={async (checked) => {
+                                setIncludeEstimates(checked);
+                                if (user) {
+                                  try {
+                                    await supabase.from('app_settings').update({ skip_ai_pricing: !checked }).eq('user_id', user.id);
+                                  } catch (err) {
+                                    console.error('Failed to save estimate preference:', err);
+                                  }
+                                }
+                              }}
                             />
                           </div>
+                        </div>
+                      </details>
+
+                      {/* Action: sticks to the bottom of the screen on phones */}
+                      <div className="sticky bottom-0 z-10 -mx-4 sm:-mx-6 border-t border-border bg-card/95 px-4 sm:px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                        {editingQuoteId ? (
+                          <div className="flex gap-2">
+                            <Button variant="outline" onClick={handleCancelEdit} className="h-12 flex-1">Cancel</Button>
+                            <Button variant="destructive" onClick={() => setShowDeleteDialog(true)} className="h-12 flex-1">
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Button
+                              variant="accent"
+                              onClick={handleGenerateQuote}
+                              disabled={isGenerating || !client || !jobDescription || !category || (category === "other" && !customCategory)}
+                              className="h-14 w-full text-base font-semibold"
+                            >
+                              {isGenerating ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Making your quote…</> : "Make the quote"}
+                            </Button>
+                            {!isGenerating && (!jobDescription || !client || !category || (category === "other" && !customCategory)) && (
+                              <p className="mt-2 text-center text-xs text-muted-foreground">
+                                Still needed: {[
+                                  !jobDescription && "the job",
+                                  !client && "customer name",
+                                  (!category || (category === "other" && !customCategory)) && "your trade",
+                                ].filter(Boolean).join(", ")}
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
-
-                      <div className={`flex items-center justify-between ${isMobile ? 'p-3' : 'p-4'} border rounded-lg bg-primary/5`}>
-                        <div className="space-y-0.5 flex-1 pr-4">
-                          <Label htmlFor="includeEstimates" className={`${isMobile ? 'text-base' : 'text-sm'} font-medium cursor-pointer`}>
-                            Include price estimates
-                          </Label>
-                          <p className={`${isMobile ? 'text-sm' : 'text-xs'} text-muted-foreground`}>
-                            {appSettings.skip_ai_pricing 
-                              ? "Overrides 'Generate quotes without prices' setting for this quote"
-                              : "Each item shows a confidence indicator (🟢 high, 🟡 medium, 🔴 estimate)"}
-                          </p>
-                        </div>
-                        <Switch
-                          id="includeEstimates"
-                          checked={includeEstimates}
-                          onCheckedChange={async (checked) => {
-                            setIncludeEstimates(checked);
-                            if (user) {
-                              try {
-                                await supabase
-                                  .from('app_settings')
-                                  .update({ skip_ai_pricing: !checked })
-                                  .eq('user_id', user.id);
-                              } catch (err) {
-                                console.error('Failed to save estimate preference:', err);
-                              }
-                            }
-                          }}
-                        />
-                      </div>
-
-                      {editingQuoteId ? (
-                        <div className={`flex gap-2 ${isMobile ? 'flex-col' : ''}`}>
-                          <Button 
-                            variant="outline"
-                            onClick={handleCancelEdit} 
-                            className={`flex-1 ${isMobile ? 'h-12' : ''}`}
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            variant="destructive"
-                            onClick={() => setShowDeleteDialog(true)} 
-                            className={`flex-1 ${isMobile ? 'h-12' : ''}`}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Quote
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          onClick={handleGenerateQuote} 
-                          disabled={isGenerating || !client || !jobDescription || !category || (category === "other" && !customCategory)}
-                          className={`w-full ${isMobile ? 'h-14 text-base font-semibold' : ''}`}
-                        >
-                          {isGenerating ? (
-                            <>
-                              <Loader2 className={`mr-2 animate-spin ${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className={`mr-2 ${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
-                              Generate Quote
-                            </>
-                          )}
-                        </Button>
-                      )}
                     </CardContent>
                     )}
                   </Card>
 
                   {/* Generated Quote Display */}
                   {showQuote && quoteBreakdown && (
-                    <Card className={`shadow-smooth transition-all duration-300 ${isGeneratorMinimized ? 'flex-1' : ''}`}>
+                    <Card id="generated-quote" className={`scroll-mt-20 shadow-smooth transition-all duration-300 ${isGeneratorMinimized ? 'flex-1' : ''}`}>
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
