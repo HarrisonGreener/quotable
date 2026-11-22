@@ -11,7 +11,7 @@ import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TermsDialog } from "@/components/TermsDialog";
 import { PrivacyDialog } from "@/components/PrivacyDialog";
@@ -29,9 +29,13 @@ const signupSchema = z.object({
     .regex(/[0-9]/, "Password must include a number"),
   name: z.string().min(2, "Name is required").max(100, "Name too long").trim(),
   business: z.string().min(2, "Business name is required").max(200, "Business name too long").trim(),
-}).refine((data) => data.email === data.confirmEmail, {
+  confirmPassword: z.string(),
+}).refine((data) => data.email.trim().toLowerCase() === data.confirmEmail.trim().toLowerCase(), {
   message: "Email addresses don't match",
   path: ["confirmEmail"],
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 const loginSchema = z.object({
@@ -49,6 +53,12 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  // Set after sign-up while the email still needs confirming (shows "check your inbox")
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  // Set when a log-in fails because the email isn't confirmed yet
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [business, setBusiness] = useState("");
@@ -84,11 +94,24 @@ const Auth = () => {
     });
 
     if (error) {
-      toast.error(error.message);
+      const code = (error as { code?: string }).code;
+      if (code === "email_not_confirmed" || /not confirmed/i.test(error.message)) {
+        setUnconfirmedEmail(validation.data.email);
+        toast.error("Confirm your email first", {
+          description: "Tap the link in the email we sent you. Check your junk folder too.",
+        });
+      } else if (code === "invalid_credentials" || /invalid login credentials/i.test(error.message)) {
+        toast.error("That email or password isn't right", {
+          description: "Check them and try again, or use Forgot password to set a new one.",
+        });
+      } else {
+        toast.error(error.message);
+      }
       setIsLoading(false);
       return;
     }
 
+    setUnconfirmedEmail(null);
     toast.success("Welcome back!");
     navigate("/dashboard");
     setIsLoading(false);
@@ -130,6 +153,7 @@ const Auth = () => {
       email,
       confirmEmail,
       password,
+      confirmPassword,
       name,
       business,
     });
@@ -164,26 +188,43 @@ const Auth = () => {
       return;
     }
 
-    if (data.user) {
-      await recordTermsAcceptance(data.user.id);
-      
-      // Send welcome email (non-blocking)
-      try {
-        await supabase.functions.invoke('send-welcome-email', {
-          body: {
-            userName: validation.data.name,
-            userEmail: validation.data.email,
-          }
-        });
-      } catch (emailError) {
-        console.error('Welcome email failed:', emailError);
-        // Don't block signup if email fails
-      }
+    // Supabase returns a user with no identities when the email is already registered
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      toast.error("There's already an account with this email", {
+        description: "Log in instead, or use Forgot password if you can't remember it.",
+      });
+      setIsLoading(false);
+      return;
     }
 
-    toast.success("Account created successfully!");
+    if (!data.session) {
+      // Email confirmation is on: they can't sign in until they tap the link.
+      // (Terms acceptance is saved from the sign-up details on first sign-in; the
+      // welcome email goes out then too.)
+      setPendingEmail(validation.data.email);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data.user) await recordTermsAcceptance(data.user.id);
+    toast.success("Account created");
     navigate("/dashboard");
     setIsLoading(false);
+  };
+
+  const resendConfirmation = async (address: string) => {
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: address,
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+    });
+    setResending(false);
+    if (error) {
+      toast.error(/rate|seconds|too many/i.test(error.message) ? "Please wait a minute before asking again" : error.message);
+    } else {
+      toast.success("Sent. Check your inbox and junk folder.");
+    }
   };
 
   const goToDashboard = useCallback(() => navigate("/dashboard"), [navigate]);
@@ -259,7 +300,30 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isDemoMode ? (
+            {pendingEmail ? (
+              <div className="space-y-5 text-center" role="status">
+                <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-accent/10 text-accent">
+                  <Mail className="h-6 w-6" aria-hidden />
+                </div>
+                <div>
+                  <h2 className="font-heading text-xl font-semibold text-primary">Check your email</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    We've sent a link to <strong className="text-foreground break-all">{pendingEmail}</strong>. Tap it to confirm your
+                    email and you'll go straight into Quotable. If it's not there in a minute, check your junk or spam folder.
+                  </p>
+                </div>
+                <Button variant="outline" className="h-11 w-full" disabled={resending} onClick={() => resendConfirmation(pendingEmail)}>
+                  {resending ? "Sending…" : "Send the email again"}
+                </Button>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-primary underline underline-offset-2"
+                  onClick={() => { setPendingEmail(null); setPassword(""); setConfirmPassword(""); }}
+                >
+                  Wrong email? Start again
+                </button>
+              </div>
+            ) : isDemoMode ? (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
                   Demo mode includes sample quotes, invoices, and financial data. 
@@ -356,6 +420,22 @@ const Auth = () => {
                       </div>
                     ) : (
                       <form onSubmit={handleLogin} className="space-y-4">
+                        {unconfirmedEmail && (
+                          <div className="rounded-md border border-accent/40 bg-accent/10 p-3 text-sm" role="alert">
+                            <p className="font-medium text-foreground">Confirm your email to log in</p>
+                            <p className="mt-1 text-muted-foreground">
+                              Tap the link we sent to <span className="break-all">{unconfirmedEmail}</span>. Check junk too.
+                            </p>
+                            <button
+                              type="button"
+                              className="mt-2 font-medium text-primary underline underline-offset-2"
+                              disabled={resending}
+                              onClick={() => resendConfirmation(unconfirmedEmail)}
+                            >
+                              {resending ? "Sending…" : "Send the link again"}
+                            </button>
+                          </div>
+                        )}
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
                           <Input 
@@ -490,6 +570,22 @@ const Auth = () => {
                           </Button>
                         </div>
                         <p id="signup-password-hint" className="text-xs text-muted-foreground">At least 8 characters, with a letter and a number.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-confirm-password">Confirm password</Label>
+                        <Input
+                          id="signup-confirm-password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          autoComplete="new-password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          aria-invalid={confirmPassword.length > 0 && confirmPassword !== password}
+                        />
+                        {confirmPassword.length > 0 && confirmPassword !== password && (
+                          <p className="text-xs text-destructive">Passwords don't match yet.</p>
+                        )}
                       </div>
                       
                       <div className="space-y-3 pt-2">

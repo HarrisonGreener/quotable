@@ -142,7 +142,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const isNewUser = !appSettings;
 
-      // Send welcome email ONLY for truly new Google OAuth users
+      // First sign-in (email confirmed or Google): send the welcome email once
       if (isNewUser) {
         try {
           await supabase.functions.invoke('send-welcome-email', {
