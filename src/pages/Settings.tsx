@@ -151,10 +151,20 @@ const Settings = () => {
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
-      setLogoUrl(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      toast.error("Logo must be a PNG, JPG or WebP image");
+      e.target.value = "";
+      return;
     }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Logo must be under 2 MB");
+      e.target.value = "";
+      return;
+    }
+    setLogoFile(file);
+    setLogoUrl(URL.createObjectURL(file));
   };
 
   const handleManualSave = async () => {
@@ -168,12 +178,12 @@ const Settings = () => {
       let finalLogoUrl = logoUrl;
 
       if (logoFile) {
-        const fileExt = logoFile.name.split('.').pop();
+        const fileExt = ({ "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" } as Record<string, string>)[logoFile.type] ?? "png";
         const fileName = `${userId}/${Date.now()}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from('logos')
-          .upload(fileName, logoFile, { upsert: true });
+          .upload(fileName, logoFile, { upsert: true, contentType: logoFile.type });
 
         if (uploadError) throw uploadError;
 
@@ -244,7 +254,7 @@ const Settings = () => {
                     <Input 
                       id="logo" 
                       type="file" 
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/webp"
                       onChange={handleLogoChange}
                     />
                     <Button variant="outline" size="sm" disabled>

@@ -13,6 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, FileText, Receipt, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+/** Quote a value for a PostgREST filter so commas or brackets in a name can't change the filter. */
+const pgrstQuote = (v: string) => `"${String(v ?? "").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -54,7 +57,7 @@ export const ClientDetailsDrawer = ({
         .from("quotes")
         .select("*")
         .eq("user_id", user.id)
-        .or(`client.eq.${client.company_name},client_id.eq.${client.id}`)
+        .or(`client.eq.${pgrstQuote(client.company_name)},client_id.eq.${client.id}`)
         .order("created_at", { ascending: false });
 
       // Load invoices
@@ -62,7 +65,7 @@ export const ClientDetailsDrawer = ({
         .from("invoices")
         .select("*")
         .eq("user_id", user.id)
-        .or(`client.eq.${client.company_name},client_id.eq.${client.id}`)
+        .or(`client.eq.${pgrstQuote(client.company_name)},client_id.eq.${client.id}`)
         .order("created_at", { ascending: false });
 
       setQuotes(quotesData || []);
