@@ -1,12 +1,13 @@
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import NotFound from "@/pages/NotFound";
-import { GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, gbp, workGuide, type GuideDef } from "./content";
+import { GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, gbp, workGuide, guideCost, type GuideDef } from "./content";
 import { guideMeta, guidesIndexMeta, templateMeta, templatesIndexMeta, usePageMeta } from "./meta";
 import { BUSINESS_GUIDES, BUSINESS_GUIDE_BY_SLUG, BusinessGuidePage, businessGuideMeta } from "./growth/BusinessGuides";
 
 export { Shell, Crumbs, Cta } from "./layout";
 import { Shell, Crumbs, Cta } from "./layout";
+import { FaqList } from "./growth/shared";
 
 // ── Pricing guide ──────────────────────────────────────────────────
 
@@ -75,16 +76,22 @@ export const GuidePage = () => {
   if (business) return <BusinessGuidePage slug={slug} />;
   if (!g) return <NotFound />;
   const w = workGuide(g);
+  const c = guideCost(g);
   const related = GUIDES.filter((x) => x.trade.slug === g.trade.slug && x.slug !== g.slug).slice(0, 4);
   const template = TEMPLATES.find((t) => t.guide === g.slug || t.trade.slug === g.trade.slug);
 
   return (
     <Shell>
       <article className="container mx-auto max-w-4xl">
-        <Crumbs items={[["Pricing guides", "/guides"], [g.trade.name, `/trades/${g.trade.slug}`], [g.h1]]} />
-        <h1 className="text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] text-primary">{g.h1}</h1>
+        <Crumbs items={[["Pricing guides", "/guides"], [g.trade.name, `/trades/${g.trade.slug}`], [`${c.job} cost`]]} />
+        <h1 className="text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] text-primary">{c.job} cost in the UK (2026)</h1>
+        <div className="mt-6 max-w-2xl rounded-md border-l-4 border-accent bg-card p-5 sm:p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Quick answer</p>
+          <p className="mt-2 font-heading text-3xl text-primary tabular">{c.range}</p>
+          <p className="mt-2 leading-relaxed text-foreground/85">{c.answer}</p>
+        </div>
         <p className="mt-5 text-lg leading-relaxed text-foreground/80 max-w-2xl">{g.description}</p>
-        <p className="mt-3 text-sm text-muted-foreground">For {g.trade.name.toLowerCase()} in the UK. Prices checked {PRICES_CHECKED}.</p>
+        <p className="mt-3 text-sm text-muted-foreground">For homeowners checking a price and {g.trade.name.toLowerCase()} pricing the job. Prices checked {PRICES_CHECKED}.</p>
 
         <div className="mt-10 grid lg:grid-cols-[1.5fr_1fr] gap-10 items-start">
           <WorkedQuote g={g} />
@@ -128,6 +135,8 @@ export const GuidePage = () => {
             every job, with each material priced live at UK merchants.
           </p>
         </section>
+
+        <FaqList faqs={c.faqs} title={`${c.job}: common questions`} />
 
         <Cta title={`Quote this job with today's prices`} text="Type the job, check the lines, send a link your customer can accept and pay. Every material is priced live and linked to the product." />
 

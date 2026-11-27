@@ -2,7 +2,7 @@
 // (usePageMeta) and the build-time prerender, so both always agree.
 
 import { useEffect } from "react";
-import { SITE_URL, GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, workGuide } from "./content";
+import { SITE_URL, GUIDES, GUIDE_BY_SLUG, TEMPLATES, TEMPLATE_BY_SLUG, PRICES_CHECKED, workGuide, guideCost } from "./content";
 import { DAY_RATES, DAY_RATE_BY_SLUG, DAY_RATES_CHECKED } from "./dayRates";
 
 export interface PageMeta {
@@ -80,22 +80,28 @@ export const guideMeta = (slug: string): PageMeta | null => {
   const g = GUIDE_BY_SLUG.get(slug);
   if (!g) return null;
   const w = workGuide(g);
+  const c = guideCost(g);
+  const heading = `${c.job} cost UK (2026)`;
   return {
     path: `/guides/${g.slug}`,
-    title: `${g.h1}: materials, labour and a worked example (UK, 2026)`,
-    description: g.description,
+    title: `${heading}: ${c.range}, with materials and labour broken down`,
+    description: `${c.answer.split(". ")[0]}. See the full materials list, labour hours and what pushes the price up.`,
     jsonLd: [
       {
         "@type": "Article",
-        headline: g.h1,
+        headline: heading,
         description: g.description,
-        dateModified: "2026-11-06",
+        dateModified: "2026-11-27",
         author: { "@id": `${SITE_URL}/#org` },
         publisher: { "@id": `${SITE_URL}/#org` },
         mainEntityOfPage: `${SITE_URL}/guides/${g.slug}`,
         about: `${g.trade.name}: pricing ${w.recipe.title.toLowerCase()}`,
       },
-      breadcrumbs([["Home", "/"], ["Pricing guides", "/guides"], [g.h1, `/guides/${g.slug}`]]),
+      {
+        "@type": "FAQPage",
+        mainEntity: c.faqs.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+      },
+      breadcrumbs([["Home", "/"], ["Pricing guides", "/guides"], [heading, `/guides/${g.slug}`]]),
     ],
   };
 };
@@ -144,13 +150,13 @@ export const dayRateMeta = (slug: string): PageMeta | null => {
   const answer = `Most self-employed ${d.plural.toLowerCase()} in the UK charge between £${lo} and £${hi} a day in 2026, depending on region: ${d.rates.map((r) => `${r.region} £${r.low}–£${r.high}`).join(", ")}.`;
   return {
     path: `/day-rates/${d.slug}`,
-    title: `${name} day rate UK (2026): what to charge per day, by region`,
-    description: `What ${d.plural.toLowerCase()} charge per day in the UK in 2026: £${lo}–£${hi} depending on region, with hourly equivalents, what puts you at the top of the range, and a calculator for your own rate.`,
+    title: `${name} day rate UK (2026): £${lo}–£${hi} a day, £${Math.round(lo / 8)}–£${Math.round(hi / 8)} an hour`,
+    description: `How much ${d.plural.toLowerCase()} charge in the UK in 2026: £${lo}–£${hi} a day (about £${Math.round(lo / 8)}–£${Math.round(hi / 8)} an hour) depending on region, what puts a ${d.trade} at the top of the range, and a calculator for your own rate.`,
     jsonLd: [
       {
         "@type": "Article",
         headline: `${name} day rate UK (2026)`,
-        dateModified: "2026-11-16",
+        dateModified: "2026-11-27",
         author: { "@id": `${SITE_URL}/#org` },
         publisher: { "@id": `${SITE_URL}/#org` },
         mainEntityOfPage: `${SITE_URL}/day-rates/${d.slug}`,

@@ -384,3 +384,56 @@ export const TEMPLATES: TemplateDef[] = [
 export const TEMPLATE_BY_SLUG = new Map(TEMPLATES.map((t) => [t.slug, t]));
 
 export const gbp = (n: number) => `£${n.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// ── Cost framing ─────────────────────────────────────────────────
+// Most searches that find these guides are "<job> cost" questions, so
+// titles, the opening answer and the FAQs lead with the price.
+
+const GUIDE_JOB: Record<string, string> = {
+  "how-to-price-adding-a-socket": "Adding a double socket",
+  "how-to-price-a-consumer-unit-change": "Consumer unit replacement",
+  "how-to-price-downlights": "LED downlight installation",
+  "how-to-price-an-electric-shower": "Electric shower installation",
+  "how-to-price-an-eicr": "EICR",
+  "how-to-price-an-extractor-fan": "Bathroom extractor fan installation",
+  "how-to-price-a-radiator-replacement": "Radiator replacement",
+  "how-to-price-adding-a-radiator": "New radiator installation",
+  "how-to-price-a-tap-replacement": "Tap replacement",
+  "how-to-price-a-toilet-replacement": "Toilet replacement",
+  "how-to-price-an-outside-tap": "Outside tap installation",
+  "how-to-price-a-mixer-shower": "Mixer shower installation",
+  "how-to-price-skimming-a-room": "Skimming a room",
+  "how-to-price-skimming-a-ceiling": "Ceiling skimming",
+  "how-to-price-boarding-a-ceiling": "Ceiling replacement",
+  "how-to-price-painting-a-room": "Painting a room",
+  "how-to-price-wallpapering": "Wallpapering a room",
+  "how-to-price-exterior-painting": "Exterior house painting",
+  "how-to-price-tiling": "Wall tiling",
+  "how-to-price-floor-tiling": "Floor tiling",
+  "how-to-price-hanging-doors": "Hanging internal doors",
+  "how-to-price-skirting-boards": "Skirting board fitting",
+  "how-to-price-laminate-flooring": "Laminate flooring installation",
+  "how-to-price-a-fence": "Fence panel replacement",
+  "how-to-price-decking": "Decking",
+  "how-to-price-a-stud-wall": "Stud wall",
+};
+
+const pounds = (v: number) => `£${Math.round(v).toLocaleString("en-GB")}`;
+
+export const guideCost = (g: GuideDef) => {
+  const w = workGuide(g);
+  const job = GUIDE_JOB[g.slug] ?? g.h1.replace(/^How to price /, "").replace(/^./, (c) => c.toUpperCase());
+  const jobLower = job.charAt(0).toLowerCase() + job.slice(1);
+  const example = Math.round(w.total / 10) * 10;
+  const range = g.published ? `${pounds(g.published.low)}–${pounds(g.published.high)}` : `around ${pounds(example)}`;
+  const answer = g.published
+    ? `${job} typically costs ${range} in the UK in 2026, according to the ${g.published.sourceName}. Our worked example below comes to ${pounds(w.total)}: ${pounds(w.materialsTotal)} of materials and ${w.hours} hours of labour.`
+    : `${job} costs ${range} in the UK in 2026 for the job in our worked example: ${pounds(w.materialsTotal)} of materials and ${w.hours} hours of labour at ${pounds(g.rate)} an hour. Bigger jobs, awkward access or a higher local rate push it up.`;
+  const faqs: [string, string][] = [
+    [`How much does ${jobLower} cost in the UK?`, answer],
+    [`How long does ${jobLower} take?`, `About ${w.hours} hours on site for one tradesperson for the job in our example (“${g.example}”). ${w.labour.slice(0, 3).map((l) => `${l.name}: ${l.hours} h`).join("; ")}.`],
+    [`What affects the price of ${jobLower}?`, g.tips.join(" ")],
+    ["Do these prices include VAT?", `Material prices are typical UK retail prices including VAT, checked ${PRICES_CHECKED}. Labour has no VAT in the example; a VAT-registered tradesperson adds 20% to their total.`],
+  ];
+  return { job, jobLower, range, answer, faqs, w };
+};
