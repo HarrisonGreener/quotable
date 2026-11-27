@@ -49,8 +49,16 @@ export const tradeMeta = (slug: string): PageMeta | null => {
   const name = plural(trade.value, trade.label);
   return {
     path: `/trades/${trade.value}`,
-    title: `Quoting software for ${name.toLowerCase()} (UK) | Quotable`,
-    description: `Quotes for UK ${name.toLowerCase()} in minutes: materials priced live at UK merchants, labour at your rate, a link your customer can accept and pay, then invoicing in one click.`,
+    // Trades with their own quoting-app page get a resource-hub title here, so the two don't compete in search.
+    ...(tradeExtras(trade.value).software
+      ? {
+          title: `${name} (UK): price list, day rates, quote template and pricing guides`,
+          description: `Everything for pricing work as a UK ${trade.label.toLowerCase()}: a 2026 price list, day rates by region, a free quote template, line-by-line pricing guides and a quoting app that does the maths.`,
+        }
+      : {
+          title: `Quoting software for ${name.toLowerCase()} (UK) | Quotable`,
+          description: `Quotes for UK ${name.toLowerCase()} in minutes: materials priced live at UK merchants, labour at your rate, a link your customer can accept and pay, then invoicing in one click.`,
+        }),
     jsonLd: [{
       "@type": "BreadcrumbList",
       itemListElement: [
