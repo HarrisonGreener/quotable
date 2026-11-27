@@ -24,9 +24,9 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-light: 209 50% 26%;
 
-    --accent: 21 76% 44%;            /* docket orange — totals and the main action only */
+    --accent: 23 80% 39%;            /* docket orange — totals and the main action only (5:1 on white) */
     --accent-foreground: 0 0% 100%;
-    --accent-light: 21 76% 52%;
+    --accent-light: 21 76% 57%;     /* for orange text on navy (5:1) */
 
     --secondary: 75 8% 89%;
     --secondary-foreground: 209 71% 15%;

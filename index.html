@@ -25,8 +25,10 @@
     <link rel="preconnect" href="%VITE_SUPABASE_URL%" />
 
     <!-- Font loading optimised -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet" />
+    <!-- Only the widths and weights the site uses; loaded without blocking the first paint -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..112,400..800&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..112,400..800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..112,400..800&display=swap" rel="stylesheet" /></noscript>
 
     <!-- Social previews (per-page values are written in at build time) -->
     <meta property="og:title" content="Quotable: quoting software for UK tradespeople, with live material prices" />

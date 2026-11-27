@@ -86,8 +86,8 @@ export function TradeSearchHero() {
 
       {/* Trade count badge */}
       <p className="text-center text-muted-foreground text-sm mt-4">
-        <span className="text-accent font-semibold">{ALL_TRADES.length}+</span> trades supported across{" "}
-        <span className="text-accent font-semibold">{TRADE_CATEGORIES.length}</span> categories
+        <span className="text-accent-light font-semibold">{ALL_TRADES.length}+</span> trades supported across{" "}
+        <span className="text-accent-light font-semibold">{TRADE_CATEGORIES.length}</span> categories
       </p>
     </div>
   );

@@ -23,7 +23,7 @@ export const COLOR_PALETTES: ColorPalette[] = [
     name: 'Professional Blue',
     light: {
       primary: '210 78% 16%',
-      accent: '24 80% 42%',
+      accent: '23 80% 39%',
       background: '0 0% 97.3%',
       foreground: '0 0% 10%'
     },
