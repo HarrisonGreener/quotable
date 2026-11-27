@@ -8,30 +8,11 @@ import { breadcrumbs, type PageMeta } from "../meta";
 import { SITE_URL } from "../content";
 import { EXPLORE_LINKS, FaqList, LinkGrid, faqSchema, type Faq } from "./shared";
 
-const UPDATED = "22 November 2026";
-const UPDATED_ISO = "2026-11-22";
+const UPDATED = "27 November 2026";
+const UPDATED_ISO = "2026-11-27";
 
-interface BusinessGuide {
-  slug: string;
-  h1: string;
-  title: string;
-  description: string;
-  intro: string;
-  sections: { h: string; body: ReactNode }[];
-  faqs: Faq[];
-  sources: [string, string][];
-  related: [string, string, string][];
-}
-
-const P = ({ children }: { children: ReactNode }) => <p className="mt-3 leading-relaxed text-foreground/85">{children}</p>;
-const UL = ({ items }: { items: ReactNode[] }) => (
-  <ul className="mt-3 space-y-2 list-disc pl-5 marker:text-accent leading-relaxed text-foreground/85">
-    {items.map((it, i) => <li key={i}>{it}</li>)}
-  </ul>
-);
-const A = ({ to, children }: { to: string; children: ReactNode }) => (
-  <Link to={to} className="font-medium text-primary underline underline-offset-2">{children}</Link>
-);
+import { P, UL, A, type BusinessGuide } from "./guideBits";
+import { MORE_BUSINESS_GUIDES } from "./MoreGuides";
 
 export const BUSINESS_GUIDES: BusinessGuide[] = [
   {
@@ -259,6 +240,8 @@ export const BUSINESS_GUIDES: BusinessGuide[] = [
     ],
   },
 ];
+
+BUSINESS_GUIDES.push(...MORE_BUSINESS_GUIDES);
 
 export const BUSINESS_GUIDE_BY_SLUG = new Map(BUSINESS_GUIDES.map((g) => [g.slug, g]));
 

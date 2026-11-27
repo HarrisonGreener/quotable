@@ -66,4 +66,5 @@ export const EXPLORE_LINKS: [string, string, string][] = [
   ["Materials calculators", "/tools", "Paint, plaster, tiles, concrete"],
   ["Pricing guides", "/guides", "How to price common jobs"],
   ["Trade price lists", "/price-lists", "Common jobs with 2026 prices"],
+  ["Going self-employed", "/guides/how-to-register-as-self-employed-tradesperson", "Registration, tax and insurance"],
 ];

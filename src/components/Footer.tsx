@@ -44,6 +44,7 @@ export const Footer = ({ compact = false }: { compact?: boolean }) => {
           <Link to="/quote-templates" className={linkClass}>Quote templates</Link>
           <Link to="/invoice-templates" className={linkClass}>Invoice templates</Link>
           <Link to="/price-lists" className={linkClass}>Price lists</Link>
+          <Link to="/guides/how-to-register-as-self-employed-tradesperson" className={linkClass}>Going self-employed</Link>
           <Link to="/day-rates" className={linkClass}>Day rates</Link>
           <Link to="/app" className={linkClass}>Get the app</Link>
           {COMPANY.supportEmail ? (

@@ -170,7 +170,7 @@ export const GuidesIndex = () => {
           Materials, quantities, labour hours and a worked example for common jobs, with typical UK prices for {PRICES_CHECKED}.
         </p>
         <section className="mt-12">
-          <h2 className="text-lg text-primary pb-2 border-b-2 border-primary">Quotes, invoices and getting paid</h2>
+          <h2 className="text-lg text-primary pb-2 border-b-2 border-primary">Running your trade business</h2>
           <ul className="grid md:grid-cols-2 gap-x-12">
             {BUSINESS_GUIDES.map((b) => (
               <li key={b.slug} className="border-b border-border">

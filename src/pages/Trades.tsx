@@ -154,6 +154,9 @@ export const TradePage = () => {
                   {extras.priceList && (
                     <li className="border-b border-border"><Link to={extras.priceList.to} className="block py-3 hover:text-primary hover:underline underline-offset-4">{extras.priceList.label}</Link></li>
                   )}
+                  {extras.start && (
+                    <li className="border-b border-border"><Link to={extras.start[1]} className="block py-3 hover:text-primary hover:underline underline-offset-4">{extras.start[0]}</Link></li>
+                  )}
                   {extras.software && (
                     <li className="border-b border-border"><Link to={extras.software.to} className="block py-3 hover:text-primary hover:underline underline-offset-4">{extras.software.label}</Link></li>
                   )}

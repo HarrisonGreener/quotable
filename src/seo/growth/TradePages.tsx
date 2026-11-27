@@ -12,6 +12,7 @@ import { breadcrumbs, ORG, usePageMeta, type PageMeta } from "../meta";
 import { GUIDES, TEMPLATES, PRICES_CHECKED, workGuide, workJob, gbp } from "../content";
 import { DAY_RATES } from "../dayRates";
 import { FaqList, LinkGrid, faqSchema, softwareSchema, type Faq } from "./shared";
+import { SELF_EMPLOYED_LINKS } from "./MoreGuides";
 
 type Params = Record<string, number | string | boolean>;
 
@@ -174,6 +175,8 @@ const tradeLinks = (tradeSlug: string, self: string): [string, string, string][]
   if (day) links.push([`${cap(day.trade)} day rate`, `/day-rates/${day.slug}`, "What to charge per day, by region"]);
   if (sw) links.push([`Quoting app for ${sw.plural}`, `/quoting-software/${sw.slug}`, "Priced quotes in minutes"]);
   if (tpl) links.push([`Free ${tpl.trade.singular} quote template`, `/quote-templates/${tpl.slug}`, "Printable, with a worked example"]);
+  const start = SELF_EMPLOYED_LINKS.find(([, to]) => to.endsWith(tradeSlug === "general-builder" ? "builder" : tradeSlug === "painter-decorator" ? "painter-and-decorator" : tradeSlug));
+  if (start) links.push(start);
   links.push(["All trade guides", `/trades/${tradeSlug}`, "Guides, rates and templates"]);
   return links.filter(([, to]) => to !== self);
 };
@@ -514,5 +517,6 @@ export const tradeExtras = (tradeSlug: string) => {
   return {
     priceList: pl ? { label: `${cap(pl.singular)} price list (2026)`, to: `/price-lists/${pl.slug}` } : null,
     software: sw ? { label: `Quoting app for ${sw.plural}`, to: `/quoting-software/${sw.slug}` } : null,
+    start: SELF_EMPLOYED_LINKS.find(([, to]) => to.endsWith(tradeSlug === "general-builder" ? "builder" : tradeSlug === "painter-decorator" ? "painter-and-decorator" : tradeSlug)) ?? null,
   };
 };
