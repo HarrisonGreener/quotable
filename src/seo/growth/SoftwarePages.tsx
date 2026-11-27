@@ -9,6 +9,7 @@ import { OFFER } from "@/config/offer";
 import { Shell, Crumbs, Cta } from "../layout";
 import { breadcrumbs, ORG, usePageMeta, type PageMeta } from "../meta";
 import { EXPLORE_LINKS, FaqList, LinkGrid, faqSchema, softwareSchema, type Faq } from "./shared";
+import { TRADE_SOFTWARE_LINKS } from "./TradePages";
 
 interface SoftwarePage {
   path: string;
@@ -283,6 +284,7 @@ export const SoftwarePage = ({ path }: { path: string }) => {
           </div>
         </section>
 
+        {p.path === "/quoting-software" && <LinkGrid title="Quotable for your trade" links={TRADE_SOFTWARE_LINKS} />}
         <FaqList faqs={p.faqs} />
         <LinkGrid title="Useful next" links={p.related} />
         <LinkGrid title="More from Quotable" links={EXPLORE_LINKS.filter(([, to]) => to !== p.path)} />

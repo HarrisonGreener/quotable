@@ -10,6 +10,7 @@ import NotFound from "./NotFound";
 import { applyMeta, type PageMeta } from "@/seo/meta";
 import { GUIDES, TEMPLATES, SITE_URL } from "@/seo/content";
 import { OFFER } from "@/config/offer";
+import { tradeExtras } from "@/seo/growth/TradePages";
 
 // SEO landing pages: /trades and /trades/:slug (e.g. /trades/electrician).
 // Each one is a real, useful page for that trade, not a keyword stub.
@@ -135,12 +136,19 @@ export const TradePage = () => {
           const guides = GUIDES.filter((g) => g.trade.slug === trade.value);
           const template = TEMPLATES.find((t) => t.trade.slug === trade.value);
           const dayRate = DAY_RATES.find((d) => d.tradeSlug === trade.value);
-          if (!guides.length && !template && !dayRate) return null;
+          const extras = tradeExtras(trade.value);
+          if (!guides.length && !template && !dayRate && !extras.priceList && !extras.software) return null;
           return (
             <section className="pb-16 px-4">
               <div className="container mx-auto max-w-4xl">
                 <h2 className="font-heading text-2xl text-primary">Pricing help for {name.toLowerCase()}</h2>
                 <ul className="mt-4 grid sm:grid-cols-2 gap-x-10">
+                  {extras.priceList && (
+                    <li className="border-b border-border"><Link to={extras.priceList.to} className="block py-3 hover:text-primary hover:underline underline-offset-4">{extras.priceList.label}</Link></li>
+                  )}
+                  {extras.software && (
+                    <li className="border-b border-border"><Link to={extras.software.to} className="block py-3 hover:text-primary hover:underline underline-offset-4">{extras.software.label}</Link></li>
+                  )}
                   {dayRate && (
                     <li className="border-b border-border"><Link to={`/day-rates/${dayRate.slug}`} className="block py-3 hover:text-primary hover:underline underline-offset-4">{dayRate.plural} day rates by region (2026)</Link></li>
                   )}

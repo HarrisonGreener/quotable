@@ -62,6 +62,9 @@ import {
   InvoiceTemplateRoute,
   CompareIndexRoute,
   CompareRoute,
+  PriceListsIndex,
+  PriceListRoute,
+  TradeSoftwareRoute,
 } from "@/routes";
 
 // Remember ?code=… from a shared promo link for checkout
@@ -130,6 +133,9 @@ const App = () => (
                     <Route path="/quote-templates/:slug" element={<Suspense fallback={<PageLoader />}><TemplatePage /></Suspense>} />
                     <Route path="/app" element={<Suspense fallback={<PageLoader />}><GetApp /></Suspense>} />
                     <Route path="/quoting-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/quoting-software" /></Suspense>} />
+                    <Route path="/quoting-software/:slug" element={<Suspense fallback={<PageLoader />}><TradeSoftwareRoute /></Suspense>} />
+                    <Route path="/price-lists" element={<Suspense fallback={<PageLoader />}><PriceListsIndex /></Suspense>} />
+                    <Route path="/price-lists/:slug" element={<Suspense fallback={<PageLoader />}><PriceListRoute /></Suspense>} />
                     <Route path="/invoicing-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/invoicing-software" /></Suspense>} />
                     <Route path="/job-management-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/job-management-software" /></Suspense>} />
                     <Route path="/estimating-software" element={<Suspense fallback={<PageLoader />}><SoftwarePage path="/estimating-software" /></Suspense>} />

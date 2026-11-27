@@ -65,4 +65,5 @@ export const EXPLORE_LINKS: [string, string, string][] = [
   ["Free quote generator", "/tools/quote-generator", "Make a PDF quote, no sign-up"],
   ["Materials calculators", "/tools", "Paint, plaster, tiles, concrete"],
   ["Pricing guides", "/guides", "How to price common jobs"],
+  ["Trade price lists", "/price-lists", "Common jobs with 2026 prices"],
 ];

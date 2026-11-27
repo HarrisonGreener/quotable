@@ -19,6 +19,9 @@ import { ToolsIndex, ToolPage, TOOL_SLUGS, toolMeta, toolsIndexMeta } from "./gr
 import { InvoiceTemplatesIndex, InvoiceTemplatePage, INVOICE_TEMPLATE_SLUGS, invoiceTemplateMeta, invoiceTemplatesIndexMeta } from "./growth/InvoiceTemplates";
 import { useParams } from "react-router-dom";
 import { ComparePage, CompareIndex, COMPARE_SLUGS, compareMeta, compareIndexMeta, roundupMeta } from "./growth/Compare";
+import { PriceListPage, PriceListsIndex, TradeSoftwarePage, PRICE_LIST_SLUGS, TRADE_SOFTWARE_SLUGS, priceListMeta, priceListsIndexMeta, tradeSoftwareMeta } from "./growth/TradePages";
+const PriceListRoute = () => { const { slug = "" } = useParams(); return <PriceListPage slug={slug} />; };
+const TradeSoftwareRoute = () => { const { slug = "" } = useParams(); return <TradeSoftwarePage slug={slug} />; };
 const CompareRoute = () => { const { slug = "" } = useParams(); return slug === "best-quoting-software-uk" ? <CompareIndex roundup /> : <ComparePage slug={slug} />; };
 
 const ToolRoute = () => { const { slug = "" } = useParams(); return <ToolPage slug={slug} />; };
@@ -37,6 +40,9 @@ export const pages = (): PageMeta[] => [
   dayRatesIndexMeta(),
   ...DAY_RATES.map((d) => dayRateMeta(d.slug)!),
   ...SOFTWARE_PATHS.map((p) => softwareMeta(p)!),
+  ...TRADE_SOFTWARE_SLUGS.map((s) => tradeSoftwareMeta(s)!),
+  priceListsIndexMeta(),
+  ...PRICE_LIST_SLUGS.map((s) => priceListMeta(s)!),
   ...BUSINESS_GUIDES.map((b) => businessGuideMeta(b.slug)!),
   toolsIndexMeta(),
   ...TOOL_SLUGS.map((s) => toolMeta(s)!),
@@ -64,6 +70,9 @@ export const render = (path: string, basename = "") =>
         <Route path="/day-rates" element={<DayRatesIndex />} />
         <Route path="/day-rates/:slug" element={<DayRatePage />} />
         <Route path="/quoting-software" element={<SoftwarePage path="/quoting-software" />} />
+        <Route path="/quoting-software/:slug" element={<TradeSoftwareRoute />} />
+        <Route path="/price-lists" element={<PriceListsIndex />} />
+        <Route path="/price-lists/:slug" element={<PriceListRoute />} />
         <Route path="/invoicing-software" element={<SoftwarePage path="/invoicing-software" />} />
         <Route path="/job-management-software" element={<SoftwarePage path="/job-management-software" />} />
         <Route path="/estimating-software" element={<SoftwarePage path="/estimating-software" />} />

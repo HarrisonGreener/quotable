@@ -437,3 +437,15 @@ export const guideCost = (g: GuideDef) => {
   ];
   return { job, jobLower, range, answer, faqs, w };
 };
+
+/** Price any recipe with given measurements at a given hourly rate (used by the price lists). */
+export const workJob = (recipeId: string, given: Params, rate: number) => {
+  const recipe = RECIPE_BY_ID.get(recipeId)!;
+  const { params } = resolveParams(recipe, given as Record<string, unknown>);
+  const out = recipe.build(params);
+  const materialsTotal = Math.round(out.materials.filter((m) => m.quantity > 0).reduce((s, m) => s + m.quantity * m.typical, 0) * 100) / 100;
+  const hours = Math.round(out.labour.reduce((s, l) => s + l.hours, 0) * 10) / 10;
+  const labourTotal = Math.round(hours * rate * 100) / 100;
+  const overheads = out.overheads.includes("Transport") ? 25 : 0;
+  return { materialsTotal, hours, labourTotal, overheads, total: Math.round((materialsTotal + labourTotal + overheads) * 100) / 100 };
+};

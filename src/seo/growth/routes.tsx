@@ -3,6 +3,11 @@ import { useParams } from "react-router-dom";
 import { ToolPage } from "./tools/ToolPages";
 import { InvoiceTemplatePage } from "./InvoiceTemplates";
 import { ComparePage, CompareIndex } from "./Compare";
+import { PriceListPage, TradeSoftwarePage } from "./TradePages";
+
+export { PriceListsIndex } from "./TradePages";
+export const PriceListRoute = () => { const { slug = "" } = useParams(); return <PriceListPage slug={slug} />; };
+export const TradeSoftwareRoute = () => { const { slug = "" } = useParams(); return <TradeSoftwarePage slug={slug} />; };
 
 export { SoftwarePage } from "./SoftwarePages";
 export { ToolsIndex } from "./tools/ToolPages";
